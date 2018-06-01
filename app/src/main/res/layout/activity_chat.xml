@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".application.chat.ChatActivity"
+    tools:layout_editor_absoluteY="81dp">
+
+    <Button
+        android:id="@+id/buttonConnect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="46dp"
+        android:layout_marginTop="26dp"
+        android:onClick="connect"
+        android:text="Connect"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/buttonGetThread"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="47dp"
+        android:layout_marginTop="26dp"
+        android:onClick="getThread"
+        android:text="getThread"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/buttonGetThreadHistory"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="46dp"
+        android:layout_marginTop="125dp"
+        android:onClick="getThreadHistory"
+        android:text="getThreadHistory"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textViewStateChat"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="46dp"
+        android:layout_marginTop="35dp"
+        android:text="State"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonGetThreadHistory" />
+
+    <Button
+        android:id="@+id/buttonGetContact"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:onClick="getContact"
+        android:text="Get Contacs"
+        app:layout_constraintBaseline_toBaselineOf="@+id/buttonGetThreadHistory"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/buttonCreateThread"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="28dp"
+        android:onClick="createThread"
+        android:text="Create Thread"
+        app:layout_constraintStart_toStartOf="@+id/textViewStateChat"
+        app:layout_constraintTop_toBottomOf="@+id/textViewStateChat" />
+
+    <Button
+        android:id="@+id/buttonSendMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="19dp"
+        android:layout_marginTop="21dp"
+        android:onClick="sendMessage"
+        android:text="Send message"
+        app:layout_constraintEnd_toEndOf="@+id/buttonCreateThread"
+        app:layout_constraintTop_toBottomOf="@+id/buttonCreateThread" />
+
+    <EditText
+        android:id="@+id/editTextMessage"
+        android:layout_width="363dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="24dp"
+        android:ems="10"
+        android:hint="Enter your message here"
+        android:inputType="textPersonName"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonSendMessage" />
+
+    <EditText
+        android:id="@+id/editTextThread"
+        android:layout_width="121dp"
+        android:layout_height="49dp"
+        android:layout_marginBottom="20dp"
+        android:layout_marginEnd="16dp"
+        android:ems="10"
+        android:hint="Thread id"
+        android:inputType="textPersonName"
+        app:layout_constraintBottom_toTopOf="@+id/editTextMessage"
+        app:layout_constraintEnd_toEndOf="@+id/editTextMessage" />
+
+</android.support.constraint.ConstraintLayout>
