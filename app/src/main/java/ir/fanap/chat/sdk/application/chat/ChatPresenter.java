@@ -64,6 +64,16 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void muteThread(int threadId) {
+        chat.muteThread(threadId);
+    }
+
+    @Override
+    public void unMuteThread(int threadId) {
+        chat.unMuteThread(threadId);
+    }
+
+    @Override
     public void onDelivery(String content) {
         super.onDelivery(content);
     }

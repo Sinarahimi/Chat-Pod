@@ -106,4 +106,23 @@
         app:layout_constraintBottom_toTopOf="@+id/editTextMessage"
         app:layout_constraintEnd_toEndOf="@+id/editTextMessage" />
 
+    <Button
+        android:id="@+id/buttonUnmute"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Mute Thread"
+        android:onClick="mute"
+        app:layout_constraintStart_toStartOf="@+id/buttonConnect"
+        app:layout_constraintTop_toBottomOf="@+id/buttonConnect" />
+
+    <Button
+        android:id="@+id/buttonMute"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="1dp"
+        android:text="un mute "
+        android:onClick="unMute"
+        app:layout_constraintEnd_toEndOf="@+id/buttonGetThread"
+        app:layout_constraintTop_toBottomOf="@+id/buttonGetThread" />
+
 </android.support.constraint.ConstraintLayout>

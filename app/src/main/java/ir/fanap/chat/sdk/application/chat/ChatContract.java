@@ -28,5 +28,8 @@ public interface ChatContract {
 
         LiveData<String> getLiveState();
 
+        void muteThread(int threadId);
+
+        void unMuteThread(int threadId);
     }
 }

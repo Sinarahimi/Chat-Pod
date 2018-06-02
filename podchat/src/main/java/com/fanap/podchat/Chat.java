@@ -38,7 +38,6 @@ public class Chat extends AsyncAdapter {
         async = Async.getInstance(context).addListener(this);
         moshi = new Moshi.Builder().build();
         listenerManager = new ChatListenerManager();
-
     }
 
     public void connect(String serverAddress, String appId, String severName, String token) {
@@ -96,6 +95,7 @@ public class Chat extends AsyncAdapter {
                 Log.d(TAG, "OnTextMessage:MESSAGE  .");
                 break;
             case Constants.MUTE_THREAD:
+                Log.i("MUTE_THREAD",chatMessage.getContent());
                 break;
             case Constants.PING:
                 break;
@@ -116,19 +116,25 @@ public class Chat extends AsyncAdapter {
             case Constants.UNBLOCK:
                 break;
             case Constants.UN_MUTE_THREAD:
+                Log.i("UN_MUTE_THREAD",chatMessage.getContent());
+
                 break;
             case Constants.UPDATE_METADATA:
                 break;
             case Constants.USER_INFO:
-                Log.i("USER_INFO",chatMessage.getContent());
-                UserInfo userInfo = new UserInfo();
-                setUserId(userInfo.getId());
+                handleOnUserInfoMessage(chatMessage);
                 break;
             case Constants.USER_STATUS:
                 break;
             case Constants.USER_S_STATUS:
                 break;
         }
+    }
+
+    private void handleOnUserInfoMessage(ChatMessage chatMessage) {
+        Log.i("USER_INFO", chatMessage.getContent());
+        UserInfo userInfo = new UserInfo();
+        setUserId(userInfo.getId());
     }
 
     private void handleOnSentMessage(ChatMessage chatMessage) {
@@ -317,29 +323,48 @@ public class Chat extends AsyncAdapter {
         async.sendMessage(asyncContent, 3);
     }
 
-    public void muteThread() {
-// var muteData = {
-//        chatMessageVOType: chatMessageVOTypes.MUTE_THREAD,
-//        subjectId: params.subjectId,
-//        content: {},
-//        pushMsgType: 4,
-//        token: token,
-//        timeout: params.timeout
+    public void muteThread(int threadId) {
+
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setType(Constants.MUTE_THREAD);
+        chatMessage.setToken(getToken());
+        chatMessage.setTokenIssuer("1");
+        chatMessage.setSubjectId(threadId);
+        chatMessage.setUniqueId(getUniqueId());
+
+        String asyncContent = JsonUtil.getJson(chatMessage);
+        async.sendMessage(asyncContent, 4);
     }
 
-    public void unMuteThread() {
-//  var muteData = {
-//        chatMessageVOType: chatMessageVOTypes.UNMUTE_THREAD,
-//        subjectId: params.subjectId,
-//        content: {},
-//        pushMsgType: 4,
-//        token: token,
-//        timeout: params.timeout
-//      };
+    public void unMuteThread(int threadId) {
+
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setType(Constants.UN_MUTE_THREAD);
+        chatMessage.setToken(getToken());
+        chatMessage.setTokenIssuer("1");
+        chatMessage.setSubjectId(threadId);
+        chatMessage.setUniqueId(getUniqueId());
+
+        String asyncContent = JsonUtil.getJson(chatMessage);
+        async.sendMessage(asyncContent, 4);
     }
 
-    public void editMessage() {
+    public void editMessage(int messageId, String messageContent) {
 
+        Message message = new Message();
+        message.setId(messageId);
+        message.setMessage(messageContent);
+
+        String editedMessage = JsonUtil.getJson(message);
+
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setType(Constants.EDIT_MESSAGE);
+        chatMessage.setToken(getToken());
+        chatMessage.setContent(editedMessage);
+        chatMessage.setTokenIssuer("1");
+        String asyncContent = JsonUtil.getJson(chatMessage);
+
+        async.sendMessage(asyncContent, 4);
     }
 
     public String onMessage() {
@@ -404,7 +429,7 @@ public class Chat extends AsyncAdapter {
         return token;
     }
 
-    private int getUserId(){
+    private int getUserId() {
         return userId;
     }
 

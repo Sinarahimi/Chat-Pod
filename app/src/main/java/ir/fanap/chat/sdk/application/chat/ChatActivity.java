@@ -13,11 +13,13 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
 
     ChatContract.presenter presenter;
     //ab
-    private static String TOKEN = "ed4be26a60c24ed594e266a2181424c5";
-
+//private static String TOKEN = "ed4be26a60c24ed594e266a2181424c5";
     //private static String TOKEN = "afa51d8291dc4072a0831d3a18cb5030";
     //Felfeli
-//    private static String TOKEN = "a11768091eac48f2a7b84ed6a241f9c3";
+// private static String TOKEN = "a11768091eac48f2a7b84ed6a241f9c3";
+    //zam
+    private static String TOKEN = "c0866c4cc5274ea7ada6b01575b19d24";
+
     //
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,12 +60,20 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
         if (!text.equals("")) {
             presenter.sendTextMessage(text, textThread);
         } else {
-            Toast.makeText(this,"Message is Empty",Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Message is Empty", Toast.LENGTH_SHORT).show();
         }
     }
 
     @Override
     public void onGetContacts(String content) {
 
+    }
+
+    public void mute(View view) {
+        presenter.muteThread(86);
+    }
+
+    public void unMute(View view) {
+        presenter.unMuteThread(86);
     }
 }
