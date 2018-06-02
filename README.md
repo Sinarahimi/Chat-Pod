@@ -27,5 +27,7 @@ And now it ready for chat .
 | `getThread(int count, int offset)`             | gets the thread.           |
 | `getHistory(int count, int offset, String order, long threadId)`                |  gets the history of the thread.                |
 | `getContacts(int count, int offset)`                 | gets the contacts.        |
-| `getPeerId()`         | gets the peer id       |
+| `createThread(int type, String title)`         | create the       |
 | `getMessage`         | gets message       |
+
+for getting call back you should extend your class from `ChatAdapter` 
