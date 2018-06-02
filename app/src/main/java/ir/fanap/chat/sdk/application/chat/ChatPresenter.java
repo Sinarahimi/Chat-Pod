@@ -4,18 +4,18 @@ import android.arch.lifecycle.LiveData;
 import android.content.Context;
 
 import com.fanap.podchat.Chat;
+import com.fanap.podchat.ChatAdapter;
+import com.fanap.podchat.ChatListener;
 
-public class ChatPresenter implements ChatContract.presenter {
+public class ChatPresenter extends ChatAdapter implements ChatContract.presenter  {
 
     private Chat chat;
+    private ChatContract.view view;
 
     public ChatPresenter(Context context) {
         chat = new Chat();
         chat.init(context);
-    }
-
-    public ChatPresenter() {
-        chat = new Chat();
+        chat.addListener(this);
     }
 
     @Override
@@ -61,5 +61,31 @@ public class ChatPresenter implements ChatContract.presenter {
     @Override
     public LiveData<String> getLiveState() {
         return chat.getState();
+    }
+
+    @Override
+    public void onDelivery(String content) {
+        super.onDelivery(content);
+    }
+
+    @Override
+    public void onGetContacts(String content) {
+        super.onGetContacts(content);
+        view.onGetContacts(content);
+    }
+
+    @Override
+    public void onInvitation(String content) {
+        super.onInvitation(content);
+    }
+
+    @Override
+    public void onSeen(String content) {
+        super.onSeen(content);
+    }
+
+    @Override
+    public void onSent(String content) {
+        super.onSent(content);
     }
 }

@@ -4,6 +4,8 @@ import android.arch.lifecycle.LiveData;
 
 public interface ChatContract {
     interface view {
+
+        void onGetContacts(String content);
     }
 
     interface presenter {

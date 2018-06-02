@@ -11,9 +11,10 @@ import com.fanap.podchat.model.ChatMessage;
 import com.fanap.podchat.model.ChatMessageContent;
 import com.fanap.podchat.model.ChatMessageType;
 import com.fanap.podchat.model.ChatMessageType.Constants;
+import com.fanap.podchat.model.ChatThread;
 import com.fanap.podchat.model.Invite;
 import com.fanap.podchat.model.Message;
-import com.fanap.podchat.model.ChatThread;
+import com.fanap.podchat.model.UserInfo;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 
@@ -30,15 +31,20 @@ public class Chat extends AsyncAdapter {
     private List<String> conversations;
     private static String TAG = "Chat";
     private String token;
+    private ChatListenerManager listenerManager;
+    private int userId;
 
     public void init(Context context) {
         async = Async.getInstance(context).addListener(this);
         moshi = new Moshi.Builder().build();
+        listenerManager = new ChatListenerManager();
+
     }
 
     public void connect(String serverAddress, String appId, String severName, String token) {
         setToken(token);
         async.connect(serverAddress, appId, severName, token);
+        getUserInfo();
     }
 
     @Override
@@ -62,42 +68,32 @@ public class Chat extends AsyncAdapter {
             case Constants.CHANGE_TYPE:
                 break;
             case Constants.DELIVERY:
+                HandleOnDelivery(chatMessage);
                 break;
             case Constants.ERROR:
                 break;
             case Constants.FORWARD_MESSAGE:
                 break;
             case Constants.GET_CONTACTS:
+                handleOnGetContacts(chatMessage);
                 break;
             case Constants.GET_HISTORY:
-                JsonAdapter<Message> jsonHistoryAdapter = moshi.adapter(Message.class);
-                Message jsonHistoryMessage = jsonHistoryAdapter.fromJson(chatMessage.getContent());
-                jsonHistoryMessage.getId();
-                jsonHistoryMessage.getUniqueId();
-                jsonHistoryMessage.getPreviousId();
-                jsonHistoryMessage.getMessage();
-                jsonHistoryMessage.getParticipant();
+                handleOnGetHistory(chatMessage);
                 break;
             case Constants.GET_STATUS:
                 break;
             case Constants.GET_THREADS:
-
-                Log.d(TAG, "OnTextMessage:GET_THREADS  .");
-                chatMessage.getUniqueId();
-                chatMessage.getTime();
-                conversations = new ArrayList<>(Arrays.asList(chatMessage.getContent().split(",")));
-                setConversations(conversations);
-
+                handleOnGetThread(chatMessage);
                 break;
             case Constants.INVITATION:
-                Log.d(TAG, "INVITATION  .");
+                handleOnInvitation(chatMessage);
                 break;
             case Constants.LAST_SEEN_TYPE:
                 break;
             case Constants.LEAVE_THREAD:
                 break;
             case Constants.MESSAGE:
-                Log.d(TAG, "OnTextMessage:GET_THREADS  .");
+                Log.d(TAG, "OnTextMessage:MESSAGE  .");
                 break;
             case Constants.MUTE_THREAD:
                 break;
@@ -110,8 +106,10 @@ public class Chat extends AsyncAdapter {
             case Constants.RENAME:
                 break;
             case Constants.SEEN:
+                handleOnSeenMessage(chatMessage);
                 break;
             case Constants.SENT:
+                handleOnSentMessage(chatMessage);
                 break;
             case Constants.THREAD_PARTICIPANTS:
                 break;
@@ -122,6 +120,9 @@ public class Chat extends AsyncAdapter {
             case Constants.UPDATE_METADATA:
                 break;
             case Constants.USER_INFO:
+                Log.i("USER_INFO",chatMessage.getContent());
+                UserInfo userInfo = new UserInfo();
+                setUserId(userInfo.getId());
                 break;
             case Constants.USER_STATUS:
                 break;
@@ -130,7 +131,54 @@ public class Chat extends AsyncAdapter {
         }
     }
 
-    public void sendTextMessage(String textMessage, long threadId){
+    private void handleOnSentMessage(ChatMessage chatMessage) {
+        listenerManager.callOnSentMessage(chatMessage.getContent());
+    }
+
+    private void handleOnSeenMessage(ChatMessage chatMessage) {
+        listenerManager.callOnSeenMessage(chatMessage.getContent());
+        //if (params.owner !== userInfo.id) {
+        //        return sendMessage({chatMessageVOType: chatMessageVOTypes.SEEN, token: token, content: params.messageId, pushMsgType: 4});
+        //      }
+    }
+
+    private void handleOnInvitation(ChatMessage chatMessage) {
+        Log.d(TAG, "INVITATION  .");
+        listenerManager.callOnInvitation(chatMessage.getContent());
+    }
+
+    private void HandleOnDelivery(ChatMessage chatMessage) {
+        listenerManager.callOnDeliveryMessage(chatMessage.getContent());
+        //if (params.owner !== userInfo.id) {
+        //        return sendMessage({chatMessageVOType: chatMessageVOTypes.DELIVERY, token: token, content: params.messageId, pushMsgType: 4});
+        //      }
+    }
+
+    private void handleOnGetContacts(ChatMessage chatMessage) {
+        listenerManager.callOnGetContacts(chatMessage.getContent());
+    }
+
+    private void handleOnGetHistory(ChatMessage chatMessage) throws IOException {
+        JsonAdapter<Message> jsonHistoryAdapter = moshi.adapter(Message.class);
+        Message jsonHistoryMessage = jsonHistoryAdapter.fromJson(chatMessage.getContent());
+        listenerManager.callOnGetThreadHistory(chatMessage.getContent());
+        jsonHistoryMessage.getId();
+        jsonHistoryMessage.getUniqueId();
+        jsonHistoryMessage.getPreviousId();
+        jsonHistoryMessage.getMessage();
+        jsonHistoryMessage.getParticipant();
+    }
+
+    private void handleOnGetThread(ChatMessage chatMessage) {
+        Log.d(TAG, "OnTextMessage:GET_THREADS  .");
+        chatMessage.getUniqueId();
+        chatMessage.getTime();
+        conversations = new ArrayList<>(Arrays.asList(chatMessage.getContent().split(",")));
+        setConversations(conversations);
+        listenerManager.callOnGetThread(chatMessage.getContent());
+    }
+
+    public void sendTextMessage(String textMessage, long threadId) {
 
         Log.i("send Message called", textMessage);
 
@@ -147,90 +195,6 @@ public class Chat extends AsyncAdapter {
         String asyncContent = chatMessageJsonAdapter.toJson(chatMessage);
 
         async.sendMessage(asyncContent, 4);
-
-        //
-        //      sendMessage = function(params, callbacks) {
-        //        /**
-        //         * + ChatMessage    {object}
-        //         *    - token       {string}
-        //         *    - tokenIssuer {string}
-        //         *    - type        {int}
-        //         *    - subjectId   {long}
-        //         *    - uniqueId    {string}
-        //         *    - content     {string}
-        //         *    - time        {long}
-        //         *    - medadata    {string}
-        //         *    - repliedTo   {long}
-        //         */
-        //        var messageVO = {
-        //          type: params.chatMessageVOType,
-        //          token: params.token,
-        //          tokenIssuer: 1
-        //        };
-        //
-        //        if (params.subjectId) {
-        //          messageVO.subjectId = params.subjectId;
-        //        }
-        //
-        //        if (params.repliedTo) {
-        //          messageVO.repliedTo = params.repliedTo;
-        //        }
-        //
-        //        if (params.content) {
-        //          if (typeof params.content == "object") {
-        //            messageVO.content = JSON.stringify(params.content);
-        //          } else {
-        //            messageVO.content = params.content;
-        //          }
-        //        }
-        //
-        //        if (params.metaData) {
-        //          messageVO.metadata = params.metaData;
-        //        }
-        //
-        //        var uniqueId;
-        //
-        //        if (typeof params.uniqueId != "undefined") {
-        //          uniqueId = params.uniqueId;
-        //        } else {
-        //          uniqueId = Utility.generateUUID();
-        //        }
-        //
-        //        if (Array.isArray(uniqueId)) {
-        //          messageVO.uniqueId = JSON.stringify(uniqueId);
-        //        } else {
-        //          messageVO.uniqueId = uniqueId;
-        //        }
-        //
-        //        if (typeof callbacks == "object") {
-        //          if (callbacks.onSeen || callbacks.onDeliver || callbacks.onSent) {
-        //            sendMessageCallbacks[uniqueId] = {};
-        //
-        //            if (callbacks.onSent) {
-        //              sendMessageCallbacks[uniqueId].onSent = callbacks.onSent;
-        //            }
-        //
-        //            if (callbacks.onSeen) {
-        //              sendMessageCallbacks[uniqueId].onSeen = callbacks.onSeen;
-        //            }
-        //
-        //            if (callbacks.onDeliver) {
-        //              sendMessageCallbacks[uniqueId].onDeliver = callbacks.onDeliver;
-        //            }
-        //
-        //          } else if (callbacks.onResult) {
-        //            messagesCallbacks[uniqueId] = callbacks.onResult;
-        //          }
-        //        } else if (typeof callbacks == "function") {
-        //          messagesCallbacks[uniqueId] = callbacks;
-        //        }
-        /*
-        *
-        *
-        * */
-
-
-
     }
 
     public void getThread(int count, int offset) {
@@ -317,28 +281,11 @@ public class Chat extends AsyncAdapter {
         async.sendMessage(asyncContent, 3);
     }
 
-    /*/
-    * inviteeVOidTypes = {
-        TO_BE_USER_SSO_ID: 1,
-        TO_BE_USER_CONTACT_ID: 2,
-        TO_BE_USER_CELLPHONE_NUMBER: 3,
-        TO_BE_USER_USERNAME: 4
-      },
-      createThreadTypes = {
-        NORMAL: 0,
-        OWNER_GROUP: 1,
-        PUBLIC_GROUP: 2,
-        CHANNEL_GROUP: 4,
-        CHANNEL: 8
-      }
-    *
-    * */
-
     public void createThread(int type, String title) {
         Log.i("createThread called", "count" + type);
 
         List<Invite> invites = new ArrayList<>();
-        invites.add(new Invite(441,2));
+        invites.add(new Invite(441, 2));
 //        invites.add(new Invite(442,2));
 
         ChatThread chatThread = new ChatThread();
@@ -361,9 +308,74 @@ public class Chat extends AsyncAdapter {
         Log.i("Create thread", asyncContent);
     }
 
+    public void getUserInfo() {
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setType(Constants.USER_INFO);
+        chatMessage.setToken(getToken());
+        String asyncContent = JsonUtil.getJson(chatMessage);
+
+        async.sendMessage(asyncContent, 3);
+    }
+
+    public void muteThread() {
+// var muteData = {
+//        chatMessageVOType: chatMessageVOTypes.MUTE_THREAD,
+//        subjectId: params.subjectId,
+//        content: {},
+//        pushMsgType: 4,
+//        token: token,
+//        timeout: params.timeout
+    }
+
+    public void unMuteThread() {
+//  var muteData = {
+//        chatMessageVOType: chatMessageVOTypes.UNMUTE_THREAD,
+//        subjectId: params.subjectId,
+//        content: {},
+//        pushMsgType: 4,
+//        token: token,
+//        timeout: params.timeout
+//      };
+    }
+
+    public void editMessage() {
+
+    }
+
     public String onMessage() {
         return async.getMessageLiveData().getValue();
     }
+
+    /**
+     * Add a listener to receive events on this Chat.
+     *
+     * @param listener A listener to add.
+     * @return {@code this} object.
+     */
+    public Chat addListener(ChatListener listener) {
+        listenerManager.addListener(listener);
+        return this;
+    }
+
+    public Chat addListeners(List<ChatListener> listeners) {
+        listenerManager.addListeners(listeners);
+
+        return this;
+    }
+
+    public Chat removeListener(ChatListener listener) {
+        listenerManager.removeListener(listener);
+
+        return this;
+    }
+
+    /**
+     * Get the manager that manages registered listeners.
+     */
+    ChatListenerManager getListenerManager() {
+        return listenerManager;
+    }
+
 
     /**
      * Get list of conversations
@@ -390,5 +402,13 @@ public class Chat extends AsyncAdapter {
 
     private String getToken() {
         return token;
+    }
+
+    private int getUserId(){
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 }

@@ -90,6 +90,7 @@ public class Async extends WebSocketAdapter {
 
     public Async() {
         //Empty constructor
+
     }
 
     /**
@@ -153,6 +154,78 @@ public class Async extends WebSocketAdapter {
                 break;
         }
     }
+
+
+    @Override
+    public void onStateChanged(WebSocket websocket, WebSocketState newState) throws Exception {
+        super.onStateChanged(websocket, newState);
+        stateLiveData.postValue(newState.toString());
+        setState(newState.toString());
+        Log.i("onStateChanged", newState.toString());
+    }
+
+    @Override
+    public void onError(WebSocket websocket, WebSocketException cause) throws Exception {
+        super.onError(websocket, cause);
+        Log.e("onError", cause.toString());
+        cause.getCause().printStackTrace();
+        setOnError(cause.toString());
+    }
+
+    @Override
+    public void onConnectError(WebSocket websocket, WebSocketException exception) throws Exception {
+        super.onConnectError(websocket, exception);
+        Log.e("onConnected", exception.toString());
+        setonConnectError(exception);
+    }
+
+    @Override
+    public void onConnected(WebSocket websocket, Map<String, List<String>> headers) throws Exception {
+        super.onConnected(websocket, headers);
+        Log.i("onConnected", headers.toString());
+    }
+
+    /**
+     * After error event its start reconnecting again.
+     * Note that you should not trigger reconnection in onError() method because onError()
+     * may be called multiple times due to one error.
+     * Instead, onDisconnected() is the right place to trigger reconnection.
+     */
+    @Override
+    public void onMessageError(WebSocket websocket, WebSocketException cause, List<WebSocketFrame> frames) throws Exception {
+        super.onMessageError(websocket, cause, frames);
+        Log.e("onMessageError", cause.toString());
+    }
+
+    @Override
+    public void onDisconnected(WebSocket websocket, WebSocketFrame serverCloseFrame, WebSocketFrame clientCloseFrame, boolean closedByServer) throws Exception {
+        super.onDisconnected(websocket, serverCloseFrame, clientCloseFrame, closedByServer);
+        Handler handler = new Handler();
+        handler.postDelayed(() -> {
+            try {
+                reConnect();
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (WebSocketException e) {
+                e.printStackTrace();
+            }
+        }, 3000);
+    }
+
+    @Override
+    public void onCloseFrame(WebSocket websocket, WebSocketFrame frame) throws Exception {
+        super.onCloseFrame(websocket, frame);
+        Log.e("onCloseFrame", frame.getCloseReason());
+        reConnect();
+    }
+
+    /**
+     * Connect webSocket to the Async
+     *
+     * @Param socketServerAddress
+     * @Param appId
+     */
+
 
     private void handleOnAck(ClientMessage clientMessage) throws IOException {
         setMessage(clientMessage.getContent());
@@ -278,75 +351,7 @@ public class Async extends WebSocketAdapter {
         }, throwable -> Log.i("Error get devices", throwable.toString()));
     }
 
-    @Override
-    public void onStateChanged(WebSocket websocket, WebSocketState newState) throws Exception {
-        super.onStateChanged(websocket, newState);
-        stateLiveData.postValue(newState.toString());
-        setState(newState.toString());
-        Log.i("onStateChanged", newState.toString());
-    }
 
-    @Override
-    public void onError(WebSocket websocket, WebSocketException cause) throws Exception {
-        super.onError(websocket, cause);
-        Log.e("onError", cause.toString());
-        cause.getCause().printStackTrace();
-        setOnError(cause.toString());
-    }
-
-    @Override
-    public void onConnectError(WebSocket websocket, WebSocketException exception) throws Exception {
-        super.onConnectError(websocket, exception);
-        Log.e("onConnected", exception.toString());
-        setonConnectError(exception);
-    }
-
-    @Override
-    public void onConnected(WebSocket websocket, Map<String, List<String>> headers) throws Exception {
-        super.onConnected(websocket, headers);
-        Log.i("onConnected", headers.toString());
-    }
-
-    /**
-     * After error event its start reconnecting again.
-     * Note that you should not trigger reconnection in onError() method because onError()
-     * may be called multiple times due to one error.
-     * Instead, onDisconnected() is the right place to trigger reconnection.
-     */
-    @Override
-    public void onMessageError(WebSocket websocket, WebSocketException cause, List<WebSocketFrame> frames) throws Exception {
-        super.onMessageError(websocket, cause, frames);
-        Log.e("onMessageError", cause.toString());
-    }
-
-    @Override
-    public void onDisconnected(WebSocket websocket, WebSocketFrame serverCloseFrame, WebSocketFrame clientCloseFrame, boolean closedByServer) throws Exception {
-        super.onDisconnected(websocket, serverCloseFrame, clientCloseFrame, closedByServer);
-        Handler handler = new Handler();
-        handler.postDelayed(() -> {
-            try {
-                reConnect();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (WebSocketException e) {
-                e.printStackTrace();
-            }
-        }, 3000);
-    }
-
-    @Override
-    public void onCloseFrame(WebSocket websocket, WebSocketFrame frame) throws Exception {
-        super.onCloseFrame(websocket, frame);
-        Log.e("onCloseFrame", frame.getCloseReason());
-                reConnect();
-    }
-
-    /**
-     * Connect webSocket to the Async
-     *
-     * @Param socketServerAddress
-     * @Param appId
-     */
     public void connect(String socketServerAddress, final String appId, String serverName, String token) {
         WebSocketFactory webSocketFactory = new WebSocketFactory();
         webSocketFactory.setVerifyHostname(false);
@@ -446,7 +451,6 @@ public class Async extends WebSocketAdapter {
     private void reConnect() throws IOException, WebSocketException {
         WebSocketFactory webSocketFactory = new WebSocketFactory();
         webSocketFactory.setVerifyHostname(false);
-        String message;
         try {
             webSocketReconnect = webSocketFactory
                     .createSocket(getServerAddress())
@@ -455,7 +459,6 @@ public class Async extends WebSocketAdapter {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     /**
@@ -648,7 +651,7 @@ public class Async extends WebSocketAdapter {
     }
 
     /**
-     * Add a listener to receive events on this WebSocket.
+     * Add a listener to receive events on this Async.
      *
      * @param listener A listener to add.
      * @return {@code this} object.
@@ -659,15 +662,13 @@ public class Async extends WebSocketAdapter {
         return this;
     }
 
-    public Async addListeners(List<AsyncListener> listeners)
-    {
+    public Async addListeners(List<AsyncListener> listeners) {
         listenerManager.addListeners(listeners);
 
         return this;
     }
 
-    public Async removeListener(AsyncListener listener)
-    {
+    public Async removeListener(AsyncListener listener) {
         listenerManager.removeListener(listener);
 
         return this;
@@ -676,8 +677,7 @@ public class Async extends WebSocketAdapter {
     /**
      * Get the manager that manages registered listeners.
      */
-    AsyncListenerManager getListenerManager()
-    {
+    AsyncListenerManager getListenerManager() {
         return listenerManager;
     }
 }

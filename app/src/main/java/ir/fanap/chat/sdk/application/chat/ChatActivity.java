@@ -9,13 +9,13 @@ import android.widget.Toast;
 
 import ir.fanap.chat.sdk.R;
 
-public class ChatActivity extends AppCompatActivity {
+public class ChatActivity extends AppCompatActivity implements ChatContract.view {
 
     ChatContract.presenter presenter;
     //ab
     private static String TOKEN = "ed4be26a60c24ed594e266a2181424c5";
 
-    //    private static String TOKEN = "afa51d8291dc4072a0831d3a18cb5030";
+    //private static String TOKEN = "afa51d8291dc4072a0831d3a18cb5030";
     //Felfeli
 //    private static String TOKEN = "a11768091eac48f2a7b84ed6a241f9c3";
     //
@@ -60,5 +60,10 @@ public class ChatActivity extends AppCompatActivity {
         } else {
             Toast.makeText(this,"Message is Empty",Toast.LENGTH_SHORT).show();
         }
+    }
+
+    @Override
+    public void onGetContacts(String content) {
+
     }
 }
