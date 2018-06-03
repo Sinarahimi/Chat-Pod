@@ -6,6 +6,8 @@ public interface ChatContract {
     interface view {
 
         void onGetContacts(String content);
+
+        void onGetUserInfoId(int UserId);
     }
 
     interface presenter {
@@ -22,7 +24,7 @@ public interface ChatContract {
 
         void getContact(int count, int offset);
 
-        void createThread(int type, String title);
+        void createThread(int chatThreadType, int contactId);
 
         void sendTextMessage(String textMessage, long threadId);
 

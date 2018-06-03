@@ -7,7 +7,7 @@ import com.fanap.podchat.Chat;
 import com.fanap.podchat.ChatAdapter;
 import com.fanap.podchat.ChatListener;
 
-public class ChatPresenter extends ChatAdapter implements ChatContract.presenter  {
+public class ChatPresenter extends ChatAdapter implements ChatContract.presenter {
 
     private Chat chat;
     private ChatContract.view view;
@@ -40,7 +40,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void getHistory(int count, int offset, String order, long subjectId) {
-        chat.getHistory(count, offset, order,subjectId);
+        chat.getHistory(count, offset, order, subjectId);
     }
 
     @Override
@@ -49,8 +49,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void createThread(int type, String title) {
-        chat.createThread(type,title);
+    public void createThread(int chatThreadType, int contactId) {
+        chat.createThread(chatThreadType, contactId);
     }
 
     @Override

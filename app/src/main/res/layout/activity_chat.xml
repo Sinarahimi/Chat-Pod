@@ -110,8 +110,8 @@
         android:id="@+id/buttonUnmute"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Mute Thread"
         android:onClick="mute"
+        android:text="Mute Thread"
         app:layout_constraintStart_toStartOf="@+id/buttonConnect"
         app:layout_constraintTop_toBottomOf="@+id/buttonConnect" />
 
@@ -120,9 +120,21 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="1dp"
-        android:text="un mute "
         android:onClick="unMute"
+        android:text="un mute "
         app:layout_constraintEnd_toEndOf="@+id/buttonGetThread"
         app:layout_constraintTop_toBottomOf="@+id/buttonGetThread" />
+
+    <TextView
+        android:id="@+id/textViewUserId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="64dp"
+        android:layout_marginStart="63dp"
+        android:layout_marginTop="34dp"
+        android:text="User Id"
+        app:layout_constraintEnd_toEndOf="@+id/editTextThread"
+        app:layout_constraintStart_toEndOf="@+id/buttonCreateThread"
+        app:layout_constraintTop_toBottomOf="@+id/buttonGetContact" />
 
 </android.support.constraint.ConstraintLayout>

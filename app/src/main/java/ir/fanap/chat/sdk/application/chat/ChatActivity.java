@@ -14,11 +14,11 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
     ChatContract.presenter presenter;
     //ab
 //private static String TOKEN = "ed4be26a60c24ed594e266a2181424c5";
-    //private static String TOKEN = "afa51d8291dc4072a0831d3a18cb5030";
     //Felfeli
 // private static String TOKEN = "a11768091eac48f2a7b84ed6a241f9c3";
     //zam
-    private static String TOKEN = "c0866c4cc5274ea7ada6b01575b19d24";
+//     private static String TOKEN = "afa51d8291dc4072a0831d3a18cb5030";
+   private static String TOKEN = "c0866c4cc5274ea7ada6b01575b19d24";
 
     //
     @Override
@@ -27,6 +27,9 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
         setContentView(R.layout.activity_chat);
 
         TextView textViewState = findViewById(R.id.textViewStateChat);
+        TextView textViewToken = findViewById(R.id.textViewUserId);
+        textViewToken.setText(TOKEN);
+
         presenter = new ChatPresenter(this);
         presenter.getLiveState().observe(this, textViewState::setText);
         presenter = new ChatPresenter(this);
@@ -49,7 +52,7 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
     }
 
     public void createThread(View view) {
-        presenter.createThread(0, "this the  thread that we create");
+        presenter.createThread(0, 443);
     }
 
     public void sendMessage(View view) {
@@ -66,6 +69,11 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
 
     @Override
     public void onGetContacts(String content) {
+
+    }
+
+    @Override
+    public void onGetUserInfoId(int UserId) {
 
     }
 

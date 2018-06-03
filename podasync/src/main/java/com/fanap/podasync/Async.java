@@ -20,7 +20,6 @@ import com.fanap.podasync.model.PeerInfo;
 import com.fanap.podasync.model.RegistrationRequest;
 import com.fanap.podasync.networking.RetrofitHelper;
 import com.fanap.podasync.networking.api.TokenApi;
-import com.google.gson.Gson;
 import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketAdapter;
 import com.neovisionaries.ws.client.WebSocketException;
@@ -30,8 +29,6 @@ import com.neovisionaries.ws.client.WebSocketFrame;
 import com.neovisionaries.ws.client.WebSocketState;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
-
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -413,10 +410,6 @@ public class Async extends WebSocketAdapter {
 
         String json1 = JsonUtil.getJson(messageWrapperVo);
 
-
-//        JsonAdapter<Message> jsonAdapter = moshi.adapter(Message.class);
-//        String jsonMessage = jsonAdapter.toJson(message);
-//        String wrapperJsonString = getMessageWrapper(moshi, jsonMessage, messageType);
         sendData(webSocket, json1);
     }
 

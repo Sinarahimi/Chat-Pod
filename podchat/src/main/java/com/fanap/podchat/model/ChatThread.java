@@ -1,6 +1,5 @@
 package com.fanap.podchat.model;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ChatThread {
@@ -8,6 +7,7 @@ public class ChatThread {
     private int type;
     private String ownerSsoId;
     private List<Invite> invitees;
+    private List<Invite[]> ArrayInvitees;
     private String title;
 
     public int getType() {
@@ -40,5 +40,13 @@ public class ChatThread {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public List<Invite[]> getArrayInvitees() {
+        return ArrayInvitees;
+    }
+
+    public void setArrayInvitees(List<Invite[]> arrayInvitees) {
+        ArrayInvitees = arrayInvitees;
     }
 }
