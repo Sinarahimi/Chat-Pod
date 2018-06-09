@@ -65,8 +65,8 @@ public class SocketPresenter implements SocketContract.presenter {
     }
 
     @Override
-    public void logOut() {
-        async.logOut();
+    public void socketLogOut() {
+        async.logOutSocket();
     }
 
     @Override

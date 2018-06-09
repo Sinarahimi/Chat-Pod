@@ -1,4 +1,4 @@
-package com.fanap.podasync;
+package com.fanap.podasync.util;
 
 
 import com.fasterxml.jackson.core.type.TypeReference;

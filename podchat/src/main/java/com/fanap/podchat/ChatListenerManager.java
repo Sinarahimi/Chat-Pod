@@ -143,4 +143,9 @@ public class ChatListenerManager {
             listener.onDelivery(content);
         }
     }
+    public void callOnError(String content){
+        for (ChatListener listener : getSynchronizedListeners()) {
+            listener.onError(content);
+        }
+    }
 }

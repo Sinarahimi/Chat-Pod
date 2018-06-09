@@ -8,6 +8,7 @@ public class ChatMessage {
     private String uniqueId;
     private String content;
     private long time;
+    private int contentCount;
     private String metadata;
     private long repliedTo;
 
@@ -81,5 +82,13 @@ public class ChatMessage {
 
     public void setTokenIssuer(String tokenIssuer) {
         this.tokenIssuer = tokenIssuer;
+    }
+
+    public int getContentCount() {
+        return contentCount;
+    }
+
+    public void setContentCount(int contentCount) {
+        this.contentCount = contentCount;
     }
 }

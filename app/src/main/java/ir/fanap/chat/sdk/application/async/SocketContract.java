@@ -39,8 +39,6 @@ public interface SocketContract {
 
         String getState();
 
-        void logOut();
-
         LiveData<String> getLiveData();
 
         void getErrorMessage();
@@ -50,5 +48,7 @@ public interface SocketContract {
         boolean isSocketOpen();
 
         String getPeerId();
+
+        void socketLogOut();
     }
 }

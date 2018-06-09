@@ -155,4 +155,10 @@ public class AsyncActivity extends AppCompatActivity implements SocketContract.v
     public void getThread(View view) {
 
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        socketPresenter.socketLogOut();
+    }
 }

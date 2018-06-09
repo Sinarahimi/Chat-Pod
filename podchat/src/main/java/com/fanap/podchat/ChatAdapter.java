@@ -7,7 +7,7 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onERROR() {
+    public void onError(String content) {
 
     }
 

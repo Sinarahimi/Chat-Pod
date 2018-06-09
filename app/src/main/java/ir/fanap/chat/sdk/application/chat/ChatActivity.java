@@ -12,15 +12,17 @@ import ir.fanap.chat.sdk.R;
 public class ChatActivity extends AppCompatActivity implements ChatContract.view {
 
     ChatContract.presenter presenter;
-    //ab
-//private static String TOKEN = "ed4be26a60c24ed594e266a2181424c5";
-    //Felfeli
-// private static String TOKEN = "a11768091eac48f2a7b84ed6a241f9c3";
-    //zam
+    //ab token
+//    private static String TOKEN = "ed4be26a60c24ed594e266a2181424c5";
+    //fel token
+//        private static String TOKEN = "a11768091eac48f2a7b84ed6a241f9c3";
+    //baz token
 //     private static String TOKEN = "afa51d8291dc4072a0831d3a18cb5030";
+    //zam token
    private static String TOKEN = "c0866c4cc5274ea7ada6b01575b19d24";
+    //Token Alexi
+//   private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
 
-    //
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,8 +53,9 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
         presenter.getContact(50, 0);
     }
 
+    //contact id 485
     public void createThread(View view) {
-        presenter.createThread(0, 443);
+        presenter.createThread(0, 485);
     }
 
     public void sendMessage(View view) {
@@ -69,12 +72,10 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
 
     @Override
     public void onGetContacts(String content) {
-
     }
 
     @Override
     public void onGetUserInfoId(int UserId) {
-
     }
 
     public void mute(View view) {

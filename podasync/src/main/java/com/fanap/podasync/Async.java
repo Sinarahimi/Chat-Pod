@@ -20,6 +20,7 @@ import com.fanap.podasync.model.PeerInfo;
 import com.fanap.podasync.model.RegistrationRequest;
 import com.fanap.podasync.networking.RetrofitHelper;
 import com.fanap.podasync.networking.api.TokenApi;
+import com.fanap.podasync.util.JsonUtil;
 import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketAdapter;
 import com.neovisionaries.ws.client.WebSocketException;
@@ -87,12 +88,8 @@ public class Async extends WebSocketAdapter {
 
     public Async() {
         //Empty constructor
-
     }
 
-    /**
-     * Because user doesn't have device Id we set UIID for device Id
-     */
     public static Async getInstance(Context context) {
         if (instance == null) {
             sharedPrefs = context.getSharedPreferences(AsyncConstant.Constants.PREFERENCE, Context.MODE_PRIVATE);
@@ -197,16 +194,8 @@ public class Async extends WebSocketAdapter {
     @Override
     public void onDisconnected(WebSocket websocket, WebSocketFrame serverCloseFrame, WebSocketFrame clientCloseFrame, boolean closedByServer) throws Exception {
         super.onDisconnected(websocket, serverCloseFrame, clientCloseFrame, closedByServer);
-        Handler handler = new Handler();
-        handler.postDelayed(() -> {
-            try {
-                reConnect();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (WebSocketException e) {
-                e.printStackTrace();
-            }
-        }, 3000);
+
+        reConnect();
     }
 
     @Override
@@ -282,7 +271,7 @@ public class Async extends WebSocketAdapter {
         listenerManager.callOnTextMessage(clientMessage.getContent());
     }
 
-    private void handleOnPing(WebSocket websocket, ClientMessage clientMessage) {
+    private void handleOnPing(WebSocket webSocket, ClientMessage clientMessage) {
 
         if (clientMessage.getContent() != null || !clientMessage.getContent().equals("")) {
             if (getDeviceId() == null) {
@@ -339,6 +328,7 @@ public class Async extends WebSocketAdapter {
                 ArrayList<Device> devices = deviceResults.body().getDevices();
                 for (Device device : devices) {
                     if (device.isCurrent()) {
+                        Log.i("device id",device.getUid());
                         saveDeviceId(device.getUid());
                         deviceRegister(webSocket);
                         return;
@@ -458,7 +448,7 @@ public class Async extends WebSocketAdapter {
      * Remove the peerId and send ping again but this time
      * peerId that was set in the server was removed
      */
-    public void logOut() {
+    public void logOutSocket() {
         removePeerId(AsyncConstant.Constants.PEER_ID, null);
         isServerRegister = false;
         isDeviceRegister = false;

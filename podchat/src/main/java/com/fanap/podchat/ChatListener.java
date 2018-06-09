@@ -4,7 +4,7 @@ public interface ChatListener {
 
     void onDelivery(String content);
 
-    void onERROR();
+    void onError(String content);
 
     void onForwardMessage();
 

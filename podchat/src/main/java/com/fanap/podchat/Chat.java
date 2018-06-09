@@ -6,7 +6,7 @@ import android.util.Log;
 
 import com.fanap.podasync.Async;
 import com.fanap.podasync.AsyncAdapter;
-import com.fanap.podasync.JsonUtil;
+import com.fanap.podasync.util.JsonUtil;
 import com.fanap.podchat.model.ChatMessage;
 import com.fanap.podchat.model.ChatMessageContent;
 import com.fanap.podchat.model.ChatMessageType;
@@ -68,9 +68,10 @@ public class Chat extends AsyncAdapter {
             case Constants.CHANGE_TYPE:
                 break;
             case Constants.DELIVERY:
-                HandleOnDelivery(chatMessage);
+                handleOnDelivery(chatMessage);
                 break;
             case Constants.ERROR:
+                handleError(chatMessage);
                 break;
             case Constants.FORWARD_MESSAGE:
                 break;
@@ -131,9 +132,21 @@ public class Chat extends AsyncAdapter {
             case Constants.DELETE_MESSAGE:
                 break;
             case Constants.EDIT_MESSAGE:
-                Log.i("EDIT_MESSAGE",chatMessage.getContent());
+                Log.i("EDIT_MESSAGE", chatMessage.getContent());
                 break;
         }
+    }
+
+    private void handleError(ChatMessage chatMessage) {
+        listenerManager.callOnError(chatMessage.getContent());
+    }
+
+    /**
+     * Remove the peerId and send ping again but this time
+     * peerId that was set in the server was removed
+     */
+    public void logOutSocket() {
+        async.logOutSocket();
     }
 
     private void handleUnMuteThread(ChatMessage chatMessage) {
@@ -179,7 +192,6 @@ public class Chat extends AsyncAdapter {
 
     private void handleOnSeenMessage(ChatMessage chatMessage) {
         listenerManager.callOnSeenMessage(chatMessage.getContent());
-
     }
 
     private void handleOnInvitation(ChatMessage chatMessage) {
@@ -187,7 +199,7 @@ public class Chat extends AsyncAdapter {
         listenerManager.callOnInvitation(chatMessage.getContent());
     }
 
-    private void HandleOnDelivery(ChatMessage chatMessage) {
+    private void handleOnDelivery(ChatMessage chatMessage) {
         listenerManager.callOnDeliveryMessage(chatMessage.getContent());
         Log.d("OnDelivery", chatMessage.getContent());
     }
@@ -271,6 +283,7 @@ public class Chat extends AsyncAdapter {
         chatMessage.setType(Constants.GET_HISTORY);
         chatMessage.setUniqueId(getUniqueId());
         chatMessage.setToken(getToken());
+        chatMessage.setTokenIssuer("1");
         chatMessage.setSubjectId(threadId);
 
         JsonAdapter<ChatMessage> chatMessageJsonAdapter = moshi.adapter(ChatMessage.class);
@@ -382,6 +395,28 @@ public class Chat extends AsyncAdapter {
 
     }
 
+    public void getThreadParticipant(int count, int offset, long threadId) {
+        Log.i("get thread called", "count" + count);
+        ChatMessageContent chatMessageContent = new ChatMessageContent();
+        chatMessageContent.setCount(count);
+        chatMessageContent.setOffset(offset);
+
+        JsonAdapter<ChatMessageContent> messageContentJsonAdapter = moshi.adapter(ChatMessageContent.class);
+        String content = messageContentJsonAdapter.toJson(chatMessageContent);
+
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setContent(content);
+        chatMessage.setType(Constants.THREAD_PARTICIPANTS);
+        chatMessage.setTokenIssuer("1");
+        chatMessage.setToken(getToken());
+        chatMessage.setUniqueId(getUniqueId());
+        chatMessage.setSubjectId(threadId);
+
+        JsonAdapter<ChatMessage> chatMessageJsonAdapter = moshi.adapter(ChatMessage.class);
+        String asyncContent = chatMessageJsonAdapter.toJson(chatMessage);
+
+        async.sendMessage(asyncContent, 3);
+    }
 
     public void seenMessage(int messageId) {
         ChatMessage message = new ChatMessage();
