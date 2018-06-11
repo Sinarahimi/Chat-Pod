@@ -1,4 +1,4 @@
-package com.fanap.podchat;
+package com.fanap.podchat.chat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -146,6 +146,17 @@ public class ChatListenerManager {
     public void callOnError(String content){
         for (ChatListener listener : getSynchronizedListeners()) {
             listener.onError(content);
+        }
+    }
+    public void callOnGetThreadParticipant(String content){
+        for (ChatListener listener : getSynchronizedListeners()) {
+            listener.onGetThreadParticipant(content);
+        }
+    }
+
+    public void callOnEditedMessage(String content) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            listener.onEditedMessage(content);
         }
     }
 }

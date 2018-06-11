@@ -83,8 +83,10 @@ public class Async extends WebSocketAdapter {
     private String serverAddress;
     private final Handler pingHandler = new Handler(Looper.getMainLooper());
     private int getMessageCalled;
+    private int timeCount = 0;
     private String token;
     private String serverName;
+    private String ssoHost;
 
     public Async() {
         //Empty constructor
@@ -149,7 +151,6 @@ public class Async extends WebSocketAdapter {
         }
     }
 
-
     @Override
     public void onStateChanged(WebSocket websocket, WebSocketState newState) throws Exception {
         super.onStateChanged(websocket, newState);
@@ -194,7 +195,9 @@ public class Async extends WebSocketAdapter {
     @Override
     public void onDisconnected(WebSocket websocket, WebSocketFrame serverCloseFrame, WebSocketFrame clientCloseFrame, boolean closedByServer) throws Exception {
         super.onDisconnected(websocket, serverCloseFrame, clientCloseFrame, closedByServer);
-
+        Log.e("Disconnected", serverCloseFrame.getCloseReason());
+        Handler handler = new Handler();
+        stopSocket();
         reConnect();
     }
 
@@ -202,7 +205,9 @@ public class Async extends WebSocketAdapter {
     public void onCloseFrame(WebSocket websocket, WebSocketFrame frame) throws Exception {
         super.onCloseFrame(websocket, frame);
         Log.e("onCloseFrame", frame.getCloseReason());
-        reConnect();
+                    stopSocket();
+                    reConnect();
+
     }
 
     /**
@@ -211,24 +216,23 @@ public class Async extends WebSocketAdapter {
      * @Param socketServerAddress
      * @Param appId
      */
-
-
     private void handleOnAck(ClientMessage clientMessage) throws IOException {
         setMessage(clientMessage.getContent());
         listenerManager.callOnTextMessage(clientMessage.getContent());
     }
 
+    /**
+     * When socket closes by any reason
+     * , server is still registered and we sent a lot of message but
+     * they are still in the queue
+     */
     private void handleOnDeviceRegister(WebSocket websocket, ClientMessage clientMessage) {
         isDeviceRegister = true;
         if (!peerIdExistence()) {
             String peerId = clientMessage.getContent();
             savePeerId(peerId);
         }
-        /**
-         When socket closes by any reason
-         , server is still registered and we sent a lot of message but
-         they are still in the queue
-         */
+
         //TODO handle queue message
         if (isServerRegister && peerId.equals(getPeerId())) {
             if (websocket.getState() == OPEN) {
@@ -238,9 +242,6 @@ public class Async extends WebSocketAdapter {
             }
 
         } else {
-            /*
-              Register server when its not registered
-              */
             serverRegister(websocket);
         }
     }
@@ -275,7 +276,7 @@ public class Async extends WebSocketAdapter {
 
         if (clientMessage.getContent() != null || !clientMessage.getContent().equals("")) {
             if (getDeviceId() == null) {
-                deviceIdRequest();
+                deviceIdRequest(getSsoHost());
             } else {
                 deviceRegister(webSocket);
             }
@@ -319,8 +320,8 @@ public class Async extends WebSocketAdapter {
         lastSendMessageTime = new Date().getTime();
     }
 
-    private void deviceIdRequest() {
-        RetrofitHelper retrofitHelper = new RetrofitHelper("http://172.16.110.76");
+    private void deviceIdRequest(String ssoHost) {
+        RetrofitHelper retrofitHelper = new RetrofitHelper(ssoHost);
         TokenApi tokenApi = retrofitHelper.getService(TokenApi.class);
         rx.Observable<Response<DeviceResult>> listObservable = tokenApi.getDeviceId("Bearer" + " " + getToken());
         listObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(deviceResults -> {
@@ -328,24 +329,26 @@ public class Async extends WebSocketAdapter {
                 ArrayList<Device> devices = deviceResults.body().getDevices();
                 for (Device device : devices) {
                     if (device.isCurrent()) {
-                        Log.i("device id",device.getUid());
+                        Log.i("device id", device.getUid());
                         saveDeviceId(device.getUid());
                         deviceRegister(webSocket);
                         return;
                     }
                 }
             }
-        }, throwable -> Log.i("Error get devices", throwable.toString()));
+        }, throwable -> Log.e("Error get devices", throwable.toString()));
     }
 
 
-    public void connect(String socketServerAddress, final String appId, String serverName, String token) {
+    public void connect(String socketServerAddress, final String appId, String serverName,
+                        String token, String ssoHost) {
         WebSocketFactory webSocketFactory = new WebSocketFactory();
         webSocketFactory.setVerifyHostname(false);
         setAppId(appId);
         setServerAddress(socketServerAddress);
         setToken(token);
         setServerName(serverName);
+        setSsoHost(ssoHost);
         try {
             webSocket = webSocketFactory
                     .createSocket(socketServerAddress)
@@ -355,7 +358,7 @@ public class Async extends WebSocketAdapter {
             webSocket.addExtension(WebSocketExtension.PERMESSAGE_DEFLATE);
             webSocket.connectAsynchronously();
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e("Async: connect", e.toString());
         }
     }
 
@@ -438,9 +441,10 @@ public class Async extends WebSocketAdapter {
             webSocketReconnect = webSocketFactory
                     .createSocket(getServerAddress())
                     .addListener(this);
-            webSocketReconnect.connectAsynchronously();
+//            webSocketReconnect.connectAsynchronously();
+            webSocketReconnect.connect();
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e("Async: reConnect", e.toString());
         }
     }
 
@@ -455,9 +459,9 @@ public class Async extends WebSocketAdapter {
         webSocket.sendClose();
     }
 
-    private void removePeerId(String peerId, String o) {
+    private void removePeerId(String peerId, String nul) {
         SharedPreferences.Editor editor = sharedPrefs.edit();
-        editor.putString(peerId, o);
+        editor.putString(peerId, nul);
         editor.apply();
     }
 
@@ -505,6 +509,14 @@ public class Async extends WebSocketAdapter {
         pingHandler.removeCallbacksAndMessages(null);
     }
 
+    private void stopSocket() {
+        if (webSocket != null) {
+            webSocket.disconnect();
+            webSocket = null;
+        }
+    }
+
+
     private boolean peerIdExistence() {
         boolean isPeerIdExistence;
         String peerId = sharedPrefs.getString(AsyncConstant.Constants.PEER_ID, null);
@@ -513,8 +525,9 @@ public class Async extends WebSocketAdapter {
         return isPeerIdExistence;
     }
 
-    //Save peerId in the SharedPreferences
-
+    /**
+     * Save peerId in the SharedPreferences
+     */
     private void savePeerId(String peerId) {
         SharedPreferences.Editor editor = sharedPrefs.edit();
         editor.putString(AsyncConstant.Constants.PEER_ID, peerId);
@@ -641,19 +654,16 @@ public class Async extends WebSocketAdapter {
      */
     public Async addListener(AsyncListener listener) {
         listenerManager.addListener(listener);
-
         return this;
     }
 
     public Async addListeners(List<AsyncListener> listeners) {
         listenerManager.addListeners(listeners);
-
         return this;
     }
 
     public Async removeListener(AsyncListener listener) {
         listenerManager.removeListener(listener);
-
         return this;
     }
 
@@ -662,6 +672,14 @@ public class Async extends WebSocketAdapter {
      */
     AsyncListenerManager getListenerManager() {
         return listenerManager;
+    }
+
+    private void setSsoHost(String ssoHost) {
+        this.ssoHost = ssoHost;
+    }
+
+    private String getSsoHost() {
+        return ssoHost;
     }
 }
 

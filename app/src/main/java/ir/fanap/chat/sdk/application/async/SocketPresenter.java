@@ -24,8 +24,9 @@ public class SocketPresenter implements SocketContract.presenter {
     }
 
     @Override
-    public void connect(String socketServerAddress, String appId, String serverName, String token) {
-        async.connect(socketServerAddress, appId, serverName, token);
+    public void connect(String socketServerAddress, String appId, String serverName
+            , String token, String ssoHost) {
+        async.connect(socketServerAddress, appId, serverName, token, ssoHost);
     }
 
     @Override

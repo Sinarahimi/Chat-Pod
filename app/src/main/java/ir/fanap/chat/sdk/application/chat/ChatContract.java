@@ -12,7 +12,7 @@ public interface ChatContract {
 
     interface presenter {
 
-        void connect(String serverAddress, String appId, String severName, String token);
+        void connect(String serverAddress, String appId, String severName, String token,String ssoHost);
 
         void getThread(int count, int offset);
 
@@ -33,5 +33,9 @@ public interface ChatContract {
         void muteThread(int threadId);
 
         void unMuteThread(int threadId);
+
+        void editMessage(int messageId, String messageContent);
+
+        void getThreadParticipant(int count, int offset, long threadId);
     }
 }

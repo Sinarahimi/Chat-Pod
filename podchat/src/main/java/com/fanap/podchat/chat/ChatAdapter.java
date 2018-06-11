@@ -1,4 +1,4 @@
-package com.fanap.podchat;
+package com.fanap.podchat.chat;
 
 public class ChatAdapter implements ChatListener {
     @Override
@@ -58,6 +58,16 @@ public class ChatAdapter implements ChatListener {
 
     @Override
     public void onMessage() {
+
+    }
+
+    @Override
+    public void onGetThreadParticipant(String content) {
+
+    }
+
+    @Override
+    public void onEditedMessage(String content) {
 
     }
 }

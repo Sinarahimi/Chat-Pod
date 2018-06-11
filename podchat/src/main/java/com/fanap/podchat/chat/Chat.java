@@ -1,4 +1,4 @@
-package com.fanap.podchat;
+package com.fanap.podchat.chat;
 
 import android.arch.lifecycle.LiveData;
 import android.content.Context;
@@ -9,8 +9,8 @@ import com.fanap.podasync.AsyncAdapter;
 import com.fanap.podasync.util.JsonUtil;
 import com.fanap.podchat.model.ChatMessage;
 import com.fanap.podchat.model.ChatMessageContent;
-import com.fanap.podchat.model.ChatMessageType;
-import com.fanap.podchat.model.ChatMessageType.Constants;
+import com.fanap.podchat.util.ChatMessageType;
+import com.fanap.podchat.util.ChatMessageType.Constants;
 import com.fanap.podchat.model.ChatThread;
 import com.fanap.podchat.model.Invite;
 import com.fanap.podchat.model.InviteType;
@@ -41,16 +41,23 @@ public class Chat extends AsyncAdapter {
         listenerManager = new ChatListenerManager();
     }
 
-    public void connect(String serverAddress, String appId, String severName, String token) {
+    /**
+     * Connect to the Async
+     */
+    public void connect(String serverAddress, String appId, String severName, String token, String ssoHost) {
+        async.connect(serverAddress, appId, severName, token, ssoHost);
         setToken(token);
-        async.connect(serverAddress, appId, severName, token);
         getUserInfo();
     }
 
+
+    /**
+     * First we check the message type and then we set the
+     * the  specific callback for that
+     */
     @Override
     public void OnTextMessage(String textMessage) throws IOException {
         super.OnTextMessage(textMessage);
-        Log.i("OnTextMessage: Chat", textMessage);
         int messageType = 0;
 
         JsonAdapter<ChatMessage> jsonAdapter = moshi.adapter(ChatMessage.class);
@@ -114,6 +121,7 @@ public class Chat extends AsyncAdapter {
                 handleOnSentMessage(chatMessage);
                 break;
             case Constants.THREAD_PARTICIPANTS:
+                handleOnGetThreadParticipant(chatMessage);
                 break;
             case Constants.UNBLOCK:
                 break;
@@ -132,12 +140,24 @@ public class Chat extends AsyncAdapter {
             case Constants.DELETE_MESSAGE:
                 break;
             case Constants.EDIT_MESSAGE:
+                handleOnEditedMessage(chatMessage);
                 Log.i("EDIT_MESSAGE", chatMessage.getContent());
                 break;
         }
     }
 
+    private void handleOnEditedMessage(ChatMessage chatMessage) {
+        Log.i("EditedMessage", chatMessage.getContent());
+        listenerManager.callOnEditedMessage(chatMessage.getContent());
+    }
+
+    private void handleOnGetThreadParticipant(ChatMessage chatMessage) {
+        Log.i("Participant", chatMessage.getContent());
+        listenerManager.callOnGetThreadParticipant(chatMessage.getContent());
+    }
+
     private void handleError(ChatMessage chatMessage) {
+        Log.e("Chat: Error", chatMessage.getContent());
         listenerManager.callOnError(chatMessage.getContent());
     }
 
@@ -158,7 +178,7 @@ public class Chat extends AsyncAdapter {
     }
 
     private void handleOnMessage(ChatMessage chatMessage) throws IOException {
-        Log.d(TAG, "OnTextMessage:MESSAGE  .");
+        Log.i("Chat:Message", chatMessage.getContent());
         JsonAdapter<Message> jsonHistoryAdapter = moshi.adapter(Message.class);
         Message jsonMessage = jsonHistoryAdapter.fromJson(chatMessage.getContent());
 
@@ -187,21 +207,23 @@ public class Chat extends AsyncAdapter {
     }
 
     private void handleOnSentMessage(ChatMessage chatMessage) {
+        Log.i("Sent:Message", chatMessage.getContent());
         listenerManager.callOnSentMessage(chatMessage.getContent());
     }
 
     private void handleOnSeenMessage(ChatMessage chatMessage) {
+        Log.i("Seen:Message", chatMessage.getContent());
         listenerManager.callOnSeenMessage(chatMessage.getContent());
     }
 
     private void handleOnInvitation(ChatMessage chatMessage) {
-        Log.d(TAG, "INVITATION  .");
+        Log.i("INVITATION ", chatMessage.getContent());
         listenerManager.callOnInvitation(chatMessage.getContent());
     }
 
     private void handleOnDelivery(ChatMessage chatMessage) {
+        Log.i("DeliveryMessage", chatMessage.getContent());
         listenerManager.callOnDeliveryMessage(chatMessage.getContent());
-        Log.d("OnDelivery", chatMessage.getContent());
     }
 
     private void handleOnGetContacts(ChatMessage chatMessage) {
@@ -209,6 +231,7 @@ public class Chat extends AsyncAdapter {
     }
 
     private void handleOnGetHistory(ChatMessage chatMessage) throws IOException {
+        Log.i("GET_THREAD_HISTORY", chatMessage.getContent());
         JsonAdapter<Message> jsonHistoryAdapter = moshi.adapter(Message.class);
         Message jsonHistoryMessage = jsonHistoryAdapter.fromJson(chatMessage.getContent());
         listenerManager.callOnGetThreadHistory(chatMessage.getContent());
@@ -220,7 +243,7 @@ public class Chat extends AsyncAdapter {
     }
 
     private void handleOnGetThread(ChatMessage chatMessage) {
-        Log.d(TAG, "OnTextMessage:GET_THREADS  .");
+        Log.i("GET_THREADS", chatMessage.getContent());
         chatMessage.getUniqueId();
         chatMessage.getTime();
         conversations = new ArrayList<>(Arrays.asList(chatMessage.getContent().split(",")));
@@ -229,7 +252,6 @@ public class Chat extends AsyncAdapter {
     }
 
     public void sendTextMessage(String textMessage, long threadId) {
-
         Log.i("send Message called", textMessage);
 
         ChatMessage chatMessage = new ChatMessage();
@@ -248,7 +270,6 @@ public class Chat extends AsyncAdapter {
     }
 
     public void getThread(int count, int offset) {
-        Log.i("get thread called", "count" + count);
         ChatMessageContent chatMessageContent = new ChatMessageContent();
         chatMessageContent.setCount(count);
         chatMessageContent.setOffset(offset);
@@ -292,7 +313,10 @@ public class Chat extends AsyncAdapter {
         async.sendMessage(asyncContent, 3);
     }
 
-    public void getHistory(int count, int offset) {
+    /**
+     * Get history of the
+     */
+    public void getHistory(int count, int offset, long threadId) {
         ChatMessageContent chatMessageContent = new ChatMessageContent();
         chatMessageContent.setCount(count);
         chatMessageContent.setOffset(offset);
@@ -305,6 +329,7 @@ public class Chat extends AsyncAdapter {
         chatMessage.setType(Constants.GET_HISTORY);
         chatMessage.setToken(getToken());
         chatMessage.setUniqueId(getUniqueId());
+        chatMessage.setSubjectId(threadId);
 
         JsonAdapter<ChatMessage> chatMessageJsonAdapter = moshi.adapter(ChatMessage.class);
         String asyncContent = chatMessageJsonAdapter.toJson(chatMessage);
@@ -312,7 +337,10 @@ public class Chat extends AsyncAdapter {
         async.sendMessage(asyncContent, 3);
     }
 
-    public void getContacts(int count, int offset) {
+    /**
+     * Get all of the contacts of the user
+     */
+    public void getContact(int count, int offset) {
         ChatMessageContent chatMessageContent = new ChatMessageContent();
         chatMessageContent.setCount(count);
         chatMessageContent.setOffset(offset);
@@ -332,6 +360,9 @@ public class Chat extends AsyncAdapter {
         async.sendMessage(asyncContent, 3);
     }
 
+    /**
+     * Create the thread for chat with another user
+     */
     public void createThread(int chatThreadType, int contactId) {
         Log.i("createThread called", "count" + chatThreadType);
 
@@ -356,6 +387,11 @@ public class Chat extends AsyncAdapter {
         async.sendMessage(asyncContent, 4);
         Log.i("Create thread", asyncContent);
     }
+
+//    private void sendMessage(String token, String uniqueId, String tokenIssuer,
+//                             String content, int ChatType, int AsyncType, String metadata,){
+//
+//    }
 
     public void createGroupThread(int type, String title, Invite[] invite) {
         Log.i("createThread called", "count" + type);
@@ -468,6 +504,10 @@ public class Chat extends AsyncAdapter {
         async.sendMessage(asyncContent, 4);
     }
 
+    /**
+     * Message can be edit when you pass the message id and the edited
+     * content to editMessage function
+     */
     public void editMessage(int messageId, String messageContent) {
 
         Message message = new Message();
@@ -503,13 +543,11 @@ public class Chat extends AsyncAdapter {
 
     public Chat addListeners(List<ChatListener> listeners) {
         listenerManager.addListeners(listeners);
-
         return this;
     }
 
     public Chat removeListener(ChatListener listener) {
         listenerManager.removeListener(listener);
-
         return this;
     }
 
@@ -520,7 +558,6 @@ public class Chat extends AsyncAdapter {
         return listenerManager;
     }
 
-
     /**
      * Get list of conversations
      */
@@ -528,7 +565,7 @@ public class Chat extends AsyncAdapter {
         return conversations;
     }
 
-    public void setConversations(List<String> conversations) {
+    private void setConversations(List<String> conversations) {
         this.conversations = conversations;
     }
 
@@ -552,7 +589,7 @@ public class Chat extends AsyncAdapter {
         return userId;
     }
 
-    public void setUserId(int userId) {
+    private void setUserId(int userId) {
         this.userId = userId;
     }
 }

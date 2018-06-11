@@ -1,4 +1,4 @@
-package com.fanap.podchat.model;
+package com.fanap.podchat.util;
 
 import android.support.annotation.IntDef;
 

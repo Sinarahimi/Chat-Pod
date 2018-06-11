@@ -25,15 +25,21 @@ public class ChatTest {
     }
     @SmallTest
     public void getThread(){
-        presenter.connect("ws://172.16.106.26:8003/ws", "POD-Chat", "chat-server","a11768091eac48f2a7b84ed6a241f9c3");
+        presenter.connect("ws://172.16.106.26:8003/ws", "POD-Chat",
+                "chat-server","a11768091eac48f2a7b84ed6a241f9c3","http://172.16.110.76");
         presenter.getThread(50,0);
     }
 
     @SmallTest
     public void getThreadHistory(){
-        presenter.connect("ws://172.16.106.26:8003/ws", "POD-Chat", "chat-server","a11768091eac48f2a7b84ed6a241f9c3");
-        presenter.connect("ws://172.16.106.26:8003/ws", "POD-Chat", "chat-server","afa51d8291dc4072a0831d3a18cb5030");
+        presenter.connect("ws://172.16.106.26:8003/ws", "POD-Chat",
+                "chat-server","a11768091eac48f2a7b84ed6a241f9c3","http://172.16.110.76");
         presenter.getThread(50,0);
+    }
+
+    @SmallTest
+    public void getThreadParticipant(){
+
     }
 
 }

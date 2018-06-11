@@ -3,9 +3,8 @@ package ir.fanap.chat.sdk.application.chat;
 import android.arch.lifecycle.LiveData;
 import android.content.Context;
 
-import com.fanap.podchat.Chat;
-import com.fanap.podchat.ChatAdapter;
-import com.fanap.podchat.ChatListener;
+import com.fanap.podchat.chat.Chat;
+import com.fanap.podchat.chat.ChatAdapter;
 
 public class ChatPresenter extends ChatAdapter implements ChatContract.presenter {
 
@@ -19,8 +18,9 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void connect(String serverAddress, String appId, String severName, String token) {
-        chat.connect(serverAddress, appId, severName, token);
+    public void connect(String serverAddress, String appId, String severName,
+                        String token, String ssoHost) {
+        chat.connect(serverAddress, appId, severName, token, ssoHost);
     }
 
     @Override
@@ -35,17 +35,16 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void getHistory(int count, int offset) {
-        chat.getHistory(count, offset);
+
     }
 
     @Override
     public void getHistory(int count, int offset, String order, long subjectId) {
-        chat.getHistory(count, offset, order, subjectId);
+        chat.getHistory(count, offset, subjectId);
     }
-
     @Override
     public void getContact(int count, int offset) {
-        chat.getContacts(count, offset);
+        chat.getContact(count, offset);
     }
 
     @Override
@@ -74,8 +73,23 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void editMessage(int messageId, String messageContent) {
+        chat.editMessage(messageId, messageContent);
+    }
+
+    @Override
+    public void getThreadParticipant(int count, int offset, long threadId) {
+        chat.getThreadParticipant(count, offset, threadId);
+    }
+
+    @Override
     public void onDelivery(String content) {
         super.onDelivery(content);
+    }
+
+    @Override
+    public void onGetThread(String content) {
+        super.onGetThread(content);
     }
 
     @Override

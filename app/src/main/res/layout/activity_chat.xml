@@ -2,6 +2,7 @@
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/constraintLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".application.chat.ChatActivity"
@@ -44,8 +45,8 @@
         android:id="@+id/textViewStateChat"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="46dp"
-        android:layout_marginTop="35dp"
+        android:layout_marginStart="44dp"
+        android:layout_marginTop="8dp"
         android:text="State"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/buttonGetThreadHistory" />
@@ -64,19 +65,20 @@
         android:id="@+id/buttonCreateThread"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="4dp"
+        android:layout_marginStart="1dp"
         android:layout_marginTop="28dp"
         android:onClick="createThread"
         android:text="Create Thread"
-        app:layout_constraintStart_toStartOf="@+id/textViewStateChat"
+        app:layout_constraintEnd_toStartOf="@+id/buttonEditMsg"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textViewStateChat" />
 
     <Button
         android:id="@+id/buttonSendMessage"
-        android:layout_width="wrap_content"
+        android:layout_width="126dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="19dp"
-        android:layout_marginTop="21dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginTop="16dp"
         android:onClick="sendMessage"
         android:text="Send message"
         app:layout_constraintEnd_toEndOf="@+id/buttonCreateThread"
@@ -129,12 +131,36 @@
         android:id="@+id/textViewUserId"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="64dp"
-        android:layout_marginStart="63dp"
-        android:layout_marginTop="34dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
         android:text="User Id"
-        app:layout_constraintEnd_toEndOf="@+id/editTextThread"
-        app:layout_constraintStart_toEndOf="@+id/buttonCreateThread"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/textViewStateChat"
         app:layout_constraintTop_toBottomOf="@+id/buttonGetContact" />
+
+    <Button
+        android:id="@+id/buttonEditMsg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:layout_marginEnd="14dp"
+        android:onClick="EditMsg"
+        android:text="EditMsg"
+        app:layout_constraintBottom_toTopOf="@+id/editTextThread"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/buttonCreateThread" />
+
+    <Button
+        android:id="@+id/buttonGetParticipant"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="46dp"
+        android:layout_marginTop="1dp"
+        android:onClick="getParticipant"
+        android:text="getParticipant"
+        android:textSize="14sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextMessage" />
 
 </android.support.constraint.ConstraintLayout>

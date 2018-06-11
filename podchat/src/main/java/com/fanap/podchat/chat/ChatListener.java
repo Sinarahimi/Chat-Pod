@@ -1,4 +1,4 @@
-package com.fanap.podchat;
+package com.fanap.podchat.chat;
 
 public interface ChatListener {
 
@@ -26,4 +26,7 @@ public interface ChatListener {
 
     void onMessage();
 
+    void onGetThreadParticipant(String content);
+
+    void onEditedMessage(String content);
 }
