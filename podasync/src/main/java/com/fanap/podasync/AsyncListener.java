@@ -4,5 +4,5 @@ import java.io.IOException;
 
 public interface AsyncListener {
 
-    void OnTextMessage(String textMessage) throws IOException;
+    void OnReceivedMessage(String textMessage) throws IOException;
 }

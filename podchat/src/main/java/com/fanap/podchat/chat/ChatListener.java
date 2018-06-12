@@ -8,13 +8,13 @@ public interface ChatListener {
 
     void onForwardMessage();
 
-    void onGetContacts(String content);
+    void onGetContacts(String content, int contentCount);
 
-    void onGetHistory(String content);
+    void onGetHistory(String content, int contentCount);
 
     void onStatus(String content);
 
-    void onGetThread(String content);
+    void onGetThread(String content, int contentCount);
 
     void onInvitation(String content);
 

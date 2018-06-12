@@ -108,7 +108,7 @@ class AsyncListenerManager {
 
     public void callOnTextMessage(String message) throws IOException {
         for (AsyncListener listener : getSynchronizedListeners()) {
-            listener.OnTextMessage(message);
+            listener.OnReceivedMessage(message);
         }
     }
 }

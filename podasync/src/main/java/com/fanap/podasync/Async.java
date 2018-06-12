@@ -516,7 +516,7 @@ public class Async extends WebSocketAdapter {
         }
     }
 
-
+    /** Checking if the peerId exist or not. if user logout Peer id is set to null */
     private boolean peerIdExistence() {
         boolean isPeerIdExistence;
         String peerId = sharedPrefs.getString(AsyncConstant.Constants.PEER_ID, null);

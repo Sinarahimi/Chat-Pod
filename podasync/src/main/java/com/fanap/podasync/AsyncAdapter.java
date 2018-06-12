@@ -5,7 +5,7 @@ import java.io.IOException;
 public class AsyncAdapter implements AsyncListener {
 
     @Override
-    public void OnTextMessage(String textMessage) throws IOException {
+    public void OnReceivedMessage(String textMessage) throws IOException {
 
     }
 }

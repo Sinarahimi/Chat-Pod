@@ -34,9 +34,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void getHistory(int count, int offset) {
-
-    }
+    public void getHistory(int count, int offset) { }
 
     @Override
     public void getHistory(int count, int offset, String order, long subjectId) {
@@ -88,13 +86,13 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void onGetThread(String content) {
-        super.onGetThread(content);
+    public void onGetThread(String content, int contentCount) {
+        super.onGetThread(content, contentCount);
     }
 
     @Override
-    public void onGetContacts(String content) {
-        super.onGetContacts(content);
+    public void onGetContacts(String content,int contentCount) {
+        super.onGetContacts(content,contentCount);
         view.onGetContacts(content);
     }
 

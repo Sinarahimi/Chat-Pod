@@ -10,6 +10,7 @@
 
     <Button
         android:id="@+id/buttonConnect"
+        style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="46dp"
@@ -21,6 +22,7 @@
 
     <Button
         android:id="@+id/buttonGetThread"
+        style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="47dp"
@@ -32,6 +34,7 @@
 
     <Button
         android:id="@+id/buttonGetThreadHistory"
+        style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="46dp"
@@ -75,6 +78,7 @@
 
     <Button
         android:id="@+id/buttonSendMessage"
+        style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="126dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="4dp"
@@ -153,6 +157,7 @@
 
     <Button
         android:id="@+id/buttonGetParticipant"
+        style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="46dp"

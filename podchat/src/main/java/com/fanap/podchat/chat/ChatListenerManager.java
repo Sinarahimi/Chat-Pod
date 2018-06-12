@@ -103,21 +103,21 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnGetThread(String content) {
+    public void callOnGetThread(String content, int contentCount) {
         for (ChatListener listener : getSynchronizedListeners()) {
-            listener.onGetThread(content);
+            listener.onGetThread(content,contentCount);
         }
     }
 
-    public void callOnGetThreadHistory(String content) {
+    public void callOnGetThreadHistory(String content,int contentCount) {
         for (ChatListener listener : getSynchronizedListeners()) {
-            listener.onGetHistory(content);
+            listener.onGetHistory(content, contentCount);
         }
     }
 
-    public void callOnGetContacts(String content){
+    public void callOnGetContacts(String content, int contentCount){
         for (ChatListener listener : getSynchronizedListeners()) {
-            listener.onGetContacts(content);
+            listener.onGetContacts(content, contentCount);
         }
     }
     public void callOnInvitation(String content){
