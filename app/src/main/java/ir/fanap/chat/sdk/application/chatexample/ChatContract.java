@@ -1,6 +1,8 @@
-package ir.fanap.chat.sdk.application.chat;
+package ir.fanap.chat.sdk.application.chatexample;
 
 import android.arch.lifecycle.LiveData;
+
+import java.util.List;
 
 public interface ChatContract {
     interface view {
@@ -12,7 +14,7 @@ public interface ChatContract {
 
     interface presenter {
 
-        void connect(String serverAddress, String appId, String severName, String token,String ssoHost);
+        void connect(String serverAddress, String appId, String severName, String token,String ssoHost, String platformHost);
 
         void getThread(int count, int offset);
 
@@ -28,6 +30,8 @@ public interface ChatContract {
 
         void sendTextMessage(String textMessage, long threadId);
 
+        void sendReplyMessage(String messageContent, long threadId ,long messageId);
+
         LiveData<String> getLiveState();
 
         void muteThread(int threadId);
@@ -37,5 +41,7 @@ public interface ChatContract {
         void editMessage(int messageId, String messageContent);
 
         void getThreadParticipant(int count, int offset, long threadId);
+
+        void addContact(List<String> firstName, List<String> lastName, String cellphoneNumber, String email);
     }
 }

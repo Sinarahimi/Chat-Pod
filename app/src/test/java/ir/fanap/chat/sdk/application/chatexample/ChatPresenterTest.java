@@ -1,17 +1,15 @@
-package ir.fanap.chat.sdk.application.chat;
+package ir.fanap.chat.sdk.application.chatexample;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 public class ChatPresenterTest {
     private ChatContract.presenter presenter;
 
     @Before
     public void setUp() throws Exception {
-        presenter = new ChatPresenter();
+//        presenter = new ChatPresenter();
     }
 
     @Test

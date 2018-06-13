@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".application.async.AsyncActivity"
+    tools:context=".application.asyncexample.AsyncActivity"
     tools:layout_editor_absoluteY="81dp">
 
     <Button

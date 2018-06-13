@@ -29,4 +29,6 @@ public interface ChatListener {
     void onGetThreadParticipant(String content);
 
     void onEditedMessage(String content);
+
+    void onContactAdded(String content);
 }

@@ -7,8 +7,8 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
-import ir.fanap.chat.sdk.application.async.SocketContract;
-import ir.fanap.chat.sdk.application.async.SocketPresenter;
+import ir.fanap.chat.sdk.application.asyncexample.SocketContract;
+import ir.fanap.chat.sdk.application.asyncexample.SocketPresenter;
 
 public class SocketPresenterTest {
 

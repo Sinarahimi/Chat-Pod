@@ -1,10 +1,12 @@
-package ir.fanap.chat.sdk.application.chat;
+package ir.fanap.chat.sdk.application.chatexample;
 
 import android.arch.lifecycle.LiveData;
 import android.content.Context;
 
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
+
+import java.util.List;
 
 public class ChatPresenter extends ChatAdapter implements ChatContract.presenter {
 
@@ -19,8 +21,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void connect(String serverAddress, String appId, String severName,
-                        String token, String ssoHost) {
-        chat.connect(serverAddress, appId, severName, token, ssoHost);
+                        String token, String ssoHost, String platformHost) {
+        chat.connect(serverAddress, appId, severName, token, ssoHost, platformHost);
     }
 
     @Override
@@ -34,12 +36,14 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void getHistory(int count, int offset) { }
+    public void getHistory(int count, int offset) {
+    }
 
     @Override
     public void getHistory(int count, int offset, String order, long subjectId) {
         chat.getHistory(count, offset, subjectId);
     }
+
     @Override
     public void getContact(int count, int offset) {
         chat.getContact(count, offset);
@@ -53,6 +57,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void sendTextMessage(String textMessage, long threadId) {
         chat.sendTextMessage(textMessage, threadId);
+    }
+
+    @Override
+    public void sendReplyMessage(String messageContent, long threadId, long messageId) {
+        chat.sendReplyMessage(messageContent, threadId, messageId);
     }
 
     @Override
@@ -81,6 +90,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void addContact(List<String> firstName, List<String> lastName, String cellphoneNumber, String email) {
+        chat.addContact(firstName, lastName, cellphoneNumber, email);
+    }
+
+    @Override
     public void onDelivery(String content) {
         super.onDelivery(content);
     }
@@ -91,8 +105,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void onGetContacts(String content,int contentCount) {
-        super.onGetContacts(content,contentCount);
+    public void onGetContacts(String content, int contentCount) {
+        super.onGetContacts(content, contentCount);
         view.onGetContacts(content);
     }
 

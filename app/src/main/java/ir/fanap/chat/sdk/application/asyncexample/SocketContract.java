@@ -1,4 +1,4 @@
-package ir.fanap.chat.sdk.application.async;
+package ir.fanap.chat.sdk.application.asyncexample;
 
 import android.arch.lifecycle.LiveData;
 

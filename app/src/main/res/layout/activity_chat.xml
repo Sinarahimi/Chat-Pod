@@ -5,7 +5,7 @@
     android:id="@+id/constraintLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".application.chat.ChatActivity"
+    tools:context=".application.chatexample.ChatActivity"
     tools:layout_editor_absoluteY="81dp">
 
     <Button
@@ -160,12 +160,37 @@
         style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
         android:layout_marginStart="46dp"
-        android:layout_marginTop="1dp"
         android:onClick="getParticipant"
         android:text="getParticipant"
         android:textSize="14sp"
+        app:layout_constraintEnd_toStartOf="@+id/buttonSendReplyMessage"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editTextMessage" />
+
+    <Button
+        android:id="@+id/buttonSendReplyMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="1dp"
+        android:onClick="sendReplyMessage"
+        android:text="Button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/buttonGetParticipant"
+        app:layout_constraintTop_toBottomOf="@+id/editTextMessage" />
+
+    <Button
+        android:id="@+id/buttonAddContact"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="46dp"
+        android:layout_marginStart="46dp"
+        android:layout_marginTop="1dp"
+        android:onClick="addContact"
+        android:text="addContact"
+        app:layout_constraintEnd_toStartOf="@+id/textViewUserId"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonGetParticipant" />
 
 </android.support.constraint.ConstraintLayout>

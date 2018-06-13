@@ -70,4 +70,9 @@ public class ChatAdapter implements ChatListener {
     public void onEditedMessage(String content) {
 
     }
+
+    @Override
+    public void onContactAdded(String content) {
+
+    }
 }

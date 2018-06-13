@@ -11,9 +11,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".application.async.AsyncActivity"></activity>
+        <activity android:name=".application.asyncexample.AsyncActivity"></activity>
 
-        <activity android:name=".application.chat.ChatActivity">
+        <activity android:name=".application.chatexample.ChatActivity">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

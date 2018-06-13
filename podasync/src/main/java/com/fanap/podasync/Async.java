@@ -156,13 +156,13 @@ public class Async extends WebSocketAdapter {
         super.onStateChanged(websocket, newState);
         stateLiveData.postValue(newState.toString());
         setState(newState.toString());
-        Log.i("onStateChanged", newState.toString());
+        Log.d("onStateChanged", newState.toString());
     }
 
     @Override
     public void onError(WebSocket websocket, WebSocketException cause) throws Exception {
         super.onError(websocket, cause);
-        Log.e("onError", cause.toString());
+        Log.d("onError", cause.toString());
         cause.getCause().printStackTrace();
         setOnError(cause.toString());
     }
@@ -196,7 +196,6 @@ public class Async extends WebSocketAdapter {
     public void onDisconnected(WebSocket websocket, WebSocketFrame serverCloseFrame, WebSocketFrame clientCloseFrame, boolean closedByServer) throws Exception {
         super.onDisconnected(websocket, serverCloseFrame, clientCloseFrame, closedByServer);
         Log.e("Disconnected", serverCloseFrame.getCloseReason());
-        Handler handler = new Handler();
         stopSocket();
         reConnect();
     }
@@ -205,9 +204,8 @@ public class Async extends WebSocketAdapter {
     public void onCloseFrame(WebSocket websocket, WebSocketFrame frame) throws Exception {
         super.onCloseFrame(websocket, frame);
         Log.e("onCloseFrame", frame.getCloseReason());
-                    stopSocket();
-                    reConnect();
-
+        stopSocket();
+        reConnect();
     }
 
     /**
@@ -377,44 +375,38 @@ public class Async extends WebSocketAdapter {
      * @Param []receiversId the Id's that we want to send
      */
     public void sendMessage(String textContent, int messageType, long[] receiversId) {
-        Message message = new Message();
-        message.setContent(textContent);
-        message.setReceivers(receiversId);
-        JsonAdapter<Message> jsonAdapter = moshi.adapter(Message.class);
-        String jsonMessage = jsonAdapter.toJson(message);
-        String wrapperJsonString = getMessageWrapper(moshi, jsonMessage, messageType);
-        sendData(webSocket, wrapperJsonString);
-        lastSendMessageTime = new Date().getTime();
+        if (getState().equals("OPEN")) {
+            Message message = new Message();
+            message.setContent(textContent);
+            message.setReceivers(receiversId);
+            JsonAdapter<Message> jsonAdapter = moshi.adapter(Message.class);
+            String jsonMessage = jsonAdapter.toJson(message);
+            String wrapperJsonString = getMessageWrapper(moshi, jsonMessage, messageType);
+            sendData(webSocket, wrapperJsonString);
+            lastSendMessageTime = new Date().getTime();
+        }
     }
 
+    /** First we checking the state of the socket then we send the message*/
     public void sendMessage(String textContent, int messageType) {
-        long ttl = new Date().getTime();
-        Message message = new Message();
-        message.setContent(textContent);
-        message.setPriority(1);
-        message.setPeerName(getServerName());
-        message.setTtl(ttl);
+        if (getState().equals("OPEN")) {
+            long ttl = new Date().getTime();
+            Message message = new Message();
+            message.setContent(textContent);
+            message.setPriority(1);
+            message.setPeerName(getServerName());
+            message.setTtl(ttl);
 
-        String json = JsonUtil.getJson(message);
+            String json = JsonUtil.getJson(message);
 
-        messageWrapperVo = new MessageWrapperVo();
-        messageWrapperVo.setContent(json);
-        messageWrapperVo.setType(messageType);
+            messageWrapperVo = new MessageWrapperVo();
+            messageWrapperVo.setContent(json);
+            messageWrapperVo.setType(messageType);
 
-        String json1 = JsonUtil.getJson(messageWrapperVo);
-
-        sendData(webSocket, json1);
-    }
-
-    public void sendMessage(String textContent, long[] receiversId) {
-        Message message = new Message();
-        message.setContent(textContent);
-        message.setReceivers(receiversId);
-        JsonAdapter<Message> jsonAdapter = moshi.adapter(Message.class);
-        String jsonMessage = jsonAdapter.toJson(message);
-        String wrapperJsonString = getMessageWrapper(moshi, jsonMessage, AsyncMessageType.MessageType.MESSAGE);
-        sendData(webSocket, wrapperJsonString);
-        lastSendMessageTime = new Date().getTime();
+            String json1 = JsonUtil.getJson(messageWrapperVo);
+            sendData(webSocket, json1);
+            lastSendMessageTime = new Date().getTime();
+        }
     }
 
     public void closeSocket() {
@@ -481,7 +473,7 @@ public class Async extends WebSocketAdapter {
         }, SOCKET_CLOSE_TIMEOUT);
     }
 
-    /*After a delay Time it calls the method in the Run*/
+    /** After a delay Time it calls the method in the Run*/
     private void scheduleSendPing(int delayTime) {
         Runnable runnable;
         runnable = this::sendPing;
@@ -504,19 +496,17 @@ public class Async extends WebSocketAdapter {
         }
     }
 
-    private void stopPing() {
-        webSocket.sendClose();
-        pingHandler.removeCallbacksAndMessages(null);
-    }
-
     private void stopSocket() {
         if (webSocket != null) {
             webSocket.disconnect();
             webSocket = null;
+            pingHandler.removeCallbacksAndMessages(null);
         }
     }
 
-    /** Checking if the peerId exist or not. if user logout Peer id is set to null */
+    /**
+     * Checking if the peerId exist or not. if user logout Peer id is set to null
+     */
     private boolean peerIdExistence() {
         boolean isPeerIdExistence;
         String peerId = sharedPrefs.getString(AsyncConstant.Constants.PEER_ID, null);
@@ -590,14 +580,6 @@ public class Async extends WebSocketAdapter {
         this.state = state;
     }
 
-    public int getMessageCalled() {
-        return getMessageCalled;
-    }
-
-    private void setMessageCalled(int getMessageCalled) {
-        this.getMessageCalled = getMessageCalled;
-    }
-
     private void setErrorMessage(String errorMessage) {
         this.errorMessage = errorMessage;
     }
@@ -638,11 +620,11 @@ public class Async extends WebSocketAdapter {
         return onConnectException;
     }
 
-    public void setToken(String token) {
+    private void setToken(String token) {
         this.token = token;
     }
 
-    public String getToken() {
+    private String getToken() {
         return token;
     }
 

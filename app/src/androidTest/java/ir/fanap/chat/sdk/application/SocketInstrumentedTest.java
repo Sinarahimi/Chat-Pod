@@ -14,9 +14,9 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
 import ir.fanap.chat.sdk.R;
-import ir.fanap.chat.sdk.application.async.AsyncActivity;
-import ir.fanap.chat.sdk.application.async.SocketContract;
-import ir.fanap.chat.sdk.application.async.SocketPresenter;
+import ir.fanap.chat.sdk.application.asyncexample.AsyncActivity;
+import ir.fanap.chat.sdk.application.asyncexample.SocketContract;
+import ir.fanap.chat.sdk.application.asyncexample.SocketPresenter;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
@@ -55,7 +55,7 @@ public class SocketInstrumentedTest {
 
     @Test
     public void ShouldConnectToSocket() throws Exception {
-        socketPresenter.connect("ws://172.16.110.235:8003/ws", "UIAPP","chat-server","afa51d8291dc4072a0831d3a18cb5030");
+//        socketPresenter.connect("ws://172.16.110.235:8003/ws", "UIAPP","chat-server","afa51d8291dc4072a0831d3a18cb5030");
         onView(withId(R.id.button)).perform(click());
         onView(withId(R.id.textViewstate)).check(matches(withText("OPEN")));
 
@@ -65,7 +65,7 @@ public class SocketInstrumentedTest {
 
     @Test
     public void ShouldReceiveMessages() {
-        socketPresenter.connect("ws://172.16.110.235:8003/ws", "UIAPP","chat-server","afa51d8291dc4072a0831d3a18cb5030");
+//        socketPresenter.connect("ws://172.16.110.235:8003/ws", "UIAPP","chat-server","afa51d8291dc4072a0831d3a18cb5030");
         onView(withId(R.id.button)).perform(click());
 
         Mockito.verify(view, times(1)).messageCalled();

@@ -159,4 +159,10 @@ public class ChatListenerManager {
             listener.onEditedMessage(content);
         }
     }
+
+    public void callonContactAdded(String content) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            listener.onContactAdded(content);
+        }
+    }
 }
