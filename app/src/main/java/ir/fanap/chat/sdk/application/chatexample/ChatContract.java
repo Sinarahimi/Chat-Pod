@@ -42,6 +42,6 @@ public interface ChatContract {
 
         void getThreadParticipant(int count, int offset, long threadId);
 
-        void addContact(List<String> firstName, List<String> lastName, String cellphoneNumber, String email);
+        void addContact(String firstName, String lastName, String cellphoneNumber, String email);
     }
 }

@@ -10,7 +10,7 @@ import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
-public class JsonUtil {
+ public class JsonUtil {
     static final ObjectMapper mapper = new ObjectMapper();
 
     public static String getJson(Object obj) {
@@ -24,7 +24,7 @@ public class JsonUtil {
         }
     }
 
-    public static <T> T getObject(byte[] json, Class<T> classOfT) {
+    public static <T> T fromJSON(byte[] json, Class<T> classOfT) {
         try {
             return mapper.readValue(new String(json, "utf-8"), classOfT);
         } catch (Exception e) {
@@ -32,7 +32,7 @@ public class JsonUtil {
         }
     }
 
-    public static <T> T getObject(String json, Class<T> classOfT) {
+    public static <T> T fromJSON(String json, Class<T> classOfT) {
         try {
             return mapper.readValue(json, classOfT);
         } catch (Exception e) {
@@ -40,7 +40,7 @@ public class JsonUtil {
         }
     }
 
-    public static <T> T getObject(String json, TypeReference<T> typeReference) {
+    public static <T> T fromJSON(String json, TypeReference<T> typeReference) {
         try {
             return mapper.readValue(json, typeReference);
         } catch (Exception e) {

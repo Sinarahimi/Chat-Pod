@@ -7,11 +7,21 @@ public class Conversation {
     private String title;
     private List<ParticipantVO> participants;
     private long time;
-    private String lastMessage;
     private String lastParticipantName;
     private boolean group;
     private long partner;
     private long unreadCount;
+    private long lastMessageId;
+    private long joinDate;
+    private Inviter inviter;
+    private String image;
+    private LastMessageVO lastMessageVO;
+    private long partnerLastMessageId;
+    private long partnerLastDeliveredMessageId;
+    private int type;
+    private boolean mute;
+    private long participantCount;
+
 
     public long getId() {
         return id;
@@ -45,14 +55,6 @@ public class Conversation {
         this.time = time;
     }
 
-    public String getLastMessage() {
-        return lastMessage;
-    }
-
-    public void setLastMessage(String lastMessage) {
-        this.lastMessage = lastMessage;
-    }
-
     public String getLastParticipantName() {
         return lastParticipantName;
     }
@@ -83,6 +85,86 @@ public class Conversation {
 
     public void setUnreadCount(long unreadCount) {
         this.unreadCount = unreadCount;
+    }
+
+    public long getLastMessageId() {
+        return lastMessageId;
+    }
+
+    public void setLastMessageId(long lastMessageId) {
+        this.lastMessageId = lastMessageId;
+    }
+
+    public long getJoinDate() {
+        return joinDate;
+    }
+
+    public void setJoinDate(long joinDate) {
+        this.joinDate = joinDate;
+    }
+
+    public Inviter getInviter() {
+        return inviter;
+    }
+
+    public void setInviter(Inviter inviter) {
+        this.inviter = inviter;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public LastMessageVO getLastMessageVO() {
+        return lastMessageVO;
+    }
+
+    public void setLastMessageVO(LastMessageVO lastMessageVO) {
+        this.lastMessageVO = lastMessageVO;
+    }
+
+    public long getPartnerLastMessageId() {
+        return partnerLastMessageId;
+    }
+
+    public void setPartnerLastMessageId(long partnerLastMessageId) {
+        this.partnerLastMessageId = partnerLastMessageId;
+    }
+
+    public long getPartnerLastDeliveredMessageId() {
+        return partnerLastDeliveredMessageId;
+    }
+
+    public void setPartnerLastDeliveredMessageId(long partnerLastDeliveredMessageId) {
+        this.partnerLastDeliveredMessageId = partnerLastDeliveredMessageId;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
+
+    public boolean isMute() {
+        return mute;
+    }
+
+    public void setMute(boolean mute) {
+        this.mute = mute;
+    }
+
+    public long getParticipantCount() {
+        return participantCount;
+    }
+
+    public void setParticipantCount(long participantCount) {
+        this.participantCount = participantCount;
     }
 //    ImageInfo image;
 

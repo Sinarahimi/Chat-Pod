@@ -108,7 +108,31 @@ class AsyncListenerManager {
 
     public void callOnTextMessage(String message) throws IOException {
         for (AsyncListener listener : getSynchronizedListeners()) {
-            listener.OnReceivedMessage(message);
+            listener.onReceivedMessage(message);
+        }
+    }
+
+    public void callOnStateChanged(String message) throws IOException {
+        for (AsyncListener listener : getSynchronizedListeners()) {
+            listener.onStateChanged(message);
+        }
+    }
+
+    public void callOnConnected(String message) throws IOException {
+        for (AsyncListener listener : getSynchronizedListeners()) {
+            listener.onConnected(message);
+        }
+    }
+
+    public void callOnDisconnected(String message) throws IOException {
+        for (AsyncListener listener : getSynchronizedListeners()) {
+            listener.onDisconnected(message);
+        }
+    }
+
+    public void callOnError(String message) throws IOException {
+        for (AsyncListener listener : getSynchronizedListeners()) {
+            listener.onError(message);
         }
     }
 }

@@ -72,7 +72,6 @@ public class Async extends WebSocketAdapter {
     private long lastSendMessageTime;
     private long lastReceiveMessageTime;
     private String message;
-    private String onError;
     private String state;
     private String appId;
     private String peerId;
@@ -154,30 +153,29 @@ public class Async extends WebSocketAdapter {
     @Override
     public void onStateChanged(WebSocket websocket, WebSocketState newState) throws Exception {
         super.onStateChanged(websocket, newState);
+        listenerManager.callOnStateChanged(newState.toString());
         stateLiveData.postValue(newState.toString());
         setState(newState.toString());
-        Log.d("onStateChanged", newState.toString());
+        if (BuildConfig.DEBUG) Log.d("onStateChanged", newState.toString());
     }
 
     @Override
     public void onError(WebSocket websocket, WebSocketException cause) throws Exception {
         super.onError(websocket, cause);
-        Log.d("onError", cause.toString());
-        cause.getCause().printStackTrace();
-        setOnError(cause.toString());
+        if (BuildConfig.DEBUG) Log.e("onError", cause.toString());
+        listenerManager.callOnError(cause.toString());
     }
 
     @Override
     public void onConnectError(WebSocket websocket, WebSocketException exception) throws Exception {
         super.onConnectError(websocket, exception);
-        Log.e("onConnected", exception.toString());
-        setonConnectError(exception);
+        if (BuildConfig.DEBUG) Log.e("onConnected", exception.toString());
     }
 
     @Override
     public void onConnected(WebSocket websocket, Map<String, List<String>> headers) throws Exception {
         super.onConnected(websocket, headers);
-        Log.i("onConnected", headers.toString());
+        listenerManager.callOnConnected(headers.toString());
     }
 
     /**
@@ -189,13 +187,14 @@ public class Async extends WebSocketAdapter {
     @Override
     public void onMessageError(WebSocket websocket, WebSocketException cause, List<WebSocketFrame> frames) throws Exception {
         super.onMessageError(websocket, cause, frames);
-        Log.e("onMessageError", cause.toString());
+        if (BuildConfig.DEBUG) Log.e("onMessageError", cause.toString());
     }
 
     @Override
     public void onDisconnected(WebSocket websocket, WebSocketFrame serverCloseFrame, WebSocketFrame clientCloseFrame, boolean closedByServer) throws Exception {
         super.onDisconnected(websocket, serverCloseFrame, clientCloseFrame, closedByServer);
-        Log.e("Disconnected", serverCloseFrame.getCloseReason());
+        if (BuildConfig.DEBUG) Log.e("Disconnected", serverCloseFrame.getCloseReason());
+        listenerManager.callOnDisconnected(serverCloseFrame.getCloseReason());
         stopSocket();
         reConnect();
     }
@@ -203,7 +202,7 @@ public class Async extends WebSocketAdapter {
     @Override
     public void onCloseFrame(WebSocket websocket, WebSocketFrame frame) throws Exception {
         super.onCloseFrame(websocket, frame);
-        Log.e("onCloseFrame", frame.getCloseReason());
+        if (BuildConfig.DEBUG) Log.e("onCloseFrame", frame.getCloseReason());
         stopSocket();
         reConnect();
     }
@@ -271,7 +270,6 @@ public class Async extends WebSocketAdapter {
     }
 
     private void handleOnPing(WebSocket webSocket, ClientMessage clientMessage) {
-
         if (clientMessage.getContent() != null || !clientMessage.getContent().equals("")) {
             if (getDeviceId() == null) {
                 deviceIdRequest(getSsoHost());
@@ -387,7 +385,9 @@ public class Async extends WebSocketAdapter {
         }
     }
 
-    /** First we checking the state of the socket then we send the message*/
+    /**
+     * First we checking the state of the socket then we send the message
+     */
     public void sendMessage(String textContent, int messageType) {
         if (getState().equals("OPEN")) {
             long ttl = new Date().getTime();
@@ -473,7 +473,9 @@ public class Async extends WebSocketAdapter {
         }, SOCKET_CLOSE_TIMEOUT);
     }
 
-    /** After a delay Time it calls the method in the Run*/
+    /**
+     * After a delay Time it calls the method in the Run
+     */
     private void scheduleSendPing(int delayTime) {
         Runnable runnable;
         runnable = this::sendPing;
@@ -544,7 +546,7 @@ public class Async extends WebSocketAdapter {
         this.serverName = serverName;
     }
 
-    public String getServerName() {
+    private String getServerName() {
         return serverName;
     }
 
@@ -602,22 +604,6 @@ public class Async extends WebSocketAdapter {
 
     private void setServerAddress(String serverAddress) {
         this.serverAddress = serverAddress;
-    }
-
-    private void setOnError(String onError) {
-        this.onError = onError;
-    }
-
-    public String getOnError() {
-        return onError;
-    }
-
-    private void setonConnectError(Exception exception) {
-        this.onConnectException = exception;
-    }
-
-    public Exception getOnConnectError() {
-        return onConnectException;
     }
 
     private void setToken(String token) {

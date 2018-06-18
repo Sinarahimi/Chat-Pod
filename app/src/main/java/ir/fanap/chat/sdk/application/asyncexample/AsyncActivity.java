@@ -5,12 +5,14 @@ import android.arch.lifecycle.Observer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketException;
@@ -51,7 +53,7 @@ public class AsyncActivity extends AppCompatActivity implements SocketContract.v
                     final long[] receiverIdArray = {receiverId};
                     socketPresenter.sendMessage("hello", 3, receiverIdArray);
                 }else {
-                    return;
+                    Toast.makeText(AsyncActivity.this, "Message is Empty", Toast.LENGTH_SHORT).show();
                 }
             }
         });

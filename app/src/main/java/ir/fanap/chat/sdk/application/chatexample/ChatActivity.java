@@ -29,9 +29,9 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
 //    private static String TOKEN = "c0866c4cc5274ea7ada6b01575b19d24";
 
     //fel token
-    private static String TOKEN = "a11768091eac48f2a7b84ed6a241f9c3";
+//    private static String TOKEN = "a11768091eac48f2a7b84ed6a241f9c3";
     //Token Alexi
-//    private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
+    private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +61,7 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
     }
 
     public void getThreadHistory(View view) {
-        presenter.getHistory(50, 0, "desc", 191);
+        presenter.getHistory(50, 0, "desc", 231);
     }
 
     public void getContact(View view) {
@@ -129,8 +129,6 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
 
 
     public void addContact(View view) {
-        List<String> firstNames = new ArrayList<>();
-        firstNames.add("sina");
-        presenter.addContact(firstNames, null, "0912356565", null);
+        presenter.addContact("SINA", "RAHIMI", "0912356565", "DEVE@MAIL.COM");
     }
 }

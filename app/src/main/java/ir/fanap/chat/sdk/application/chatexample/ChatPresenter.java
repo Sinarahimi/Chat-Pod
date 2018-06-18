@@ -90,7 +90,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void addContact(List<String> firstName, List<String> lastName, String cellphoneNumber, String email) {
+    public void addContact(String firstName, String lastName, String cellphoneNumber, String email) {
         chat.addContact(firstName, lastName, cellphoneNumber, email);
     }
 
@@ -100,13 +100,13 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void onGetThread(String content, int contentCount) {
-        super.onGetThread(content, contentCount);
+    public void onGetThread(String content) {
+        super.onGetThread(content);
     }
 
     @Override
-    public void onGetContacts(String content, int contentCount) {
-        super.onGetContacts(content, contentCount);
+    public void onGetContacts(String content) {
+        super.onGetContacts(content);
         view.onGetContacts(content);
     }
 

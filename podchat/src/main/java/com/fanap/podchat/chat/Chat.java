@@ -2,38 +2,45 @@ package com.fanap.podchat.chat;
 
 import android.arch.lifecycle.LiveData;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.fanap.podasync.Async;
 import com.fanap.podasync.AsyncAdapter;
 import com.fanap.podasync.networking.RetrofitHelper;
-import com.fanap.podasync.networking.api.TokenApi;
 import com.fanap.podasync.util.JsonUtil;
+import com.fanap.podchat.BuildConfig;
 import com.fanap.podchat.model.ChatMessage;
 import com.fanap.podchat.model.ChatMessageContent;
 import com.fanap.podchat.model.Contact;
+import com.fanap.podchat.model.Error;
+import com.fanap.podchat.model.OutPut;
+import com.fanap.podchat.model.OutPutContact;
+import com.fanap.podchat.model.ResultContact;
+import com.fanap.podchat.model.Results;
 import com.fanap.podchat.networking.api.ContactApi;
 import com.fanap.podchat.util.CallBack;
 import com.fanap.podchat.util.ChatMessageType;
 import com.fanap.podchat.util.ChatMessageType.Constants;
 import com.fanap.podchat.model.ChatThread;
 import com.fanap.podchat.model.Invite;
-import com.fanap.podchat.model.InviteType;
+import com.fanap.podchat.util.InviteType;
 import com.fanap.podchat.model.Message;
 import com.fanap.podchat.model.UserInfo;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
 import retrofit2.Response;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
-import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
 public class Chat extends AsyncAdapter {
@@ -50,11 +57,13 @@ public class Chat extends AsyncAdapter {
     private RetrofitHelper retrofitHelper;
     private String platformHost;
     private ContactApi contactApi;
+    private static HashMap<String, Integer> messageCallbacks;
 
     public void init(Context context) {
         async = Async.getInstance(context).addListener(this);
         moshi = new Moshi.Builder().build();
         listenerManager = new ChatListenerManager();
+        messageCallbacks = new HashMap<>();
     }
 
     /**
@@ -74,13 +83,15 @@ public class Chat extends AsyncAdapter {
      * the  specific callback for that
      */
     @Override
-    public void OnReceivedMessage(String textMessage) throws IOException {
-        Log.d("RAW_MESSAGE", textMessage);
-        super.OnReceivedMessage(textMessage);
+    public void onReceivedMessage(String textMessage) throws IOException {
+        //TOdO remove this log before release
+        if (BuildConfig.DEBUG) Log.d("RAW_MESSAGE", textMessage);
+        super.onReceivedMessage(textMessage);
         int messageType = 0;
-
         JsonAdapter<ChatMessage> jsonAdapter = moshi.adapter(ChatMessage.class);
         ChatMessage chatMessage = jsonAdapter.fromJson(textMessage);
+        String messageUniqueId = chatMessage.getUniqueId();
+        int requestType = messageCallbacks.get(messageUniqueId);
         if (chatMessage != null) {
             messageType = chatMessage.getType();
         }
@@ -93,23 +104,25 @@ public class Chat extends AsyncAdapter {
             case Constants.CHANGE_TYPE:
                 break;
             case Constants.DELIVERY:
-                handleOnDelivery(chatMessage);
+//                handleResponseMessage(requestType, false, 0, "", chatMessage);
+//                handleOnDelivery(chatMessage);
                 break;
             case Constants.ERROR:
-                handleError(chatMessage);
+                handleResponseMessage(requestType, true, 0, "", chatMessage);
                 break;
             case Constants.FORWARD_MESSAGE:
                 break;
             case Constants.GET_CONTACTS:
-                handleOnGetContacts(chatMessage);
+                handleResponseMessage(requestType, false, 0, "", chatMessage);
                 break;
             case Constants.GET_HISTORY:
-                handleOnGetHistory(chatMessage);
+                handleResponseMessage(requestType, false, 0, "", chatMessage);
+//                handleOnGetHistory(chatMessage);
                 break;
             case Constants.GET_STATUS:
                 break;
             case Constants.GET_THREADS:
-                handleOnGetThread(chatMessage);
+                handleResponseMessage(requestType, false, 0, "", chatMessage);
                 break;
             case Constants.INVITATION:
                 handleOnInvitation(chatMessage);
@@ -163,6 +176,108 @@ public class Chat extends AsyncAdapter {
         }
     }
 
+    private void handleResponseMessage(int type, boolean hasError, int errorCode, String errorMessage, ChatMessage chatMessage) {
+        OutPut outPut = new OutPut();
+        Results results = new Results();
+        switch (type) {
+            case Constants.DELIVERY:
+                Log.i("RECEIVE_DELIVER_MESSAGE", chatMessage.getContent());
+                listenerManager.callOnDeliveryMessage(chatMessage.getContent());
+                break;
+            case Constants.GET_HISTORY:
+                if (hasError){
+                    String errorJson = reformatError(hasError, chatMessage, outPut);
+                    listenerManager.callOnError(errorJson);
+                } else {
+                    results.setContentCount(chatMessage.getContentCount());
+                    if (chatMessage.getContent().length() + 23 < chatMessage.getContentCount()) {
+                        results.setHasNext(true);
+                    } else {
+                        results.setHasNext(false);
+                    }
+                    results.setHistory(chatMessage.getContent());
+                    results.setNextOffset(2 + chatMessage.getContent().length());
+                    outPut.setErrorCode(errorCode);
+                    outPut.setHasError(false);
+                    outPut.setErrorMessage(errorMessage);
+//                    outPut.setResult(results);
+
+                    String json = JsonUtil.getJson(outPut);
+                    listenerManager.callOnGetThreadHistory(json);
+                }
+
+                break;
+            case Constants.ERROR:
+                for (CallBack callBack : uniquesArrayList) {
+                    if (callBack.getUniqueId().equals(chatMessage.getUniqueId())) {
+                        Error error = JsonUtil.fromJSON(chatMessage.getContent(), Error.class);
+                        Log.e("RECEIVED_ERROR", chatMessage.getContent());
+                        Log.e("ErrorMessage", error.getMessage());
+                        Log.e("ErrorCode", String.valueOf(error.getCode()));
+                        outPut.setErrorMessage(error.getMessage());
+                        outPut.setErrorCode(error.getCode());
+                        String errorJson = JsonUtil.getJson(outPut);
+                        listenerManager.callOnError(errorJson);
+                    }
+                }
+                break;
+            case Constants.GET_CONTACTS:
+                OutPutContact outPutContact = new OutPutContact();
+                if (hasError) {
+                    String errorJson = reformatError(hasError, chatMessage, outPut);
+                    listenerManager.callOnError(errorJson);
+                } else {
+                    String contactJson = reformatGetContact(chatMessage, outPutContact);
+                    listenerManager.callOnGetContacts(contactJson);
+                }
+                break;
+                case Constants.GET_THREADS:
+                    if (!hasError) {
+                        String errorJson = reformatError(hasError, chatMessage, outPut);
+                        listenerManager.callOnError(errorJson);
+                    }else {
+                        Log.i("RECEIVE_GET_THREADS", chatMessage.getContent());
+
+                        conversations = new ArrayList<>(Arrays.asList(chatMessage.getContent().split(",")));
+                        setConversations(conversations);
+//                        listenerManager.callOnGetThread();
+                    }
+                    break;
+        }
+    }
+
+    @NonNull
+    private String reformatError(boolean hasError, ChatMessage chatMessage, OutPut outPut) {
+        Error error = JsonUtil.fromJSON(chatMessage.getContent(), Error.class);
+        Log.e("RECEIVED_ERROR", chatMessage.getContent());
+        Log.e("ErrorMessage", error.getMessage());
+        Log.e("ErrorCode", String.valueOf(error.getCode()));
+        outPut.setHasError(hasError);
+        outPut.setErrorMessage(error.getMessage());
+        outPut.setErrorCode(error.getCode());
+        return JsonUtil.getJson(outPut);
+    }
+
+    @NonNull
+    private String reformatGetContact(ChatMessage chatMessage, OutPutContact outPutContact) {
+        ResultContact resultContact = new ResultContact();
+        ArrayList<Contact> contacts = null;
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        try {
+            contacts = objectMapper.readValue(
+                    chatMessage.getContent(),
+                    objectMapper.getTypeFactory().constructCollectionType(
+                            ArrayList.class, Contact.class));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        resultContact.setContacts(contacts);
+        outPutContact.setResult(resultContact);
+        outPutContact.setContentCount(chatMessage.getContentCount());
+        return JsonUtil.getJson(outPutContact);
+    }
+
     private void handleOnEditedMessage(ChatMessage chatMessage) {
         for (CallBack callBack : uniquesArrayList) {
             if (callBack.getUniqueId().equals(chatMessage.getUniqueId())) {
@@ -175,11 +290,6 @@ public class Chat extends AsyncAdapter {
     private void handleOnGetThreadParticipant(ChatMessage chatMessage) {
         Log.i("Participant", chatMessage.getContent());
         listenerManager.callOnGetThreadParticipant(chatMessage.getContent());
-    }
-
-    private void handleError(ChatMessage chatMessage) {
-        Log.e("Chat: Error", chatMessage.getContent());
-        listenerManager.callOnError(chatMessage.getContent());
     }
 
     /**
@@ -260,27 +370,13 @@ public class Chat extends AsyncAdapter {
         listenerManager.callOnDeliveryMessage(chatMessage.getContent());
     }
 
-    private void handleOnGetContacts(ChatMessage chatMessage) {
-        for (CallBack callBack : uniquesArrayList) {
-            if (callBack.getUniqueId().equals(chatMessage.getUniqueId())) {
-                Log.i("RECEIVE_GET_CONTACT", chatMessage.getContent());
-                listenerManager.callOnGetContacts(chatMessage.getContent(), chatMessage.getContentCount());
-            }
-        }
-    }
-
     private void handleOnGetHistory(ChatMessage chatMessage) throws IOException {
         Log.i("RECEIVE_THREAD_HISTORY", chatMessage.getContent());
-        listenerManager.callOnGetThreadHistory(chatMessage.getContent(), chatMessage.getContentCount());
+        listenerManager.callOnGetThreadHistory(chatMessage.getContent());
     }
 
-    private void handleOnGetThread(ChatMessage chatMessage) {
-        Log.i("RECEIVE_GET_THREADS", chatMessage.getContent());
-        chatMessage.getUniqueId();
-        chatMessage.getTime();
-        conversations = new ArrayList<>(Arrays.asList(chatMessage.getContent().split(",")));
-        setConversations(conversations);
-        listenerManager.callOnGetThread(chatMessage.getContent(), chatMessage.getContentCount());
+    private void formatDataToMakeContact() {
+
     }
 
     public void sendTextMessage(String textMessage, long threadId) {
@@ -394,18 +490,26 @@ public class Chat extends AsyncAdapter {
         JsonAdapter<ChatMessageContent> messageContentJsonAdapter = moshi.adapter(ChatMessageContent.class);
         String content = messageContentJsonAdapter.toJson(chatMessageContent);
 
+        String uniqueId = getUniqueId();
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setContent(content);
         chatMessage.setType(Constants.GET_HISTORY);
         chatMessage.setToken(getToken());
-        chatMessage.setUniqueId(getUniqueId());
+        chatMessage.setUniqueId(uniqueId);
         chatMessage.setSubjectId(threadId);
 
         JsonAdapter<ChatMessage> chatMessageJsonAdapter = moshi.adapter(ChatMessage.class);
         String asyncContent = chatMessageJsonAdapter.toJson(chatMessage);
-        Log.d("Get history send", asyncContent);
+        if (BuildConfig.DEBUG) Log.d("Get history send", asyncContent);
 
-        async.sendMessage(asyncContent, 3);
+//        async.sendMessage(asyncContent, 3);
+        sendChatMessage(asyncContent, 3, uniqueId, Constants.GET_HISTORY);
+    }
+
+
+    public void sendChatMessage(String asyncContent, int asyncMessageType, String uniqueId, int chatType) {
+        messageCallbacks.put(uniqueId, chatType);
+        async.sendMessage(asyncContent, asyncMessageType);
     }
 
     /**
@@ -428,11 +532,11 @@ public class Chat extends AsyncAdapter {
         JsonAdapter<ChatMessage> chatMessageJsonAdapter = moshi.adapter(ChatMessage.class);
         String asyncContent = chatMessageJsonAdapter.toJson(chatMessage);
 
-        async.sendMessage(asyncContent, 3);
         Log.d("GET_CONTACT_SEND", asyncContent);
+        sendChatMessage(asyncContent, 3, uniqueId, Constants.GET_CONTACTS);
     }
 
-    public void addContact(List<String> firstName, List<String> lastName, String cellphoneNumber, String email) {
+    public void addContact(String firstName, String lastName, String cellphoneNumber, String email) {
         Contact contact = new Contact();
         contact.setFirstName(firstName);
         contact.setLastName(lastName);
@@ -440,27 +544,25 @@ public class Chat extends AsyncAdapter {
         contact.setEmail(email);
         contact.setUniqueId(getUniqueId());
         Observable<Response<Contact>> addContactObservable = contactApi.addContact(getToken(), 1, contact);
-        addContactObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Response<Contact>>() {
-            @Override
-            public void call(Response<Contact> contactResponse) {
-                if (contactResponse.isSuccessful()) {
-                    listenerManager.callonContactAdded(contactResponse.toString());
-                }
+        addContactObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(contactResponse -> {
+            if (contactResponse.isSuccessful()) {
+                if (BuildConfig.DEBUG)
+                    Log.i("AddContactResponse", contactResponse.body().toString());
+                listenerManager.callonContactAdded(contactResponse.body().toString());
             }
-        }, throwable -> Log.e("Error on add contact", throwable.toString()));
+        }, throwable ->
+                Log.e("Error on add contact", throwable.toString()));
     }
 
-    public void removeContact(List<String> userIds) {
-        Observable<Response> removeContactObservable = contactApi.removeContact(getToken(), 1, userIds);
-        removeContactObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Response>() {
-            @Override
-            public void call(Response response) {
+    public void removeContact(String userId) {
+        Observable<Response> removeContactObservable = contactApi.removeContact(getToken(), 1, userId);
+        removeContactObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread())
+                .subscribe(response -> {
 
-            }
-        }, throwable -> Log.e("Error on remove contact", throwable.toString()));
+                }, throwable -> Log.e("Error on remove contact", throwable.toString()));
     }
 
-    public void updateContact(List<String> firstName, List<String> lastName, String cellphoneNumber, String email) {
+    public void updateContact(String firstName, String lastName, String cellphoneNumber, String email) {
         Contact contact = new Contact();
         contact.setFirstName(firstName);
         contact.setLastName(lastName);
@@ -468,11 +570,8 @@ public class Chat extends AsyncAdapter {
         contact.setEmail(email);
         contact.setUniqueId(getUniqueId());
         Observable<Response> updateContactObservable = contactApi.updateContact(getToken(), 1, contact);
-        updateContactObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Response>() {
-            @Override
-            public void call(Response response) {
+        updateContactObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(response -> {
 
-            }
         }, throwable -> Log.e("Error on update contact", throwable.toString()));
     }
 
@@ -576,6 +675,9 @@ public class Chat extends AsyncAdapter {
         async.sendMessage(asyncContent, 4);
     }
 
+    /**
+     * Get all the user information
+     */
     public void getUserInfo() {
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setType(Constants.USER_INFO);

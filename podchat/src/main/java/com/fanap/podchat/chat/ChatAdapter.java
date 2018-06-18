@@ -17,12 +17,13 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onGetContacts(String content,int contentCount) {
+    public void onGetContacts(String content) {
 
     }
 
+
     @Override
-    public void onGetHistory(String content, int contentCount) {
+    public void onGetHistory(String content) {
 
     }
 
@@ -32,7 +33,7 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onGetThread(String content, int contentCount) {
+    public void onGetThread(String content) {
 
     }
 
