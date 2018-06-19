@@ -76,4 +76,9 @@ public class ChatAdapter implements ChatListener {
     public void onContactAdded(String content) {
 
     }
+
+    @Override
+    public void handleCallbackError(Throwable cause) throws Exception {
+
+    }
 }

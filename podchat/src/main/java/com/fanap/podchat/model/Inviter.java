@@ -1,6 +1,6 @@
 package com.fanap.podchat.model;
 
-public class Participant {
+public class Inviter {
     private long id;
     private String name;
     private long lastSeen;

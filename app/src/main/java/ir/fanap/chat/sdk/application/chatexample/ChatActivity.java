@@ -61,7 +61,7 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
     }
 
     public void getThreadHistory(View view) {
-        presenter.getHistory(50, 0, "desc", 231);
+        presenter.getHistory(50, 0, "desc", 191);
     }
 
     public void getContact(View view) {

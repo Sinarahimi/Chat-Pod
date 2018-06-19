@@ -31,4 +31,6 @@ public interface ChatListener {
     void onEditedMessage(String content);
 
     void onContactAdded(String content);
+
+    void handleCallbackError( Throwable cause) throws Exception;
 }

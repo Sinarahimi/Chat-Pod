@@ -13,4 +13,7 @@ public interface AsyncListener {
     void onDisconnected(String textMessage) throws IOException;
 
     void onError(String textMessage) throws IOException;
+
+    void handleCallbackError( Throwable cause) throws Exception;
+
 }

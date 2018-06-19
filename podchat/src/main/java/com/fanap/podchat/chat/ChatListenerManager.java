@@ -115,42 +115,56 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnGetContacts(String content){
+    public void callOnGetContacts(String content) {
         for (ChatListener listener : getSynchronizedListeners()) {
             listener.onGetContacts(content);
         }
     }
-    public void callOnInvitation(String content){
+
+    public void callOnInvitation(String content) {
         for (ChatListener listener : getSynchronizedListeners()) {
             listener.onInvitation(content);
         }
     }
 
-    public void callOnSentMessage(String content){
+    public void callOnSentMessage(String content) {
         for (ChatListener listener : getSynchronizedListeners()) {
             listener.onSent(content);
         }
     }
 
-    public void callOnSeenMessage(String content){
+    public void callOnSeenMessage(String content) {
         for (ChatListener listener : getSynchronizedListeners()) {
             listener.onSeen(content);
         }
     }
 
-    public void callOnDeliveryMessage(String content){
+    public void callOnDeliveryMessage(String content) {
         for (ChatListener listener : getSynchronizedListeners()) {
             listener.onDelivery(content);
         }
     }
-    public void callOnError(String content){
+
+    public void callOnError(String content) {
         for (ChatListener listener : getSynchronizedListeners()) {
             listener.onError(content);
         }
     }
-    public void callOnGetThreadParticipant(String content){
+
+    public void callOnGetThreadParticipant(String content) {
         for (ChatListener listener : getSynchronizedListeners()) {
-            listener.onGetThreadParticipant(content);
+            try {
+                listener.onGetThreadParticipant(content);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    private void callHandleCallbackError(ChatListener listener, Throwable cause) {
+        try {
+            listener.handleCallbackError(cause);
+        } catch (Throwable t) {
         }
     }
 

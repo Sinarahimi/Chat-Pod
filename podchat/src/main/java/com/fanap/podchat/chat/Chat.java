@@ -13,10 +13,13 @@ import com.fanap.podchat.BuildConfig;
 import com.fanap.podchat.model.ChatMessage;
 import com.fanap.podchat.model.ChatMessageContent;
 import com.fanap.podchat.model.Contact;
+import com.fanap.podchat.model.Thread;
 import com.fanap.podchat.model.Error;
 import com.fanap.podchat.model.OutPut;
 import com.fanap.podchat.model.OutPutContact;
+import com.fanap.podchat.model.OutPutThread;
 import com.fanap.podchat.model.ResultContact;
+import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.Results;
 import com.fanap.podchat.networking.api.ContactApi;
 import com.fanap.podchat.util.CallBack;
@@ -33,7 +36,6 @@ import com.squareup.moshi.Moshi;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -117,7 +119,6 @@ public class Chat extends AsyncAdapter {
                 break;
             case Constants.GET_HISTORY:
                 handleResponseMessage(requestType, false, 0, "", chatMessage);
-//                handleOnGetHistory(chatMessage);
                 break;
             case Constants.GET_STATUS:
                 break;
@@ -185,8 +186,8 @@ public class Chat extends AsyncAdapter {
                 listenerManager.callOnDeliveryMessage(chatMessage.getContent());
                 break;
             case Constants.GET_HISTORY:
-                if (hasError){
-                    String errorJson = reformatError(hasError, chatMessage, outPut);
+                if (hasError) {
+                    String errorJson = reformatError(true, chatMessage, outPut);
                     listenerManager.callOnError(errorJson);
                 } else {
                     results.setContentCount(chatMessage.getContentCount());
@@ -224,26 +225,48 @@ public class Chat extends AsyncAdapter {
             case Constants.GET_CONTACTS:
                 OutPutContact outPutContact = new OutPutContact();
                 if (hasError) {
-                    String errorJson = reformatError(hasError, chatMessage, outPut);
+                    String errorJson = reformatError(true, chatMessage, outPut);
                     listenerManager.callOnError(errorJson);
                 } else {
-                    String contactJson = reformatGetContact(chatMessage, outPutContact);
+                    String contactJson = reformatGetContactResponse(chatMessage, outPutContact);
                     listenerManager.callOnGetContacts(contactJson);
                 }
                 break;
-                case Constants.GET_THREADS:
-                    if (!hasError) {
-                        String errorJson = reformatError(hasError, chatMessage, outPut);
-                        listenerManager.callOnError(errorJson);
-                    }else {
-                        Log.i("RECEIVE_GET_THREADS", chatMessage.getContent());
-
-                        conversations = new ArrayList<>(Arrays.asList(chatMessage.getContent().split(",")));
-                        setConversations(conversations);
-//                        listenerManager.callOnGetThread();
-                    }
-                    break;
+            case Constants.GET_THREADS:
+                OutPutThread outPutThread = new OutPutThread();
+                if (hasError) {
+                    String errorJson = reformatError(false, chatMessage, outPut);
+                    listenerManager.callOnError(errorJson);
+                } else {
+                    String threadJson = reformatGetThreadResponse(chatMessage, outPutThread);
+                    listenerManager.callOnGetThread(threadJson);
+                }
+                break;
         }
+    }
+
+    /** Reformat the get thread response */
+    private String reformatGetThreadResponse(ChatMessage chatMessage, OutPutThread outPutThread) {
+        if (BuildConfig.DEBUG) Log.i("RECEIVE_GET_THREADS", chatMessage.getContent());
+        ArrayList<Thread> threads = null;
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        try {
+            threads = objectMapper.readValue(
+                    chatMessage.getContent(),
+                    objectMapper.getTypeFactory().constructCollectionType(
+                            ArrayList.class, Thread.class));
+        } catch (IOException e) {
+            Log.e("IOException", e.toString());
+        }
+        ResultThread resultThread = new ResultThread();
+        resultThread.setThreads(threads);
+        outPutThread.setContentCount(chatMessage.getContentCount());
+        outPutThread.setErrorCode(0);
+        outPutThread.setErrorMessage("");
+        outPutThread.setHasError(false);
+        outPutThread.setResult(resultThread);
+        return JsonUtil.getJson(outPutThread);
     }
 
     @NonNull
@@ -259,7 +282,7 @@ public class Chat extends AsyncAdapter {
     }
 
     @NonNull
-    private String reformatGetContact(ChatMessage chatMessage, OutPutContact outPutContact) {
+    private String reformatGetContactResponse(ChatMessage chatMessage, OutPutContact outPutContact) {
         ResultContact resultContact = new ResultContact();
         ArrayList<Contact> contacts = null;
         ObjectMapper objectMapper = new ObjectMapper();
@@ -270,7 +293,7 @@ public class Chat extends AsyncAdapter {
                     objectMapper.getTypeFactory().constructCollectionType(
                             ArrayList.class, Contact.class));
         } catch (IOException e) {
-            e.printStackTrace();
+            Log.e("IOException", e.toString());
         }
         resultContact.setContacts(contacts);
         outPutContact.setResult(resultContact);
@@ -453,7 +476,7 @@ public class Chat extends AsyncAdapter {
         String asyncContent = chatMessageJsonAdapter.toJson(chatMessage);
         Log.d("Get thread send", asyncContent);
 
-        async.sendMessage(asyncContent, 3);
+        sendChatMessage(asyncContent, 3, uniqueId, Constants.GET_THREADS);
     }
 
     public void getHistory(int count, int offset, String order, long threadId) {
@@ -502,12 +525,11 @@ public class Chat extends AsyncAdapter {
         String asyncContent = chatMessageJsonAdapter.toJson(chatMessage);
         if (BuildConfig.DEBUG) Log.d("Get history send", asyncContent);
 
-//        async.sendMessage(asyncContent, 3);
         sendChatMessage(asyncContent, 3, uniqueId, Constants.GET_HISTORY);
     }
 
 
-    public void sendChatMessage(String asyncContent, int asyncMessageType, String uniqueId, int chatType) {
+    private void sendChatMessage(String asyncContent, int asyncMessageType, String uniqueId, int chatType) {
         messageCallbacks.put(uniqueId, chatType);
         async.sendMessage(asyncContent, asyncMessageType);
     }

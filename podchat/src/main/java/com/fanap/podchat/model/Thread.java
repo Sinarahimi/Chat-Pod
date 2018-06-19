@@ -2,9 +2,10 @@ package com.fanap.podchat.model;
 
 import java.util.List;
 
-public class Conversation {
+public class Thread {
     private long id;
     private String title;
+    private String lastMessage;
     private List<ParticipantVO> participants;
     private long time;
     private String lastParticipantName;
@@ -165,6 +166,14 @@ public class Conversation {
 
     public void setParticipantCount(long participantCount) {
         this.participantCount = participantCount;
+    }
+
+    public String getLastMessage() {
+        return lastMessage;
+    }
+
+    public void setLastMessage(String lastMessage) {
+        this.lastMessage = lastMessage;
     }
 //    ImageInfo image;
 

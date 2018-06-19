@@ -28,4 +28,9 @@ public class AsyncAdapter implements AsyncListener {
     public void onError(String textMessage) throws IOException {
 
     }
+
+    @Override
+    public void handleCallbackError(Throwable cause) throws Exception {
+
+    }
 }
