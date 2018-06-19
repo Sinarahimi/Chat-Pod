@@ -86,6 +86,8 @@ public class Async extends WebSocketAdapter {
     private String token;
     private String serverName;
     private String ssoHost;
+    private int retryStep = 1000;
+
 
     public Async() {
         //Empty constructor
@@ -190,6 +192,12 @@ public class Async extends WebSocketAdapter {
         if (BuildConfig.DEBUG) Log.e("onMessageError", cause.toString());
     }
 
+    /** <p>
+     * Before a WebSocket is closed, a closing handshake is performed. A closing handshake
+     * is started (1) when the server sends a close frame to the client or (2) when the
+     * client sends a close frame to the server. You can start a closing handshake by calling
+     * {disconnect} method (or by sending a close frame manually).
+     * </p>*/
     @Override
     public void onDisconnected(WebSocket websocket, WebSocketFrame serverCloseFrame, WebSocketFrame clientCloseFrame, boolean closedByServer) throws Exception {
         super.onDisconnected(websocket, serverCloseFrame, clientCloseFrame, closedByServer);
@@ -204,7 +212,17 @@ public class Async extends WebSocketAdapter {
         super.onCloseFrame(websocket, frame);
         if (BuildConfig.DEBUG) Log.e("onCloseFrame", frame.getCloseReason());
         stopSocket();
-        reConnect();
+        Handler handlerReconnect = new Handler();
+        handlerReconnect.postDelayed(() -> {
+            retryStep = retryStep + 1000;
+            try {
+                reConnect();
+            } catch (IOException e) {
+                Log.e("Async: reConnect", e.toString());
+            } catch (WebSocketException e) {
+                Log.e("Async: reConnect", e.toString());
+            }
+        }, retryStep);
     }
 
     /**
@@ -325,7 +343,7 @@ public class Async extends WebSocketAdapter {
                 ArrayList<Device> devices = deviceResults.body().getDevices();
                 for (Device device : devices) {
                     if (device.isCurrent()) {
-                        Log.i("device id", device.getUid());
+                        if(BuildConfig.DEBUG)Log.i("DEVICE_ID", device.getUid());
                         saveDeviceId(device.getUid());
                         deviceRegister(webSocket);
                         return;
@@ -433,7 +451,6 @@ public class Async extends WebSocketAdapter {
             webSocketReconnect = webSocketFactory
                     .createSocket(getServerAddress())
                     .addListener(this);
-//            webSocketReconnect.connectAsynchronously();
             webSocketReconnect.connect();
         } catch (IOException e) {
             Log.e("Async: reConnect", e.toString());

@@ -70,7 +70,7 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
 
     //contact id 485
     public void createThread(View view) {
-        presenter.createThread(0, 481);
+        presenter.createThread(0, 485);
     }
 
     @Override

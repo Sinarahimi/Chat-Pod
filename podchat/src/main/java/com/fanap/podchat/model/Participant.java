@@ -3,6 +3,7 @@ package com.fanap.podchat.model;
 public class Participant {
     private long id;
     private String name;
+    private String image;
     private long lastSeen;
 
     public long getId() {
@@ -27,5 +28,13 @@ public class Participant {
 
     public void setLastSeen(long lastSeen) {
         this.lastSeen = lastSeen;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 }

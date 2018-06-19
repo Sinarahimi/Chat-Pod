@@ -13,13 +13,15 @@ import com.fanap.podchat.BuildConfig;
 import com.fanap.podchat.model.ChatMessage;
 import com.fanap.podchat.model.ChatMessageContent;
 import com.fanap.podchat.model.Contact;
+import com.fanap.podchat.model.OutPutThread;
+import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.Thread;
 import com.fanap.podchat.model.Error;
 import com.fanap.podchat.model.OutPut;
 import com.fanap.podchat.model.OutPutContact;
-import com.fanap.podchat.model.OutPutThread;
+import com.fanap.podchat.model.OutPutThreads;
 import com.fanap.podchat.model.ResultContact;
-import com.fanap.podchat.model.ResultThread;
+import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.Results;
 import com.fanap.podchat.networking.api.ContactApi;
 import com.fanap.podchat.util.CallBack;
@@ -50,13 +52,11 @@ public class Chat extends AsyncAdapter {
     private Async async;
     private Moshi moshi;
     private List<String> conversations;
-    private static String TAG = "Chat";
     private String token;
     private ChatListenerManager listenerManager;
     private int userId;
     private ArrayList<CallBack> uniquesArrayList = new ArrayList<>();
     private CallBack callBack = new CallBack();
-    private RetrofitHelper retrofitHelper;
     private String platformHost;
     private ContactApi contactApi;
     private static HashMap<String, Integer> messageCallbacks;
@@ -69,12 +69,12 @@ public class Chat extends AsyncAdapter {
     }
 
     /**
-     * Connect to the Async
+     * Connect to the Async with params that client set to it.
      */
     public void connect(String serverAddress, String appId, String severName, String token,
                         String ssoHost, String platformHost) {
         async.connect(serverAddress, appId, severName, token, ssoHost);
-        retrofitHelper = new RetrofitHelper(platformHost);
+        RetrofitHelper retrofitHelper = new RetrofitHelper(platformHost);
         contactApi = retrofitHelper.getService(ContactApi.class);
         setToken(token);
         getUserInfo();
@@ -126,7 +126,7 @@ public class Chat extends AsyncAdapter {
                 handleResponseMessage(requestType, false, 0, "", chatMessage);
                 break;
             case Constants.INVITATION:
-                handleOnInvitation(chatMessage);
+                handleResponseMessage(requestType, false, 0, "", chatMessage);
                 break;
             case Constants.LAST_SEEN_TYPE:
                 break;
@@ -136,7 +136,7 @@ public class Chat extends AsyncAdapter {
                 handleOnMessage(chatMessage);
                 break;
             case Constants.MUTE_THREAD:
-                handleMuteThread(chatMessage);
+                handleResponseMessage(requestType, false, 0, "", chatMessage);
                 break;
             case Constants.PING:
                 break;
@@ -233,20 +233,61 @@ public class Chat extends AsyncAdapter {
                 }
                 break;
             case Constants.GET_THREADS:
-                OutPutThread outPutThread = new OutPutThread();
+                OutPutThreads outPutThreads = new OutPutThreads();
                 if (hasError) {
-                    String errorJson = reformatError(false, chatMessage, outPut);
+                    String errorJson = reformatError(true, chatMessage, outPut);
                     listenerManager.callOnError(errorJson);
                 } else {
-                    String threadJson = reformatGetThreadResponse(chatMessage, outPutThread);
+                    String threadJson = reformatGetThreadsResponse(chatMessage, outPutThreads);
                     listenerManager.callOnGetThread(threadJson);
                 }
                 break;
+            case Constants.INVITATION:
+                if (hasError) {
+                    String errorJson = reformatError(true, chatMessage, outPut);
+                    listenerManager.callOnError(errorJson);
+                } else {
+                    OutPutThread outPutThread = new OutPutThread();
+                    String inviteJson = reformatCreateThread(chatMessage, outPutThread);
+                    listenerManager.callOnInvitation(inviteJson);
+                }
+                break;
+                //TODO Complete mute thread
+                case Constants.MUTE_THREAD:
+                    if (hasError) {
+                        String errorJson = reformatError(true, chatMessage, outPut);
+                        listenerManager.callOnError(errorJson);
+                    } else {
+
+                    Log.i("RECEIVED_MUTE_THREAD", chatMessage.getContent());
+                    }
+
+                    break;
         }
     }
 
-    /** Reformat the get thread response */
-    private String reformatGetThreadResponse(ChatMessage chatMessage, OutPutThread outPutThread) {
+    private String reformatCreateThread(ChatMessage chatMessage, OutPutThread outPutThread) {
+        if (BuildConfig.DEBUG) Log.i("RECEIVE_INVITATION ", chatMessage.getContent());
+        ResultThread resultThread = new ResultThread();
+        ObjectMapper objectMapper = new ObjectMapper();
+        Thread thread = null;
+        try {
+            thread = objectMapper.readValue(chatMessage.getContent(), Thread.class);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        resultThread.setThread(thread);
+        outPutThread.setHasError(false);
+        outPutThread.setErrorCode(0);
+        outPutThread.setErrorMessage("");
+        outPutThread.setResult(resultThread);
+        return JsonUtil.getJson(outPutThread);
+    }
+
+    /**
+     * Reformat the get thread response
+     */
+    private String reformatGetThreadsResponse(ChatMessage chatMessage, OutPutThreads outPutThreads) {
         if (BuildConfig.DEBUG) Log.i("RECEIVE_GET_THREADS", chatMessage.getContent());
         ArrayList<Thread> threads = null;
         ObjectMapper objectMapper = new ObjectMapper();
@@ -259,14 +300,14 @@ public class Chat extends AsyncAdapter {
         } catch (IOException e) {
             Log.e("IOException", e.toString());
         }
-        ResultThread resultThread = new ResultThread();
-        resultThread.setThreads(threads);
-        outPutThread.setContentCount(chatMessage.getContentCount());
-        outPutThread.setErrorCode(0);
-        outPutThread.setErrorMessage("");
-        outPutThread.setHasError(false);
-        outPutThread.setResult(resultThread);
-        return JsonUtil.getJson(outPutThread);
+        ResultThreads resultThreads = new ResultThreads();
+        resultThreads.setThreads(threads);
+        outPutThreads.setContentCount(chatMessage.getContentCount());
+        outPutThreads.setErrorCode(0);
+        outPutThreads.setErrorMessage("");
+        outPutThreads.setHasError(false);
+        outPutThreads.setResult(resultThreads);
+        return JsonUtil.getJson(outPutThreads);
     }
 
     @NonNull
@@ -327,10 +368,6 @@ public class Chat extends AsyncAdapter {
         Log.i("RECEIVED_UN_MUTE_THREAD", chatMessage.getContent());
     }
 
-    private void handleMuteThread(ChatMessage chatMessage) {
-        Log.i("RECEIVED_MUTE_THREAD", chatMessage.getContent());
-    }
-
     /**
      * When we received message from another user we check if we owner of the message
      * there is nothing to do but if we are not the owner we send the delivery message
@@ -381,11 +418,6 @@ public class Chat extends AsyncAdapter {
                 listenerManager.callOnSeenMessage(chatMessage.getContent());
             }
         }
-    }
-
-    private void handleOnInvitation(ChatMessage chatMessage) {
-        Log.i("RECEIVE_INVITATION ", chatMessage.getContent());
-        listenerManager.callOnInvitation(chatMessage.getContent());
     }
 
     private void handleOnDelivery(ChatMessage chatMessage) {
@@ -601,7 +633,7 @@ public class Chat extends AsyncAdapter {
      * Create the thread for chat with another user
      */
     public void createThread(int chatThreadType, int contactId) {
-        Log.i("createThread called", "count" + chatThreadType);
+        if (BuildConfig.DEBUG) Log.d("createThread called", "count" + chatThreadType);
 
         List<Invite> invites = new ArrayList<>();
         invites.add(new Invite(contactId, InviteType.Constants.TO_BE_USER_CONTACT_ID));
@@ -611,18 +643,16 @@ public class Chat extends AsyncAdapter {
         chatThread.setInvitees(invites);
 
         String contentThreadChat = JsonUtil.getJson(chatThread);
-
+        String uniqueId = getUniqueId();
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setContent(contentThreadChat);
         chatMessage.setType(Constants.INVITATION);
         chatMessage.setToken(getToken());
-        chatMessage.setUniqueId(getUniqueId());
+        chatMessage.setUniqueId(uniqueId);
         chatMessage.setTokenIssuer("1");
 
         String asyncContent = JsonUtil.getJson(chatMessage);
-
-        async.sendMessage(asyncContent, 4);
-        Log.d("Create thread", asyncContent);
+        sendChatMessage(asyncContent, 4, uniqueId, Constants.INVITATION);
     }
 
 //    private void sendMessage(String token, String uniqueId, String tokenIssuer,

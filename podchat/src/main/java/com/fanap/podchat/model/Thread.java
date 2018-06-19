@@ -6,7 +6,7 @@ public class Thread {
     private long id;
     private String title;
     private String lastMessage;
-    private List<ParticipantVO> participants;
+    private List<Participant> participants;
     private long time;
     private String lastParticipantName;
     private boolean group;
@@ -40,11 +40,11 @@ public class Thread {
         this.title = title;
     }
 
-    public List<ParticipantVO> getParticipants() {
+    public List<Participant> getParticipants() {
         return participants;
     }
 
-    public void setParticipants(List<ParticipantVO> participants) {
+    public void setParticipants(List<Participant> participants) {
         this.participants = participants;
     }
 
