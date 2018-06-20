@@ -1,11 +1,10 @@
 package com.fanap.podchat.model;
 
-
-public class OutPut {
+public class OutPutUserInfo {
     private boolean hasError;
     private String errorMessage;
     private long errorCode;
-    private String result;
+    private ResultUserInfo resultUserInfo;
 
     public boolean isHasError() {
         return hasError;
@@ -31,11 +30,11 @@ public class OutPut {
         this.errorCode = errorCode;
     }
 
-    public String getResult() {
-        return result;
+    public ResultUserInfo getResultUserInfo() {
+        return resultUserInfo;
     }
 
-    public void setResult(String result) {
-        this.result = result;
+    public void setResultUserInfo(ResultUserInfo resultUserInfo) {
+        this.resultUserInfo = resultUserInfo;
     }
 }

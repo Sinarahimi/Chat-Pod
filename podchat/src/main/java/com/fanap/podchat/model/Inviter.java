@@ -3,7 +3,7 @@ package com.fanap.podchat.model;
 public class Inviter {
     private long id;
     private String name;
-    private long lastSeen;
+    private long notSeenDuration;
 
     public long getId() {
         return id;
@@ -21,11 +21,11 @@ public class Inviter {
         this.name = name;
     }
 
-    public long getLastSeen() {
-        return lastSeen;
+    public long getNotSeenDuration() {
+        return notSeenDuration;
     }
 
-    public void setLastSeen(long lastSeen) {
-        this.lastSeen = lastSeen;
+    public void setNotSeenDuration(long notSeenDuration) {
+        this.notSeenDuration = notSeenDuration;
     }
 }

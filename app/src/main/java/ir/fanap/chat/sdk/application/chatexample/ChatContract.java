@@ -1,8 +1,7 @@
 package ir.fanap.chat.sdk.application.chatexample;
 
 import android.arch.lifecycle.LiveData;
-
-import java.util.List;
+import com.fanap.podchat.model.Invitee;
 
 public interface ChatContract {
     interface view {
@@ -26,7 +25,7 @@ public interface ChatContract {
 
         void getContact(int count, int offset);
 
-        void createThread(int chatThreadType, int contactId);
+        void createThread(int threadType, Invitee[] invitee, String threadTitle);
 
         void sendTextMessage(String textMessage, long threadId);
 

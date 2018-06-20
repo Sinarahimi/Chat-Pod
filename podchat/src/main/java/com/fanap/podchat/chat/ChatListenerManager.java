@@ -170,13 +170,57 @@ public class ChatListenerManager {
 
     public void callOnEditedMessage(String content) {
         for (ChatListener listener : getSynchronizedListeners()) {
-            listener.onEditedMessage(content);
+            try {
+                listener.onEditedMessage(content);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
         }
     }
 
-    public void callonContactAdded(String content) {
+    public void callOnContactAdded(String content) {
         for (ChatListener listener : getSynchronizedListeners()) {
             listener.onContactAdded(content);
+        }
+    }
+
+    public void callOnMuteThread(String content) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onMuteThread(content);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnUnmuteThread(String content) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onUnmuteThread(content);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnUserInfo(String content) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onUserInfo(content);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnCreateThread(String content) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onCreateThread(content);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
         }
     }
 }

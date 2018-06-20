@@ -4,7 +4,7 @@ public class Participant {
     private long id;
     private String name;
     private String image;
-    private long lastSeen;
+    private long notSeenDuration;
 
     public long getId() {
         return id;
@@ -22,12 +22,12 @@ public class Participant {
         this.name = name;
     }
 
-    public long getLastSeen() {
-        return lastSeen;
+    public long getNotSeenDuration() {
+        return notSeenDuration;
     }
 
-    public void setLastSeen(long lastSeen) {
-        this.lastSeen = lastSeen;
+    public void setNotSeenDuration(long notSeenDuration) {
+        this.notSeenDuration = notSeenDuration;
     }
 
     public String getImage() {

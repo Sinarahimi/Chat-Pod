@@ -1,16 +1,16 @@
 package com.fanap.podchat.model;
 
-public class Invite {
+public class Invitee {
 
     private int id;
     private int idType;
 
-    public Invite(int id, int idType) {
+    public Invitee(int id, int idType) {
         this.id = id;
         this.idType = idType;
     }
 
-    public Invite(){}
+    public Invitee(){}
 
     public int getId() {
         return id;

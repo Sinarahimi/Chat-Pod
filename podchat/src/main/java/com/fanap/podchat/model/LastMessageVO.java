@@ -8,6 +8,7 @@ public class LastMessageVO {
     private boolean edited;
     private boolean editable;
     private long time;
+    private ReplyInfoVO replyInfoVO;
 
     public Participant getParticipant() {
         return participant;
@@ -63,5 +64,13 @@ public class LastMessageVO {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public ReplyInfoVO getReplyInfoVO() {
+        return replyInfoVO;
+    }
+
+    public void setReplyInfoVO(ReplyInfoVO replyInfoVO) {
+        this.replyInfoVO = replyInfoVO;
     }
 }

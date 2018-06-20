@@ -192,12 +192,14 @@ public class Async extends WebSocketAdapter {
         if (BuildConfig.DEBUG) Log.e("onMessageError", cause.toString());
     }
 
-    /** <p>
+    /**
+     * <p>
      * Before a WebSocket is closed, a closing handshake is performed. A closing handshake
      * is started (1) when the server sends a close frame to the client or (2) when the
      * client sends a close frame to the server. You can start a closing handshake by calling
      * {disconnect} method (or by sending a close frame manually).
-     * </p>*/
+     * </p>
+     */
     @Override
     public void onDisconnected(WebSocket websocket, WebSocketFrame serverCloseFrame, WebSocketFrame clientCloseFrame, boolean closedByServer) throws Exception {
         super.onDisconnected(websocket, serverCloseFrame, clientCloseFrame, closedByServer);
@@ -343,7 +345,7 @@ public class Async extends WebSocketAdapter {
                 ArrayList<Device> devices = deviceResults.body().getDevices();
                 for (Device device : devices) {
                     if (device.isCurrent()) {
-                        if(BuildConfig.DEBUG)Log.i("DEVICE_ID", device.getUid());
+                        if (BuildConfig.DEBUG) Log.i("DEVICE_ID", device.getUid());
                         saveDeviceId(device.getUid());
                         deviceRegister(webSocket);
                         return;
@@ -424,6 +426,12 @@ public class Async extends WebSocketAdapter {
             String json1 = JsonUtil.getJson(messageWrapperVo);
             sendData(webSocket, json1);
             lastSendMessageTime = new Date().getTime();
+        } else {
+            try {
+                listenerManager.callOnError("Socket is close");
+            } catch (IOException e) {
+                if (BuildConfig.DEBUG) Log.e("Socket", "Closed");
+            }
         }
     }
 

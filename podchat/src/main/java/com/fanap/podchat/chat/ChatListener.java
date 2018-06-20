@@ -22,7 +22,15 @@ public interface ChatListener {
 
     void onSeen(String content);
 
+    void onMuteThread(String content);
+
+    void onUnmuteThread(String content);
+
+    void onUserInfo(String content);
+
     void onSent(String content);
+
+    void onCreateThread(String content);
 
     void onMessage();
 
@@ -32,5 +40,5 @@ public interface ChatListener {
 
     void onContactAdded(String content);
 
-    void handleCallbackError( Throwable cause) throws Exception;
+    void handleCallbackError(Throwable cause) throws Exception;
 }

@@ -5,8 +5,7 @@ import android.content.Context;
 
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
-
-import java.util.List;
+import com.fanap.podchat.model.Invitee;
 
 public class ChatPresenter extends ChatAdapter implements ChatContract.presenter {
 
@@ -14,8 +13,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     private ChatContract.view view;
 
     public ChatPresenter(Context context) {
-        chat = new Chat();
-        chat.init(context);
+        chat = Chat.init(context);
         chat.addListener(this);
     }
 
@@ -46,12 +44,12 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void getContact(int count, int offset) {
-        chat.getContact(count, offset);
+        chat.getContacts(count, offset);
     }
 
     @Override
-    public void createThread(int chatThreadType, int contactId) {
-        chat.createThread(chatThreadType, contactId);
+    public void createThread(int threadType, Invitee[] invitee, String threadTitle) {
+        chat.createThread(threadType, invitee, threadTitle);
     }
 
     @Override
@@ -76,7 +74,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void unMuteThread(int threadId) {
-        chat.unMuteThread(threadId);
+        chat.unmuteThread(threadId);
     }
 
     @Override
@@ -121,7 +119,17 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void onUserInfo(String content) {
+        chat.getUserInfo();
+    }
+
+    @Override
     public void onSent(String content) {
         super.onSent(content);
+    }
+
+    @Override
+    public void onCreateThread(String content) {
+
     }
 }

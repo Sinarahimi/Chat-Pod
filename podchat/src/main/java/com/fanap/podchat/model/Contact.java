@@ -8,7 +8,7 @@ public class Contact {
     private String cellphoneNumber;
     private String email;
     private String uniqueId;
-    private long lastseen;
+    private long notSeenDuration;
     private boolean hasUser;
 
     public String getFirstName() {
@@ -75,11 +75,11 @@ public class Contact {
         this.hasUser = hasUser;
     }
 
-    public long getLastseen() {
-        return lastseen;
+    public long getNotSeenDuration() {
+        return notSeenDuration;
     }
 
-    public void setLastseen(long lastseen) {
-        this.lastseen = lastseen;
+    public void setNotSeenDuration(long notSeenDuration) {
+        this.notSeenDuration = notSeenDuration;
     }
 }

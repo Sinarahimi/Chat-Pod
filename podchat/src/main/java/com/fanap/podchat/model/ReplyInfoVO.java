@@ -1,6 +1,6 @@
 package com.fanap.podchat.model;
 
-public class ReplyInfo {
+public class ReplyInfoVO {
     private Participant participant;
     private long repliedToMessageId;
     private String repliedToMessage;

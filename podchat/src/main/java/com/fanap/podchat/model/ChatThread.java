@@ -6,8 +6,8 @@ public class ChatThread {
 
     private int type;
     private String ownerSsoId;
-    private List<Invite> invitees;
-    private List<Invite[]> ArrayInvitees;
+    private List<Invitee> invitees;
+    private List<Invitee[]> arrayInvitees;
     private String title;
 
     public int getType() {
@@ -26,11 +26,11 @@ public class ChatThread {
         this.ownerSsoId = ownerSsoId;
     }
 
-    public List<Invite> getInvitees() {
+    public List<Invitee> getInvitees() {
         return invitees;
     }
 
-    public void setInvitees(List<Invite> invitees) {
+    public void setInvitees(List<Invitee> invitees) {
         this.invitees = invitees;
     }
 
@@ -42,11 +42,11 @@ public class ChatThread {
         this.title = title;
     }
 
-    public List<Invite[]> getArrayInvitees() {
-        return ArrayInvitees;
+    public List<Invitee[]> getArrayInvitees() {
+        return arrayInvitees;
     }
 
-    public void setArrayInvitees(List<Invite[]> arrayInvitees) {
-        ArrayInvitees = arrayInvitees;
+    public void setArrayInvitees(List<Invitee[]> arrayInvitees) {
+        this.arrayInvitees = arrayInvitees;
     }
 }

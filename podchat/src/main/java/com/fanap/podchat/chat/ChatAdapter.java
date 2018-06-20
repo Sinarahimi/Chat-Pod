@@ -53,7 +53,27 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
+    public void onMuteThread(String content) {
+
+    }
+
+    @Override
+    public void onUnmuteThread(String content) {
+
+    }
+
+    @Override
+    public void onUserInfo(String content) {
+
+    }
+
+    @Override
     public void onSent(String content) {
+
+    }
+
+    @Override
+    public void onCreateThread(String content) {
 
     }
 

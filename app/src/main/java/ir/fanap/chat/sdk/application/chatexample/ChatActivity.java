@@ -9,14 +9,13 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
+import com.fanap.podchat.model.Invitee;
+
 import java.util.Date;
-import java.util.List;
 
 import ir.fanap.chat.sdk.R;
 
 public class ChatActivity extends AppCompatActivity implements ChatContract.view {
-
     private ChatContract.presenter presenter;
     private ConstraintLayout constraintLayout;
     private EditText editText;
@@ -48,6 +47,7 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
         presenter = new ChatPresenter(this);
         presenter.getLiveState().observe(this, textViewState::setText);
         presenter = new ChatPresenter(this);
+
     }
 
     public void getThread(View view) {
@@ -69,8 +69,13 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
     }
 
     //contact id 485
+    /* int TO_BE_USER_SSO_ID = 1;
+        int TO_BE_USER_CONTACT_ID = 2;
+        int TO_BE_USER_CELLPHONE_NUMBER = 3;
+        int TO_BE_USER_USERNAME = 4;*/
     public void createThread(View view) {
-        presenter.createThread(0, 485);
+        Invitee[] invite = new Invitee[]{new Invitee(485, 2)};
+        presenter.createThread(0, invite, "");
     }
 
     @Override
@@ -83,16 +88,18 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
         Toast.makeText(this, UserId, Toast.LENGTH_SHORT).show();
     }
 
+    //thread id  231
     public void mute(View view) {
-        presenter.muteThread(191);
+        presenter.muteThread(231);
     }
 
+    //thread id  231
     public void unMute(View view) {
-        presenter.unMuteThread(191);
+        presenter.unMuteThread(231);
     }
 
     public void EditMsg(View view) {
-        presenter.editMessage(470, "this message is edited at" + new Date().getTime());
+        presenter.editMessage(533, "edited_at" + new Date().getTime());
     }
 
     public void getParticipant(View view) {
@@ -126,7 +133,6 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
             Toast.makeText(this, "Message is Empty", Toast.LENGTH_SHORT).show();
         }
     }
-
 
     public void addContact(View view) {
         presenter.addContact("SINA", "RAHIMI", "0912356565", "DEVE@MAIL.COM");
