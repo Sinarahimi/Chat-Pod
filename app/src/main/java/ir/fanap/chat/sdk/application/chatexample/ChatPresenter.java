@@ -39,7 +39,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void getHistory(int count, int offset, String order, long subjectId) {
-        chat.getHistory(count, offset, subjectId);
+        chat.getHistory(count, offset, order, subjectId);
     }
 
     @Override
@@ -93,8 +93,18 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void onDelivery(String content) {
-        super.onDelivery(content);
+    public void removeContact(long id) {
+        chat.removeContact(id);
+    }
+
+    @Override
+    public void init(Context context) {
+        chat = Chat.init(context).addListener(this);
+    }
+
+    @Override
+    public void onDeliver(String content) {
+        super.onDeliver(content);
     }
 
     @Override

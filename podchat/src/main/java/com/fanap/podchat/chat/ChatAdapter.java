@@ -2,7 +2,7 @@ package com.fanap.podchat.chat;
 
 public class ChatAdapter implements ChatListener {
     @Override
-    public void onDelivery(String content) {
+    public void onDeliver(String content) {
 
     }
 
@@ -99,6 +99,11 @@ public class ChatAdapter implements ChatListener {
 
     @Override
     public void handleCallbackError(Throwable cause) throws Exception {
+
+    }
+
+    @Override
+    public void onRemoveContact(String content) {
 
     }
 }

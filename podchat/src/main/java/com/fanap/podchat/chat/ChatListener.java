@@ -2,7 +2,7 @@ package com.fanap.podchat.chat;
 
 public interface ChatListener {
 
-    void onDelivery(String content);
+    void onDeliver(String content);
 
     void onError(String content);
 
@@ -41,4 +41,6 @@ public interface ChatListener {
     void onContactAdded(String content);
 
     void handleCallbackError(Throwable cause) throws Exception;
+
+    void onRemoveContact(String content);
 }

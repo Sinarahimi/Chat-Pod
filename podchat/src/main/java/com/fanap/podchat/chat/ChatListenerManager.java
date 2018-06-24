@@ -141,7 +141,7 @@ public class ChatListenerManager {
 
     public void callOnDeliveryMessage(String content) {
         for (ChatListener listener : getSynchronizedListeners()) {
-            listener.onDelivery(content);
+            listener.onDeliver(content);
         }
     }
 
@@ -178,9 +178,22 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnContactAdded(String content) {
+    public void callOnAddContact(String content) {
         for (ChatListener listener : getSynchronizedListeners()) {
-            listener.onContactAdded(content);
+            try {
+                listener.onContactAdded(content);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+    public void callOnRemoveContact(String content) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onRemoveContact(content);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
         }
     }
 
@@ -215,6 +228,16 @@ public class ChatListenerManager {
     }
 
     public void callOnCreateThread(String content) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onCreateThread(content);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnUpdateContact(String content) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onCreateThread(content);

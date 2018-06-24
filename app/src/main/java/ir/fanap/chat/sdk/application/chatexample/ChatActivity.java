@@ -29,8 +29,11 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
 
     //fel token
 //    private static String TOKEN = "a11768091eac48f2a7b84ed6a241f9c3";
+    //Fifi
+    private static String TOKEN = "1fcecc269a8949d6b58312cab66a4926";
     //Token Alexi
-    private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
+//    private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,8 +71,7 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
         presenter.getContact(50, 0);
     }
 
-    //contact id 485
-    /* int TO_BE_USER_SSO_ID = 1;
+    /** int TO_BE_USER_SSO_ID = 1;
         int TO_BE_USER_CONTACT_ID = 2;
         int TO_BE_USER_CELLPHONE_NUMBER = 3;
         int TO_BE_USER_USERNAME = 4;*/
@@ -135,6 +137,7 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
     }
 
     public void addContact(View view) {
-        presenter.addContact("SINA", "RAHIMI", "0912356565", "DEVE@MAIL.COM");
+        presenter.addContact("SINA", "RAHIMI", "09183565465", "DEVE@MAIL.COM");
+//        presenter.removeContact(561);
     }
 }
