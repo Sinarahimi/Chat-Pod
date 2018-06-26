@@ -1,12 +1,24 @@
 package com.fanap.podchat.util;
 
-public class CallBacks {
-    private long offset ;
-    private int requestType ;
+public class Callbacks {
+    private long offset;
+    private int requestType;
     private boolean delivery;
     private boolean seen;
     private boolean sent;
     private boolean result;
+
+    public Callbacks(long offset, int requestType, boolean delivery, boolean seen, boolean sent, boolean result) {
+        this.offset = offset;
+        this.requestType = requestType;
+        this.delivery = delivery;
+        this.sent = sent;
+        this.seen = seen;
+        this.result = result;
+    }
+
+    public Callbacks() {
+    }
 
     public boolean isDelivery() {
         return delivery;

@@ -121,27 +121,33 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnInvitation(String content) {
-        for (ChatListener listener : getSynchronizedListeners()) {
-            listener.onInvitation(content);
-        }
-    }
-
     public void callOnSentMessage(String content) {
         for (ChatListener listener : getSynchronizedListeners()) {
-            listener.onSent(content);
+            try {
+                listener.onSent(content);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
         }
     }
 
     public void callOnSeenMessage(String content) {
         for (ChatListener listener : getSynchronizedListeners()) {
-            listener.onSeen(content);
+            try {
+                listener.onSeen(content);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
         }
     }
 
     public void callOnDeliveryMessage(String content) {
         for (ChatListener listener : getSynchronizedListeners()) {
-            listener.onDeliver(content);
+            try {
+                listener.onDeliver(content);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
         }
     }
 
@@ -187,6 +193,7 @@ public class ChatListenerManager {
             }
         }
     }
+
     public void callOnRemoveContact(String content) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {

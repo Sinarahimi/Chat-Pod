@@ -1,6 +1,10 @@
 package com.fanap.podchat.model;
 
-public class Message {
+public class MessageVO {
+    private boolean edited;
+    private boolean editable;
+    private boolean delivered;
+    private boolean seen;
     private long id;
     private String uniqueId;
     private long previousId;
@@ -8,6 +12,39 @@ public class Message {
     private Participant participant;
     private long time;
     private String metadata;
+    private Thread conversation;
+
+    public boolean isEdited() {
+        return edited;
+    }
+
+    public void setEdited(boolean edited) {
+        this.edited = edited;
+    }
+
+    public boolean isEditable() {
+        return editable;
+    }
+
+    public void setEditable(boolean editable) {
+        this.editable = editable;
+    }
+
+    public boolean isDelivered() {
+        return delivered;
+    }
+
+    public void setDelivered(boolean delivered) {
+        this.delivered = delivered;
+    }
+
+    public boolean isSeen() {
+        return seen;
+    }
+
+    public void setSeen(boolean seen) {
+        this.seen = seen;
+    }
 
     public long getId() {
         return id;
@@ -65,4 +102,11 @@ public class Message {
         this.metadata = metadata;
     }
 
+    public Thread getConversation() {
+        return conversation;
+    }
+
+    public void setConversation(Thread conversation) {
+        this.conversation = conversation;
+    }
 }

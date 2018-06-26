@@ -108,7 +108,19 @@ class AsyncListenerManager {
 
     public void callOnTextMessage(String message) throws IOException {
         for (AsyncListener listener : getSynchronizedListeners()) {
-            listener.onReceivedMessage(message);
+            try {
+                listener.onReceivedMessage(message);
+
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    private void callHandleCallbackError(AsyncListener listener, Throwable cause) {
+        try {
+            listener.handleCallbackError(cause);
+        } catch (Throwable t) {
         }
     }
 

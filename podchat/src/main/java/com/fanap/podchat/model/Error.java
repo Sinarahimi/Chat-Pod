@@ -3,7 +3,7 @@ package com.fanap.podchat.model;
 public class Error {
 
     private String message;
-    private long code;
+    private int code;
 
     public String getMessage() {
         return message;
@@ -17,7 +17,7 @@ public class Error {
         return code;
     }
 
-    public void setCode(long code) {
+    public void setCode(int code) {
         this.code = code;
     }
 }

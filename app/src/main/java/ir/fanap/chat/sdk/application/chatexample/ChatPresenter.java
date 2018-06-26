@@ -29,8 +29,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void getMessage() {
-        chat.onMessage();
+    public void getUserInfo() {
+        chat.getUserInfo();
     }
 
     @Override
@@ -59,7 +59,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void sendReplyMessage(String messageContent, long threadId, long messageId) {
-        chat.sendReplyMessage(messageContent, threadId, messageId);
+        chat.replyMessage(messageContent, threadId, messageId);
     }
 
     @Override
@@ -98,8 +98,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void init(Context context) {
-        chat = Chat.init(context).addListener(this);
+    public void updateContact(long id, String firstName, String lastName, String cellphoneNumber, String email) {
+
     }
 
     @Override
@@ -130,7 +130,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void onUserInfo(String content) {
-        chat.getUserInfo();
     }
 
     @Override

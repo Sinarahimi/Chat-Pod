@@ -28,6 +28,7 @@ import com.neovisionaries.ws.client.WebSocketExtension;
 import com.neovisionaries.ws.client.WebSocketFactory;
 import com.neovisionaries.ws.client.WebSocketFrame;
 import com.neovisionaries.ws.client.WebSocketState;
+import com.orhanobut.logger.Logger;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 
@@ -345,14 +346,14 @@ public class Async extends WebSocketAdapter {
                 ArrayList<Device> devices = deviceResults.body().getDevices();
                 for (Device device : devices) {
                     if (device.isCurrent()) {
-                        if (BuildConfig.DEBUG) Log.i("DEVICE_ID", device.getUid());
+                        if (BuildConfig.DEBUG) Logger.i("DEVICE_ID", device.getUid());
                         saveDeviceId(device.getUid());
                         deviceRegister(webSocket);
                         return;
                     }
                 }
             }
-        }, throwable -> Log.e("Error get devices", throwable.toString()));
+        }, throwable -> Logger.e("Error get devices", throwable.toString()));
     }
 
 
@@ -409,30 +410,35 @@ public class Async extends WebSocketAdapter {
      * First we checking the state of the socket then we send the message
      */
     public void sendMessage(String textContent, int messageType) {
-        if (getState().equals("OPEN")) {
-            long ttl = new Date().getTime();
-            Message message = new Message();
-            message.setContent(textContent);
-            message.setPriority(1);
-            message.setPeerName(getServerName());
-            message.setTtl(ttl);
+        if (getState() != null) {
+            if (getState().equals("OPEN")) {
+                long ttl = new Date().getTime();
+                Message message = new Message();
+                message.setContent(textContent);
+                message.setPriority(1);
+                message.setPeerName(getServerName());
+                message.setTtl(ttl);
 
-            String json = JsonUtil.getJson(message);
+                String json = JsonUtil.getJson(message);
 
-            messageWrapperVo = new MessageWrapperVo();
-            messageWrapperVo.setContent(json);
-            messageWrapperVo.setType(messageType);
+                messageWrapperVo = new MessageWrapperVo();
+                messageWrapperVo.setContent(json);
+                messageWrapperVo.setType(messageType);
 
-            String json1 = JsonUtil.getJson(messageWrapperVo);
-            sendData(webSocket, json1);
-            lastSendMessageTime = new Date().getTime();
-        } else {
-            try {
-                listenerManager.callOnError("Socket is close");
-            } catch (IOException e) {
-                if (BuildConfig.DEBUG) Log.e("Socket", "Closed");
+                String json1 = JsonUtil.getJson(messageWrapperVo);
+                sendData(webSocket, json1);
+                lastSendMessageTime = new Date().getTime();
+            } else {
+                try {
+                    listenerManager.callOnError("Socket is close");
+                } catch (IOException e) {
+                    if (BuildConfig.DEBUG) Logger.e("Socket Is", "Closed");
+                }
             }
+        } else {
+            if (BuildConfig.DEBUG) Logger.e("Socket Is Not Connected");
         }
+
     }
 
     public void closeSocket() {

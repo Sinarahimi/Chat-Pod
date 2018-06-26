@@ -13,7 +13,6 @@ public class ChatMessageType {
         this.messageType = messageType;
     }
 
-
     @IntDef({Constants.INVITATION, Constants.MESSAGE,
             Constants.SENT,
             Constants.DELIVERY,
@@ -43,7 +42,6 @@ public class ChatMessageType {
             Constants.EDIT_MESSAGE,
             Constants.DELETE_MESSAGE,
             Constants.ERROR,
-
     })
 
     @Retention(RetentionPolicy.SOURCE)

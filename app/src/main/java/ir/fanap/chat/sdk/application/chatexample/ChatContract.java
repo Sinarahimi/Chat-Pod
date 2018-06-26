@@ -1,8 +1,6 @@
 package ir.fanap.chat.sdk.application.chatexample;
 
 import android.arch.lifecycle.LiveData;
-import android.content.Context;
-
 import com.fanap.podchat.model.Invitee;
 
 public interface ChatContract {
@@ -19,7 +17,7 @@ public interface ChatContract {
 
         void getThread(int count, int offset);
 
-        void getMessage();
+        void getUserInfo();
 
         void getHistory(int count, int offset);
 
@@ -47,6 +45,6 @@ public interface ChatContract {
 
         void removeContact(long id);
 
-        void init(Context context);
+        void updateContact(long id, String firstName, String lastName, String cellphoneNumber, String email);
     }
 }

@@ -20,19 +20,18 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
     private ConstraintLayout constraintLayout;
     private EditText editText;
     private EditText editTextThread;
-    //ab token
-//    private static String TOKEN = "ed4be26a60c24ed594e266a2181424c5";
-    //baz token
-//     private static String TOKEN = "afa51d8291dc4072a0831d3a18cb5030";
-    //zam token
-//    private static String TOKEN = "c0866c4cc5274ea7ada6b01575b19d24";
 
     //fel token
 //    private static String TOKEN = "a11768091eac48f2a7b84ed6a241f9c3";
     //Fifi
+    private String name = "Fifi";
     private static String TOKEN = "1fcecc269a8949d6b58312cab66a4926";
+//    zizi
+//    private String name = "zizi";
+//    private static String TOKEN = "7cba09ff83554fc98726430c30afcfc6";
     //Token Alexi
 //    private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
+//    private static String name = "Alexi";
 
 
     @Override
@@ -45,12 +44,11 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
         editText = findViewById(R.id.editTextMessage);
         editTextThread = findViewById(R.id.editTextThread);
         constraintLayout = findViewById(R.id.constraintLayout);
-        textViewToken.setText(TOKEN);
+        textViewToken.setText(TOKEN + name);
 
         presenter = new ChatPresenter(this);
         presenter.getLiveState().observe(this, textViewState::setText);
         presenter = new ChatPresenter(this);
-
     }
 
     public void getThread(View view) {
@@ -71,13 +69,23 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
         presenter.getContact(50, 0);
     }
 
-    /** int TO_BE_USER_SSO_ID = 1;
-        int TO_BE_USER_CONTACT_ID = 2;
-        int TO_BE_USER_CELLPHONE_NUMBER = 3;
-        int TO_BE_USER_USERNAME = 4;*/
+    /**
+     * int TO_BE_USER_SSO_ID = 1;
+     * int TO_BE_USER_CONTACT_ID = 2;
+     * int TO_BE_USER_CELLPHONE_NUMBER = 3;
+     * int TO_BE_USER_USERNAME = 4;
+     */
     public void createThread(View view) {
-        Invitee[] invite = new Invitee[]{new Invitee(485, 2)};
-        presenter.createThread(0, invite, "");
+        EditText editTextThread = findViewById(R.id.editTextThread);
+        String text = editTextThread.getText().toString();
+        int textThread = Integer.valueOf(editTextThread.getText().toString());
+        if (!text.equals("")) {
+            Invitee[] invite = new Invitee[]{new Invitee(textThread, 2)};
+            presenter.createThread(0, invite, "");
+        } else {
+            Snackbar.make(constraintLayout, "Message is Empty", Snackbar.LENGTH_SHORT).show();
+        }
+
     }
 
     @Override
@@ -137,7 +145,8 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
     }
 
     public void addContact(View view) {
-        presenter.addContact("SINA", "RAHIMI", "09183565465", "DEVE@MAIL.COM");
-//        presenter.removeContact(561);
+//        presenter.getUserInfo();
+        presenter.addContact("", "", "09122451131", "");
+//        presenter.removeContact(581);
     }
 }
