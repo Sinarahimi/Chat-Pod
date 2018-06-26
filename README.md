@@ -4,16 +4,16 @@ A Chat helepr that works with Fanap's POD Chat service.
 ### Prerequisites
 
 What things you need to Add this module to your project and after that set the `internet` permision in the manifest.
-```
+```java
 <uses-permission android:name="android.permission.INTERNET" />
 ```
 
 The first step is to init Chat.
-```
+```java
 chat.init(context);
 ```
 Then you need to connect.
-```
+```java
 chat.connect(serverAddress, appId, severName, token);
 ```
 And now it ready for chat .
