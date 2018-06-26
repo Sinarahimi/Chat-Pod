@@ -85,7 +85,6 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
         } else {
             Snackbar.make(constraintLayout, "Message is Empty", Snackbar.LENGTH_SHORT).show();
         }
-
     }
 
     @Override
