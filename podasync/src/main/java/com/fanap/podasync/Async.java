@@ -77,18 +77,15 @@ public class Async extends WebSocketAdapter {
     private String appId;
     private String peerId;
     private String deviceID;
-    private Exception onConnectException;
     private MutableLiveData<String> stateLiveData = new MutableLiveData<>();
     private MutableLiveData<String> messageLiveData = new MutableLiveData<>();
     private String serverAddress;
     private final Handler pingHandler = new Handler(Looper.getMainLooper());
     private int getMessageCalled;
-    private int timeCount = 0;
     private String token;
     private String serverName;
     private String ssoHost;
     private int retryStep = 1000;
-
 
     public Async() {
         //Empty constructor
@@ -221,9 +218,9 @@ public class Async extends WebSocketAdapter {
             try {
                 reConnect();
             } catch (IOException e) {
-                Log.e("Async: reConnect", e.toString());
+                if(BuildConfig.DEBUG) Logger.e("Async: reConnect", e.toString());
             } catch (WebSocketException e) {
-                Log.e("Async: reConnect", e.toString());
+                if(BuildConfig.DEBUG)Logger.e("Async: reConnect", e.toString());
             }
         }, retryStep);
     }
@@ -274,13 +271,12 @@ public class Async extends WebSocketAdapter {
     }
 
     private void sendData(WebSocket websocket, String jsonMessageWrapperVo) {
-        Log.i("Ping", "Sent at" + lastSendMessageTime);
         lastSendMessageTime = new Date().getTime();
         websocket.sendText(jsonMessageWrapperVo);
     }
 
     private void handleOnErrorMessage(ClientMessage clientMessage) {
-        Log.e(TAG + "OnErrorMessage", clientMessage.getContent());
+        if (BuildConfig.DEBUG) Logger.e(TAG + "OnErrorMessage", clientMessage.getContent());
         setErrorMessage(clientMessage.getContent());
     }
 
@@ -298,12 +294,12 @@ public class Async extends WebSocketAdapter {
                 deviceRegister(webSocket);
             }
         } else {
-            Log.i("This a empty ping", String.valueOf(new Date().getTime()));
+            if(BuildConfig.DEBUG)Logger.i("PING", String.valueOf(new Date().getTime()));
         }
     }
 
     private void handleOnServerRegister(String textMessage) {
-        Log.i("Ready for chat", textMessage);
+        if (BuildConfig.DEBUG) Logger.i("READY FOR CHAT", textMessage);
         isServerRegister = true;
     }
 
@@ -353,9 +349,9 @@ public class Async extends WebSocketAdapter {
                     }
                 }
             }
-        }, throwable -> Logger.e("Error get devices", throwable.toString()));
+        }, throwable ->
+                Logger.e("Error get devices", throwable.toString()));
     }
-
 
     public void connect(String socketServerAddress, final String appId, String serverName,
                         String token, String ssoHost) {
@@ -370,12 +366,11 @@ public class Async extends WebSocketAdapter {
             webSocket = webSocketFactory
                     .createSocket(socketServerAddress)
                     .addListener(this);
-
             webSocket.setMaxPayloadSize(100);
             webSocket.addExtension(WebSocketExtension.PERMESSAGE_DEFLATE);
             webSocket.connectAsynchronously();
         } catch (IOException e) {
-            Log.e("Async: connect", e.toString());
+            if (BuildConfig.DEBUG) Logger.e("Async: connect", e.toString());
         }
     }
 
@@ -438,7 +433,6 @@ public class Async extends WebSocketAdapter {
         } else {
             if (BuildConfig.DEBUG) Logger.e("Socket Is Not Connected");
         }
-
     }
 
     public void closeSocket() {
@@ -467,7 +461,7 @@ public class Async extends WebSocketAdapter {
                     .addListener(this);
             webSocketReconnect.connect();
         } catch (IOException e) {
-            Log.e("Async: reConnect", e.toString());
+            if (BuildConfig.DEBUG) Logger.e("Async: reConnect", e.toString());
         }
     }
 
@@ -492,6 +486,7 @@ public class Async extends WebSocketAdapter {
         message = getMessageWrapper(moshi, "", AsyncMessageType.MessageType.PING);
         sendData(webSocket, message);
         lastSendMessageTime = new Date().getTime();
+        if(BuildConfig.DEBUG) Logger.i("ASYNC PING");
         ScheduleCloseSocket();
     }
 
@@ -555,15 +550,6 @@ public class Async extends WebSocketAdapter {
         SharedPreferences.Editor editor = sharedPrefs.edit();
         editor.putString(AsyncConstant.Constants.PEER_ID, peerId);
         editor.apply();
-    }
-
-    //  it's (relatively) easily resettable because it only persists as long as the app is installed.
-    private static synchronized String getUniqueDeviceID() {
-        String uniqueID = UUID.randomUUID().toString();
-        SharedPreferences.Editor editor = sharedPrefs.edit();
-        editor.putString(AsyncConstant.Constants.DEVICE_ID, uniqueID);
-        editor.apply();
-        return uniqueID;
     }
 
     //Save deviceId in the SharedPreferences

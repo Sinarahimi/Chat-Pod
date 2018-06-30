@@ -10,7 +10,7 @@ public class AsyncAdapter implements AsyncListener {
     }
 
     @Override
-    public void onStateChanged(String textMessage) throws IOException {
+    public void onStateChanged(String state) throws IOException {
 
     }
 

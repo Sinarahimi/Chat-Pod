@@ -1,7 +1,10 @@
 package ir.fanap.chat.sdk.application.chatexample;
 
 import android.arch.lifecycle.LiveData;
+
 import com.fanap.podchat.model.Invitee;
+
+import java.util.ArrayList;
 
 public interface ChatContract {
     interface view {
@@ -44,6 +47,8 @@ public interface ChatContract {
         void addContact(String firstName, String lastName, String cellphoneNumber, String email);
 
         void removeContact(long id);
+
+        void forwardMessage(long threadId, ArrayList<Long> messageIds);
 
         void updateContact(long id, String firstName, String lastName, String cellphoneNumber, String email);
     }

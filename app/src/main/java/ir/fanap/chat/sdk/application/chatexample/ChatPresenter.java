@@ -7,6 +7,8 @@ import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.model.Invitee;
 
+import java.util.ArrayList;
+
 public class ChatPresenter extends ChatAdapter implements ChatContract.presenter {
 
     private Chat chat;
@@ -96,6 +98,12 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void removeContact(long id) {
         chat.removeContact(id);
     }
+
+    @Override
+    public void forwardMessage(long threadId, ArrayList<Long> messageIds) {
+        chat.forwardMessage(threadId, messageIds);
+    }
+
 
     @Override
     public void updateContact(long id, String firstName, String lastName, String cellphoneNumber, String email) {

@@ -1,12 +1,14 @@
 package com.fanap.podchat.model;
 
+import java.util.ArrayList;
+
 public class ChatMessageForward {
     private String token;
     private String tokenIssuer;
     private int type;
-    private long[] subjectId;
-    private String[] uniqueId;
-    private String content;
+    private long subjectId;
+    private ArrayList<Long> content;
+    private ArrayList<String> uniqueId;
     private long time;
     private int contentCount;
     private String metadata;
@@ -26,14 +28,6 @@ public class ChatMessageForward {
 
     public void setType(int type) {
         this.type = type;
-    }
-
-    public String getContent() {
-        return content;
-    }
-
-    public void setContent(String content) {
-        this.content = content;
     }
 
     public long getTime() {
@@ -76,19 +70,27 @@ public class ChatMessageForward {
         this.contentCount = contentCount;
     }
 
-    public long[] getSubjectId() {
-        return subjectId;
-    }
-
-    public void setSubjectId(long[] subjectId) {
-        this.subjectId = subjectId;
-    }
-
-    public String[] getUniqueId() {
+    public ArrayList<String> getUniqueId() {
         return uniqueId;
     }
 
-    public void setUniqueId(String[] uniqueId) {
+    public void setUniqueId(ArrayList<String> uniqueId) {
         this.uniqueId = uniqueId;
+    }
+
+    public long getSubjectId() {
+        return subjectId;
+    }
+
+    public void setSubjectId(long subjectId) {
+        this.subjectId = subjectId;
+    }
+
+    public ArrayList<Long> getContent() {
+        return content;
+    }
+
+    public void setContent(ArrayList<Long> content) {
+        this.content = content;
     }
 }

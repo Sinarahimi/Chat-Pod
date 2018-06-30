@@ -6,7 +6,7 @@ public interface AsyncListener {
 
     void onReceivedMessage(String textMessage) throws IOException;
 
-    void onStateChanged(String textMessage) throws IOException;
+    void onStateChanged(String state) throws IOException;
 
     void onConnected(String textMessage) throws IOException;
 

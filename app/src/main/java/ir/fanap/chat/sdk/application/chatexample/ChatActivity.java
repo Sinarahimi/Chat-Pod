@@ -24,11 +24,11 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
     //fel token
 //    private static String TOKEN = "a11768091eac48f2a7b84ed6a241f9c3";
     //Fifi
-    private String name = "Fifi";
-    private static String TOKEN = "1fcecc269a8949d6b58312cab66a4926";
+//    private String name = "Fifi";
+//    private static String TOKEN = "1fcecc269a8949d6b58312cab66a4926";
 //    zizi
-//    private String name = "zizi";
-//    private static String TOKEN = "7cba09ff83554fc98726430c30afcfc6";
+    private static final String name = "zizi";
+    private static String TOKEN = "7cba09ff83554fc98726430c30afcfc6";
     //Token Alexi
 //    private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
 //    private static String name = "Alexi";
@@ -147,5 +147,6 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
 //        presenter.getUserInfo();
         presenter.addContact("", "", "09122451131", "");
 //        presenter.removeContact(581);
+
     }
 }
