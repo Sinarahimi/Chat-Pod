@@ -13,8 +13,6 @@ import com.fanap.podasync.Async;
 import com.fanap.podasync.AsyncAdapter;
 import com.fanap.podasync.model.Device;
 import com.fanap.podasync.model.DeviceResult;
-import com.fanap.podchat.networking.RetrofitHelperSsoHost;
-import com.fanap.podchat.networking.api.TokenApi;
 import com.fanap.podasync.util.JsonUtil;
 import com.fanap.podchat.BuildConfig;
 import com.fanap.podchat.model.ChatMessage;
@@ -41,15 +39,14 @@ import com.fanap.podchat.model.Results;
 import com.fanap.podchat.model.Thread;
 import com.fanap.podchat.model.UserInfo;
 import com.fanap.podchat.networking.RetrofitHelper;
+import com.fanap.podchat.networking.RetrofitHelperSsoHost;
 import com.fanap.podchat.networking.api.ContactApi;
+import com.fanap.podchat.networking.api.TokenApi;
 import com.fanap.podchat.util.Callbacks;
 import com.fanap.podchat.util.ChatMessageType;
 import com.fanap.podchat.util.ChatMessageType.Constants;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.orhanobut.logger.AndroidLogAdapter;
 import com.orhanobut.logger.Logger;
 import com.squareup.moshi.JsonAdapter;
@@ -72,12 +69,12 @@ public class Chat extends AsyncAdapter {
     private static Async async;
     private static Moshi moshi;
     private String token;
+    private static Chat instance;
+    private String platformHost;
     private static ChatListenerManager listenerManager;
     private int userId;
     private ContactApi contactApi;
     private static HashMap<String, Callbacks> messageCallbacks;
-    private static Chat instance;
-    private String platformHost;
     private long lastSentMessageTime;
     private boolean chatState = false;
     private static final String CONNECTING = "CONNECTING";
@@ -86,7 +83,9 @@ public class Chat extends AsyncAdapter {
     private static final String OPEN = "OPEN";
     private Handler pingHandler;
 
-
+    /**
+     * Initialize the Chat
+     **/
     public static Chat init(Context context) {
         if (instance == null) {
             async = Async.getInstance(context);
@@ -547,9 +546,10 @@ public class Chat extends AsyncAdapter {
     }
 
     /**
-     * When we received message from another user we check if we owner of the message
-     * there is nothing to do but if we are not the owner we send the delivery message
-     * to another user and seen message
+     * Send text message with
+     *
+     * @param textMessage String that we want to sent to the thread
+     * @param threadId    Id of the destination thread
      */
     public void sendTextMessage(String textMessage, long threadId) {
         ChatMessage chatMessage = new ChatMessage();
@@ -633,7 +633,9 @@ public class Chat extends AsyncAdapter {
 
     /**
      * forward message
-     * threadId  = destination thread id
+     *
+     * @param threadId   destination thread id
+     * @param messageIds Array of message ids that we want to forward them
      */
     public void forwardMessage(long threadId, ArrayList<Long> messageIds) {
         ChatMessageForward chatMessageForward = new ChatMessageForward();
@@ -660,6 +662,13 @@ public class Chat extends AsyncAdapter {
         sendAsyncMessage(asyncContent, 4);
     }
 
+    /**
+     * Reply the message in the current thread
+     *
+     * @param messageContent content of the reply message
+     * @param threadId       id of the thread
+     * @param messageId      of that message we want to reply
+     */
     public void replyMessage(String messageContent, long threadId, long messageId) {
         String uniqueId = getUniqueId();
 
@@ -677,13 +686,25 @@ public class Chat extends AsyncAdapter {
         if (BuildConfig.DEBUG) Logger.d("Send Reply Message");
         if (BuildConfig.DEBUG) Logger.json(asyncContent);
         sendAsyncMessage(asyncContent, 4);
+
     }
 
-    public void getThread(int count, int offset) {
+
+    //TODO change to getThreads and input the threadIds as params
+
+    /**
+     * Get the list of threads or you can just pass the thread id that you want
+     *
+     * @param count  number of thread
+     * @param offset specified offset you want
+     */
+    public void getThreads(int count, int offset, ArrayList<Integer> threadIds) {
         ChatMessageContent chatMessageContent = new ChatMessageContent();
         chatMessageContent.setCount(count);
         chatMessageContent.setOffset(offset);
-
+        if (threadIds != null) {
+            chatMessageContent.setThreadIds(threadIds);
+        }
         JsonAdapter<ChatMessageContent> messageContentJsonAdapter = moshi.adapter(ChatMessageContent.class);
         String content = messageContentJsonAdapter.toJson(chatMessageContent);
 
@@ -703,8 +724,11 @@ public class Chat extends AsyncAdapter {
     }
 
     /**
-     * Get history of the
-     * If order is empty [default = desc] and also you have two option [ asc | desc ]
+     * Get history of the thread
+     *
+     * @param count    count of the messages
+     * @param order    If order is empty [default = desc] and also you have two option [ asc | desc ]
+     * @param threadId Id of the thread that we want to get the history
      */
     public void getHistory(int count, int offset, String order, long threadId) {
         order = order != null ? order : "";
@@ -752,11 +776,17 @@ public class Chat extends AsyncAdapter {
         String asyncContent = chatMessageJsonAdapter.toJson(chatMessage);
         setCallBacks(null, null, null, true, Constants.GET_CONTACTS, offset, uniqueId);
         if (BuildConfig.DEBUG) Logger.d("GET_CONTACT_SEND", asyncContent);
+        if (BuildConfig.DEBUG) Logger.json(asyncContent);
         sendAsyncMessage(asyncContent, 3);
     }
 
     /**
-     * Add contact
+     * Add contact to the contact list
+     *
+     * @param firstName
+     * @param lastName
+     * @param cellphoneNumber
+     * @param email
      */
     public void addContact(String firstName, String lastName, String cellphoneNumber, String email) {
         String uniqueId = getUniqueId();
@@ -777,6 +807,8 @@ public class Chat extends AsyncAdapter {
 
     /**
      * Remove contact with the user id
+     *
+     * @param userId id of the user that we want to remove from contact list
      */
     public void removeContact(long userId) {
         if (getPlatformHost() != null) {
@@ -847,6 +879,11 @@ public class Chat extends AsyncAdapter {
         return chatMessage;
     }
 
+    /**
+     * Get the participant list of specific thread
+     *
+     * @param threadId id of the thread we want to ge the participant list
+     */
     public void getThreadParticipant(int count, int offset, long threadId) {
         ChatMessageContent chatMessageContent = new ChatMessageContent();
         chatMessageContent.setCount(count);
@@ -885,7 +922,7 @@ public class Chat extends AsyncAdapter {
     }
 
     /**
-     * Get all the user information
+     * Get the information of the current user
      */
     public void getUserInfo() {
         ChatMessage chatMessage = new ChatMessage();

@@ -140,26 +140,42 @@ public class Async extends WebSocketAdapter {
         }
     }
 
+    /**
+     * Get the current state of this WebSocket.
+     *
+     * <p>
+     * The initial state is {@link WebSocketState#CREATED CREATED}.
+     * When {@link #connect(String, String, String, String, String, String)} is called, the state is changed to
+     * { CONNECTING}, and then to
+     * {OPEN} after a successful opening
+     * handshake. The state is changed to {CLOSING} when a closing handshake
+     * is started, and then to {CLOSED}
+     * when the closing handshake finished.
+     * </p>
+     *
+     * @return
+     *         The current state.
+     */
     @Override
     public void onStateChanged(WebSocket websocket, WebSocketState newState) throws Exception {
         super.onStateChanged(websocket, newState);
         listenerManager.callOnStateChanged(newState.toString());
         stateLiveData.postValue(newState.toString());
         setState(newState.toString());
-        if (BuildConfig.DEBUG) Log.d("onStateChanged", newState.toString());
+        if (BuildConfig.DEBUG) Logger.d("onStateChanged", newState.toString());
     }
 
     @Override
     public void onError(WebSocket websocket, WebSocketException cause) throws Exception {
         super.onError(websocket, cause);
-        if (BuildConfig.DEBUG) Log.e("onError", cause.toString());
+        if (BuildConfig.DEBUG) Logger.e("onError", cause.toString());
         listenerManager.callOnError(cause.toString());
     }
 
     @Override
     public void onConnectError(WebSocket websocket, WebSocketException exception) throws Exception {
         super.onConnectError(websocket, exception);
-        if (BuildConfig.DEBUG) Log.e("onConnected", exception.toString());
+        if (BuildConfig.DEBUG) Logger.e("onConnected", exception.toString());
     }
 
     @Override
