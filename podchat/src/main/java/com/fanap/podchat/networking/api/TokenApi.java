@@ -1,4 +1,4 @@
-package com.fanap.podasync.networking.api;
+package com.fanap.podchat.networking.api;
 
 import com.fanap.podasync.model.DeviceResult;
 

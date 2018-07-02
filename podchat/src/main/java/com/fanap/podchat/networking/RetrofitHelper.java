@@ -13,17 +13,17 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 /**
- * RetrofitHelper
+ * RetrofitHelperSsoHost
  */
 
 public class RetrofitHelper {
 
     private Retrofit.Builder retrofit;
 
-    public RetrofitHelper(String ssoHost) {
+    public RetrofitHelper(String platformHost) {
 
         retrofit = new Retrofit.Builder()
-                .baseUrl(ssoHost)
+                .baseUrl(platformHost)
                 .client(new OkHttpClient().newBuilder().addNetworkInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)).build())
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create());

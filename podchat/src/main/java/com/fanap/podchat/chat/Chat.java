@@ -11,6 +11,10 @@ import android.util.Log;
 
 import com.fanap.podasync.Async;
 import com.fanap.podasync.AsyncAdapter;
+import com.fanap.podasync.model.Device;
+import com.fanap.podasync.model.DeviceResult;
+import com.fanap.podchat.networking.RetrofitHelperSsoHost;
+import com.fanap.podchat.networking.api.TokenApi;
 import com.fanap.podasync.util.JsonUtil;
 import com.fanap.podchat.BuildConfig;
 import com.fanap.podchat.model.ChatMessage;
@@ -41,7 +45,11 @@ import com.fanap.podchat.networking.api.ContactApi;
 import com.fanap.podchat.util.Callbacks;
 import com.fanap.podchat.util.ChatMessageType;
 import com.fanap.podchat.util.ChatMessageType.Constants;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.orhanobut.logger.AndroidLogAdapter;
 import com.orhanobut.logger.Logger;
 import com.squareup.moshi.JsonAdapter;
@@ -76,6 +84,7 @@ public class Chat extends AsyncAdapter {
     private static final String CLOSING = "CLOSING";
     private static final String CLOSED = "CLOSED";
     private static final String OPEN = "OPEN";
+    private Handler pingHandler;
 
 
     public static Chat init(Context context) {
@@ -95,13 +104,14 @@ public class Chat extends AsyncAdapter {
      */
     public void connect(String serverAddress, String appId, String severName, String token,
                         String ssoHost, String platformHost) {
+        pingHandler = new Handler();
         async.addListener(this);
-        async.connect(serverAddress, appId, severName, token, ssoHost);
         RetrofitHelper retrofitHelper = new RetrofitHelper(platformHost);
         contactApi = retrofitHelper.getService(ContactApi.class);
         setPlatformHost(platformHost);
         setToken(token);
         getUserInfo();
+        deviceIdRequest(ssoHost, serverAddress, appId, severName);
     }
 
     /**
@@ -113,7 +123,7 @@ public class Chat extends AsyncAdapter {
         switch (state) {
             case OPEN:
                 chatState = true;
-                ping();
+//                ping();
                 break;
             case CONNECTING:
             case CLOSING:
@@ -191,6 +201,8 @@ public class Chat extends AsyncAdapter {
             case Constants.REMOVE_PARTICIPANT:
                 break;
             case Constants.RENAME:
+                listenerManager.callOnRenameThread(chatMessage.getContent());
+                listenerManager.callOnRenameThread(chatMessage.getContent());
                 break;
             case Constants.SEEN:
                 if (callbacks.isSeen()) {
@@ -450,6 +462,24 @@ public class Chat extends AsyncAdapter {
         return JsonUtil.getJson(outPutThread);
     }
 
+    private void deviceIdRequest(String ssoHost, String serverAddress, String appId, String severName) {
+        RetrofitHelperSsoHost retrofitHelperSsoHost = new RetrofitHelperSsoHost(ssoHost);
+        TokenApi tokenApi = retrofitHelperSsoHost.getService(TokenApi.class);
+        rx.Observable<Response<DeviceResult>> listObservable = tokenApi.getDeviceId("Bearer" + " " + getToken());
+        listObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(deviceResults -> {
+            if (deviceResults.isSuccessful()) {
+                ArrayList<Device> devices = deviceResults.body().getDevices();
+                for (Device device : devices) {
+                    if (device.isCurrent()) {
+                        if (BuildConfig.DEBUG) Logger.i("DEVICE_ID :" + device.getUid());
+                        async.connect(serverAddress, appId, severName, token, ssoHost, device.getUid());
+                        return;
+                    }
+                }
+            }
+        }, throwable -> Logger.e("Error on get devices", throwable.toString()));
+    }
+
     /**
      * Reformat the get thread response
      */
@@ -539,15 +569,16 @@ public class Chat extends AsyncAdapter {
         sendAsyncMessage(asyncContent, 4);
     }
 
+    //TODO ping have problem with post delayed
     private void sendAsyncMessage(String asyncContent, int asyncMsgType) {
         async.sendMessage(asyncContent, asyncMsgType);
-//        long lastSentMessageTimeout = 10 * 1000;
-//        lastSentMessageTime = new Date().getTime();
-//        Handler handler = new Handler();
-//        handler.postDelayed(() -> {
+        long lastSentMessageTimeout = 10 * 1000;
+        lastSentMessageTime = new Date().getTime();
+//        pingHandler.postDelayed(() -> {
 //            long currentTime = new Date().getTime();
-//            if (currentTime - lastSentMessageTime < lastSentMessageTimeout) {
-//                ping();
+//            if (currentTime - lastSentMessageTime > lastSentMessageTimeout) {
+//                Logger.i("ping");
+////                ping();
 //            }
 //        }, lastSentMessageTimeout);
     }
@@ -556,7 +587,7 @@ public class Chat extends AsyncAdapter {
      * Ping for staying chat alive
      */
     private void ping() {
-        if (chatState) {
+        if (chatState && async.getPeerId() != null) {
             ChatMessage chatMessage = new ChatMessage();
             chatMessage.setType(Constants.PING);
             chatMessage.setTokenIssuer("1");
@@ -574,10 +605,30 @@ public class Chat extends AsyncAdapter {
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_CONTACTS)
                 != PackageManager.PERMISSION_GRANTED) {
             // Permission is not granted
-        }else {
+        } else {
             // Permission is granted
 
         }
+    }
+
+    /**
+     * You should consider that this method is for rename group and you have to be the admin
+     * to change the thread name if not you don't have the permission
+     */
+    public void renameThread(long threadId, String title) {
+        String uniqueId = getUniqueId();
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setType(Constants.RENAME);
+        chatMessage.setSubjectId(threadId);
+        chatMessage.setContent(title);
+        chatMessage.setToken(getToken());
+        chatMessage.setTokenIssuer("1");
+        chatMessage.setUniqueId(uniqueId);
+        setCallBacks(null, null, null, true, Constants.RENAME, null, uniqueId);
+        String asyncContent = JsonUtil.getJson(chatMessage);
+        sendAsyncMessage(asyncContent, 4);
+        if (BuildConfig.DEBUG) Logger.i("SEND RENAME THREAD");
+        if (BuildConfig.DEBUG) Logger.json(asyncContent);
     }
 
     /**
@@ -586,21 +637,28 @@ public class Chat extends AsyncAdapter {
      */
     public void forwardMessage(long threadId, ArrayList<Long> messageIds) {
         ChatMessageForward chatMessageForward = new ChatMessageForward();
-        chatMessageForward.setSubjectId(threadId);
+        ObjectMapper mapper = new ObjectMapper();
         ArrayList<String> uniqueIds = new ArrayList<>();
-        for (int i = 0; i <= messageIds.size(); i++) {
+        chatMessageForward.setSubjectId(threadId);
+        for (int i = 0; i < messageIds.size(); i++) {
             uniqueIds.add(getUniqueId());
         }
-        chatMessageForward.setUniqueId(uniqueIds);
-        chatMessageForward.setContent(messageIds);
+        try {
+            chatMessageForward.setUniqueId(mapper.writeValueAsString(uniqueIds));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        chatMessageForward.setContent(messageIds.toString());
         chatMessageForward.setToken(getToken());
         chatMessageForward.setTokenIssuer("1");
         chatMessageForward.setType(Constants.FORWARD_MESSAGE);
 
+
         String asyncContent = JsonUtil.getJson(chatMessageForward);
+        if (BuildConfig.DEBUG) Logger.i("SEND FORWARD MESSAGE");
+        if (BuildConfig.DEBUG) Logger.json(asyncContent);
         sendAsyncMessage(asyncContent, 4);
     }
-
 
     public void replyMessage(String messageContent, long threadId, long messageId) {
         String uniqueId = getUniqueId();
@@ -667,7 +725,8 @@ public class Chat extends AsyncAdapter {
 
         JsonAdapter<ChatMessage> chatMessageJsonAdapter = moshi.adapter(ChatMessage.class);
         String asyncContent = chatMessageJsonAdapter.toJson(chatMessage);
-        if (BuildConfig.DEBUG) Log.d("Get history send", asyncContent);
+        if (BuildConfig.DEBUG) Logger.d("SEND GET THREAD HISTORY");
+        if (BuildConfig.DEBUG) Logger.json(asyncContent);
         setCallBacks(null, null, null, true, Constants.GET_HISTORY, offset, uniqueId);
         sendAsyncMessage(asyncContent, 3);
     }

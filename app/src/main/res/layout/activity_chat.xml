@@ -20,177 +20,105 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/buttonGetThread"
-        style="@style/Widget.AppCompat.Button.Colored"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="47dp"
-        android:layout_marginTop="26dp"
-        android:onClick="getThread"
-        android:text="getThread"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/buttonGetThreadHistory"
-        style="@style/Widget.AppCompat.Button.Colored"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="46dp"
-        android:layout_marginTop="125dp"
-        android:onClick="getThreadHistory"
-        android:text="getThreadHistory"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/textViewStateChat"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="44dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginBottom="162dp"
+        android:layout_marginStart="16dp"
         android:text="State"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonGetThreadHistory" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
-    <Button
-        android:id="@+id/buttonGetContact"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:onClick="getContact"
-        android:text="Get Contacs"
-        app:layout_constraintBaseline_toBaselineOf="@+id/buttonGetThreadHistory"
-        app:layout_constraintEnd_toEndOf="parent" />
-
-    <Button
-        android:id="@+id/buttonCreateThread"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="1dp"
-        android:layout_marginTop="28dp"
-        android:onClick="createThread"
-        android:text="Create Thread"
-        app:layout_constraintEnd_toStartOf="@+id/buttonEditMsg"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewStateChat" />
 
     <Button
         android:id="@+id/buttonSendMessage"
         style="@style/Widget.AppCompat.Button.Colored"
-        android:layout_width="126dp"
+        android:layout_width="128dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="4dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginTop="17dp"
         android:onClick="sendMessage"
         android:text="Send message"
-        app:layout_constraintEnd_toEndOf="@+id/buttonCreateThread"
-        app:layout_constraintTop_toBottomOf="@+id/buttonCreateThread" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextMessage" />
 
     <EditText
         android:id="@+id/editTextMessage"
-        android:layout_width="363dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="38dp"
         android:ems="10"
         android:hint="Enter your message here"
         android:inputType="textPersonName"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonSendMessage" />
+        app:layout_constraintTop_toTopOf="@+id/editTextThread" />
 
     <EditText
         android:id="@+id/editTextThread"
-        android:layout_width="121dp"
-        android:layout_height="49dp"
-        android:layout_marginBottom="20dp"
+        android:layout_width="0dp"
+        android:layout_height="46dp"
+        android:layout_marginBottom="195dp"
         android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="194dp"
         android:ems="10"
         android:hint="Thread id"
         android:inputType="textPersonName"
-        app:layout_constraintBottom_toTopOf="@+id/editTextMessage"
-        app:layout_constraintEnd_toEndOf="@+id/editTextMessage" />
+        app:layout_constraintBottom_toBottomOf="@+id/textViewUserId"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-    <Button
-        android:id="@+id/buttonUnmute"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="mute"
-        android:text="Mute Thread"
-        app:layout_constraintStart_toStartOf="@+id/buttonConnect"
-        app:layout_constraintTop_toBottomOf="@+id/buttonConnect" />
-
-    <Button
-        android:id="@+id/buttonMute"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="1dp"
-        android:onClick="unMute"
-        android:text="un mute "
-        app:layout_constraintEnd_toEndOf="@+id/buttonGetThread"
-        app:layout_constraintTop_toBottomOf="@+id/buttonGetThread" />
 
     <TextView
         android:id="@+id/textViewUserId"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginStart="54dp"
         android:text="User Id"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/textViewStateChat"
-        app:layout_constraintTop_toBottomOf="@+id/buttonGetContact" />
+        android:textSize="10sp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/textViewStateChat"
+        app:layout_constraintStart_toEndOf="@+id/textViewStateChat" />
 
     <Button
         android:id="@+id/buttonEditMsg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="24dp"
-        android:layout_marginEnd="14dp"
+        android:layout_marginStart="3dp"
+        android:layout_marginTop="27dp"
         android:onClick="EditMsg"
         android:text="EditMsg"
-        app:layout_constraintBottom_toTopOf="@+id/editTextThread"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/buttonCreateThread" />
+        app:layout_constraintStart_toStartOf="@+id/buttonConnect"
+        app:layout_constraintTop_toBottomOf="@+id/buttonConnect" />
 
-    <Button
-        android:id="@+id/buttonGetParticipant"
-        style="@style/Widget.AppCompat.Button.Colored"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginStart="46dp"
-        android:onClick="getParticipant"
-        android:text="getParticipant"
-        android:textSize="14sp"
-        app:layout_constraintEnd_toStartOf="@+id/buttonSendReplyMessage"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextMessage" />
 
     <Button
         android:id="@+id/buttonSendReplyMessage"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="1dp"
+        android:layout_marginEnd="29dp"
+        android:layout_marginTop="24dp"
         android:onClick="sendReplyMessage"
         android:text="Button"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/buttonGetParticipant"
-        app:layout_constraintTop_toBottomOf="@+id/editTextMessage" />
+        app:layout_constraintTop_toBottomOf="@+id/buttonSendMessage" />
 
-    <Button
-        android:id="@+id/buttonAddContact"
-        android:layout_width="wrap_content"
+    <Spinner
+        android:id="@+id/spinner"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="46dp"
-        android:layout_marginStart="46dp"
-        android:layout_marginTop="1dp"
-        android:onClick="addContact"
-        android:text="addContact"
-        app:layout_constraintEnd_toStartOf="@+id/textViewUserId"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonGetParticipant" />
-
+        android:layout_marginBottom="84dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:background="@android:drawable/btn_dropdown"
+        android:spinnerMode="dropdown"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent" />
 </android.support.constraint.ConstraintLayout>

@@ -21,6 +21,7 @@ public class Thread {
     private long partnerLastDeliveredMessageId;
     private int type;
     private boolean mute;
+    private boolean canEditInfo;
     private long participantCount;
 
 
@@ -175,6 +176,12 @@ public class Thread {
     public void setLastMessage(String lastMessage) {
         this.lastMessage = lastMessage;
     }
-//    ImageInfo image;
 
+    public boolean isCanEditInfo() {
+        return canEditInfo;
+    }
+
+    public void setCanEditInfo(boolean canEditInfo) {
+        this.canEditInfo = canEditInfo;
+    }
 }

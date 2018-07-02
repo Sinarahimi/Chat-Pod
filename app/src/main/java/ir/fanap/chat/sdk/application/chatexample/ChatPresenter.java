@@ -75,6 +75,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void renameThread(long threadId, String title) {
+        chat.renameThread(threadId, title);
+    }
+
+    @Override
     public void unMuteThread(int threadId) {
         chat.unmuteThread(threadId);
     }

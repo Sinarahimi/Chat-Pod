@@ -12,14 +12,10 @@ import android.util.Log;
 import com.fanap.podasync.model.AsyncConstant;
 import com.fanap.podasync.model.AsyncMessageType;
 import com.fanap.podasync.model.ClientMessage;
-import com.fanap.podasync.model.Device;
-import com.fanap.podasync.model.DeviceResult;
 import com.fanap.podasync.model.Message;
 import com.fanap.podasync.model.MessageWrapperVo;
 import com.fanap.podasync.model.PeerInfo;
 import com.fanap.podasync.model.RegistrationRequest;
-import com.fanap.podasync.networking.RetrofitHelper;
-import com.fanap.podasync.networking.api.TokenApi;
 import com.fanap.podasync.util.JsonUtil;
 import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketAdapter;
@@ -33,19 +29,13 @@ import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
-
-import retrofit2.Response;
-import rx.android.schedulers.AndroidSchedulers;
-import rx.schedulers.Schedulers;
 
 import static com.neovisionaries.ws.client.WebSocketState.OPEN;
 
-/**
+/*
  * By default WebSocketFactory uses for non-secure WebSocket connections (ws:)
  * and for secure WebSocket connections (wss:).
  */
@@ -218,9 +208,9 @@ public class Async extends WebSocketAdapter {
             try {
                 reConnect();
             } catch (IOException e) {
-                if(BuildConfig.DEBUG) Logger.e("Async: reConnect", e.toString());
+                if (BuildConfig.DEBUG) Logger.e("Async: reConnect", e.toString());
             } catch (WebSocketException e) {
-                if(BuildConfig.DEBUG)Logger.e("Async: reConnect", e.toString());
+                if (BuildConfig.DEBUG) Logger.e("Async: reConnect", e.toString());
             }
         }, retryStep);
     }
@@ -288,13 +278,9 @@ public class Async extends WebSocketAdapter {
 
     private void handleOnPing(WebSocket webSocket, ClientMessage clientMessage) {
         if (clientMessage.getContent() != null || !clientMessage.getContent().equals("")) {
-            if (getDeviceId() == null) {
-                deviceIdRequest(getSsoHost());
-            } else {
-                deviceRegister(webSocket);
-            }
+            deviceRegister(webSocket);
         } else {
-            if(BuildConfig.DEBUG)Logger.i("PING", String.valueOf(new Date().getTime()));
+            if (BuildConfig.DEBUG) Logger.i("PING", String.valueOf(new Date().getTime()));
         }
     }
 
@@ -333,30 +319,11 @@ public class Async extends WebSocketAdapter {
         lastSendMessageTime = new Date().getTime();
     }
 
-    private void deviceIdRequest(String ssoHost) {
-        RetrofitHelper retrofitHelper = new RetrofitHelper(ssoHost);
-        TokenApi tokenApi = retrofitHelper.getService(TokenApi.class);
-        rx.Observable<Response<DeviceResult>> listObservable = tokenApi.getDeviceId("Bearer" + " " + getToken());
-        listObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(deviceResults -> {
-            if (deviceResults.isSuccessful()) {
-                ArrayList<Device> devices = deviceResults.body().getDevices();
-                for (Device device : devices) {
-                    if (device.isCurrent()) {
-                        if (BuildConfig.DEBUG) Logger.i("DEVICE_ID", device.getUid());
-                        saveDeviceId(device.getUid());
-                        deviceRegister(webSocket);
-                        return;
-                    }
-                }
-            }
-        }, throwable ->
-                Logger.e("Error get devices", throwable.toString()));
-    }
-
     public void connect(String socketServerAddress, final String appId, String serverName,
-                        String token, String ssoHost) {
+                        String token, String ssoHost, String deviceID) {
         WebSocketFactory webSocketFactory = new WebSocketFactory();
         webSocketFactory.setVerifyHostname(false);
+        saveDeviceId(deviceID);
         setAppId(appId);
         setServerAddress(socketServerAddress);
         setToken(token);
@@ -486,7 +453,7 @@ public class Async extends WebSocketAdapter {
         message = getMessageWrapper(moshi, "", AsyncMessageType.MessageType.PING);
         sendData(webSocket, message);
         lastSendMessageTime = new Date().getTime();
-        if(BuildConfig.DEBUG) Logger.i("ASYNC PING");
+        if (BuildConfig.DEBUG) Logger.i("ASYNC PING");
         ScheduleCloseSocket();
     }
 

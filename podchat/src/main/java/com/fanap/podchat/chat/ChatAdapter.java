@@ -106,4 +106,9 @@ public class ChatAdapter implements ChatListener {
     public void onRemoveContact(String content) {
 
     }
+
+    @Override
+    public void onRenameThread(String content) {
+
+    }
 }

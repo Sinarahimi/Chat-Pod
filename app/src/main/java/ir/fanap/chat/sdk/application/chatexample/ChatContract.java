@@ -38,6 +38,8 @@ public interface ChatContract {
 
         void muteThread(int threadId);
 
+        void renameThread(long threadId, String title);
+
         void unMuteThread(int threadId);
 
         void editMessage(int messageId, String messageContent);

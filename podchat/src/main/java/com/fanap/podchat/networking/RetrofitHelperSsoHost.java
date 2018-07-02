@@ -1,4 +1,4 @@
-package com.fanap.podasync.networking;
+package com.fanap.podchat.networking;
 
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -11,14 +11,14 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 
 /**
- * RetrofitHelper
+ * RetrofitHelperSsoHost
  */
 
-public class RetrofitHelper {
+public class RetrofitHelperSsoHost {
 
     private Retrofit.Builder retrofit;
 
-    public RetrofitHelper(String ssoHost) {
+    public RetrofitHelperSsoHost(String ssoHost) {
 
         retrofit = new Retrofit.Builder()
                 .baseUrl(ssoHost)

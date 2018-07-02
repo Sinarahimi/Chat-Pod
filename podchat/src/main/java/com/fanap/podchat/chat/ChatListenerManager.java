@@ -253,4 +253,13 @@ public class ChatListenerManager {
             }
         }
     }
+    public void callOnRenameThread(String content) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onRenameThread(content);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
 }

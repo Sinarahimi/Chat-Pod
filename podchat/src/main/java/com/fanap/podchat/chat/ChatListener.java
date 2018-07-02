@@ -43,4 +43,6 @@ public interface ChatListener {
     void handleCallbackError(Throwable cause) throws Exception;
 
     void onRemoveContact(String content);
+
+    void onRenameThread(String content);
 }

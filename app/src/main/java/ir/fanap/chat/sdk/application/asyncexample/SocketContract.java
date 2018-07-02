@@ -29,7 +29,7 @@ public interface SocketContract {
     interface presenter {
         String getMessage();
 
-        void connect(String socketServerAddress, String appId, String serveName, String token,  String ssoHost);
+        void connect(String socketServerAddress, String appId, String serveName, String token,  String ssoHost, String deviceId);
 
         void sendMessage(String textMessage, int messageType, long[] receiversId);
 
