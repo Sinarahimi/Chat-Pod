@@ -46,34 +46,107 @@ And now it ready for chat .
 | `unmuteThread(int threadId)`         | Un Mute the thread      |
 
 
-###getUserInfo
+### getUserInfo
+```java
+chat.getUserInfo();
+```
 
-###createThread
+### createThread
+```java
+Invitee[] invite = new Invitee[]{new Invitee(textThread, 2)};
+chat.createThread(0, invite, "");
+```
 
-###getThreads
+### getThreads
+```java
+chat.getThread(10, 0, [235,589]);
+chat.getThread(10, 0, null);
+```
 
-###getHistory
+### getHistory
+```java
+presenter.getHistory(50, 0, null, 312);
+presenter.getHistory(50, 0, "desc", 312);
+```
 
-###getThreadParticipant
+### getThreadParticipant
+```java
+chat.getThreadParticipant(50, 5, 235);
+```
 
-###renameThread
+### renameThread
+```java
+chat.renameThread(379, "new group name");
+```
 
-###muteThread
+### muteThread
+```java
+chat.muteThread(232);
+```
 
-###unmuteThread
+### unmuteThread
+```java
+chat.unmuteThread(232);
+```
 
-###sendTextMessage
+### sendTextMessage
+```java
+chat.sendTextMessage("This is test", 235);
+```
 
-###forwardMessage
+### forwardMessage
+```java
+ArrayList<Long> messageIds = new ArrayList<>();
+messageIds.add(11956L);
+chat.forwardMessage(312, messageIds);
+```
 
-###replyMessage
+### replyMessage
+```java
+chat.sendReplyMessage("Reply to the text", 235, 532);
+```
 
-###editMessage
+### editMessage
+```java
+chat.editMessage(533, "edited_at" + new Date().getTime());
+```
 
-###getContacts
+### getContacts
+```java
+chat.getContact(50,0);
+```
 
-###removeContact
+### removeContact
+```java
+chat.removeContact(long userId)
+```
 
-###addContact
+### addContact
+```java
+chat.addContact("Sina", "Rahimi", "0912131", "Develop.rahimi95@gmail.com");
+```
+### Register Listener
+After creating a Chat instance, you should call addListener method to register a ChatListener that receives Chat events.
+ChatAdapter is an empty implementation of ChatListener interface.
+For getting call back you should extend your class from `ChatAdapter`. 
 
-for getting call back you should extend your class from `ChatAdapter` 
+#### The following callack methods of ChatListener are called
+| Method                        | Description                                                                            |
+|:------------------------------|:---------------------------------------------------------------------------------------|
+| `onDeliver()`   | Called when message was deliverd.       |
+| `onGetContacts()`| Called when get contact respons was return. |
+| `onGetHistory()`                                           |       |
+| `onGetThread()`       |            |
+| `onInvitation()`                |                 |
+| `onSeen()`                |                 |
+| `onMuteThread()`                 |         |
+| `onUnmuteThread()`         |        |
+| `onUserInfo()`         |      |
+| `onSent()`         |        |
+| `onCreateThread()`         |        |
+| `onGetThreadParticipant()`         |       |
+| `onEditedMessage()`         |       |
+| `onContactAdded()` |       |
+| `onRemoveContact()`         |       |
+| `onRenameThread()`         |       |
+
