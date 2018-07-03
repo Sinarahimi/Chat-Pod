@@ -150,3 +150,18 @@ For getting call back you should extend your class from `ChatAdapter`.
 | `onRemoveContact()`         |       |
 | `onRenameThread()`         |       |
 
+## Built With
+
+* [moshi](https://github.com/square/moshi) - Moshi
+* [websocket-client](https://github.com/TakahikoKawasaki/nv-websocket-client) - Websocket
+* [lifecycle](https://developer.android.com/reference/android/arch/lifecycle/LiveData) - LiveData
+* [Retrofit2](https://square.github.io/retrofit/) - Retrofit2
+* [Rxjava](https://github.com/ReactiveX/RxAndroid) - Rxjava
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+
+## Versioning
+
+We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
