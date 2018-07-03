@@ -17,10 +17,70 @@ Then you need to connect.
 chat.connect("ws://172.16.106.26:8003/ws",
                 "POD-Chat", "chat-server", TOKEN, "http://172.16.110.76",
                 "http://172.16.106.26:8080")
+
 ```
 And now it's ready for chat .
 
-#The table below is the list of  methods defined in Chat
+### replyMessage
+```java
+chat.sendReplyMessage("Reply to the text", 235, 532);
+```
+
+### editMessage
+```java
+chat.editMessage(533, "edited_at" + new Date().getTime());
+```
+
+### getContacts
+```java
+chat.getContact(50,0);
+```
+
+### removeContact
+```java
+chat.removeContact(long userId)
+```
+
+### addContact
+```java
+chat.addContact("Sina", "Rahimi", "0912131", "Develop.rahimi95@gmail.com");
+```
+### Register Listener
+After creating a Chat instance, you should call addListener method to register a ChatListener that receives Chat events.
+ChatAdapter is an empty implementation of ChatListener interface.
+For getting call back you should extend your class from `ChatAdapter`.
+
+#### The following callack methods of ChatListener are called
+| Method                        | Description                                                                            |
+|:------------------------------|:---------------------------------------------------------------------------------------|
+| `onDeliver()`   | Called when message was deliverd.       |
+| `onGetContacts()`| Called when get contact respons was return. |
+| `onGetHistory()`    |       |
+| `onGetThread()`       |            |
+| `onInvitation()`                |                 |
+| `onSeen()`                |                 |
+| `onMuteThread()`                 |         |
+| `onUnmuteThread()`         |        |
+| `onUserInfo()`         |      |
+| `onSent()`         |        |
+| `onCreateThread()`         |        |
+| `onGetThreadParticipant()`         |       |
+| `onEditedMessage()`         |       |
+| `onContactAdded()` |       |
+| `onRemoveContact()`         |       |
+| `onRenameThread()`         |       |
+
+## Built With
+
+* [moshi](https://github.com/square/moshi) - Moshi
+* [websocket-client](https://github.com/TakahikoKawasaki/nv-websocket-client) - Websocket
+* [lifecycle](https://developer.android.com/reference/android/arch/lifecycle/LiveData) - LiveData
+* [Retrofit2](https://square.github.io/retrofit/) - Retrofit2
+* [Rxjava](https://github.com/ReactiveX/RxAndroid) - Rxjava
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
 
 | Method                        | Description                                                                            |
 |:------------------------------|:---------------------------------------------------------------------------------------|
@@ -128,7 +188,7 @@ chat.addContact("Sina", "Rahimi", "0912131", "Develop.rahimi95@gmail.com");
 ### Register Listener
 After creating a Chat instance, you should call addListener method to register a ChatListener that receives Chat events.
 ChatAdapter is an empty implementation of ChatListener interface.
-For getting call back you should extend your class from `ChatAdapter`.
+For getting call back you should extend your class from `ChatAdapter`. 
 
 #### The following callack methods of ChatListener are called
 | Method                        | Description                                                                            |
@@ -164,4 +224,5 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 ## Versioning
 
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags).
+We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
+
