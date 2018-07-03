@@ -9,6 +9,7 @@ public class LastMessageVO {
     private boolean editable;
     private long time;
     private ReplyInfoVO replyInfoVO;
+    private ForwardInfo forwardInfo;
 
     public Participant getParticipant() {
         return participant;
@@ -72,5 +73,13 @@ public class LastMessageVO {
 
     public void setReplyInfoVO(ReplyInfoVO replyInfoVO) {
         this.replyInfoVO = replyInfoVO;
+    }
+
+    public ForwardInfo getForwardInfo() {
+        return forwardInfo;
+    }
+
+    public void setForwardInfo(ForwardInfo forwardInfo) {
+        this.forwardInfo = forwardInfo;
     }
 }

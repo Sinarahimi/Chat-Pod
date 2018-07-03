@@ -828,12 +828,13 @@ public class Chat extends AsyncAdapter {
     /**
      * Update contacts
      */
-    public void updateContact(String firstName, String lastName, String cellphoneNumber, String email) {
+    public void updateContact(String userId,String firstName, String lastName, String cellphoneNumber, String email) {
         Contact contact = new Contact();
         contact.setFirstName(firstName);
         contact.setLastName(lastName);
         contact.setCellphoneNumber(cellphoneNumber);
         contact.setEmail(email);
+        contact.setId(userId);
         contact.setUniqueId(getUniqueId());
         Observable<Response<ContactRemove>> updateContactObservable = contactApi.updateContact(getToken(), 1
                 , firstName, lastName, email, getUniqueId(), cellphoneNumber);

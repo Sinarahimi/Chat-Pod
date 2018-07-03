@@ -18,7 +18,7 @@ public interface ChatContract {
 
         void connect(String serverAddress, String appId, String severName, String token, String ssoHost, String platformHost);
 
-        void getThread(int count, int offset);
+        void getThread(int count, int offset, ArrayList<Integer> threadIds);
 
         void getUserInfo();
 

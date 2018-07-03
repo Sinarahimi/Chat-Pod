@@ -178,8 +178,11 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
                 break;
             case 1:
                 //            "get thread",
-
-                presenter.getThread(10, 0);
+                //312,351
+                ArrayList<Integer> threadIds = new ArrayList<>();
+                threadIds.add(312);
+                threadIds.add(351);
+                presenter.getThread(10, 0,threadIds);
                 break;
             case 2:
                 //            "rename thread",
