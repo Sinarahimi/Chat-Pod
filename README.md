@@ -8,7 +8,7 @@ What things you need to Add this module to your project and after that set the `
 <uses-permission android:name="android.permission.INTERNET" />
 ```
 
-The first step is to init Chat.
+The first step is to initialize the Chat module.
 ```java
 chat.init(context);
 ```
@@ -18,7 +18,7 @@ chat.connect("ws://172.16.106.26:8003/ws",
                 "POD-Chat", "chat-server", TOKEN, "http://172.16.110.76",
                 "http://172.16.106.26:8080")
 ```
-And now it ready for chat .
+And now it's ready for chat .
 
 #The table below is the list of  methods defined in Chat 
 
@@ -135,7 +135,7 @@ For getting call back you should extend your class from `ChatAdapter`.
 |:------------------------------|:---------------------------------------------------------------------------------------|
 | `onDeliver()`   | Called when message was deliverd.       |
 | `onGetContacts()`| Called when get contact respons was return. |
-| `onGetHistory()`                                           |       |
+| `onGetHistory()`    |       |
 | `onGetThread()`       |            |
 | `onInvitation()`                |                 |
 | `onSeen()`                |                 |
