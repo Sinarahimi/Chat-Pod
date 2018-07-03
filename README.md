@@ -37,7 +37,7 @@ And now it's ready for chat .
 | `getHistory(int count, int offset, String order, long threadId)`         | get the history of the specific thread       |
 | `getContacts(int count, int offset)`         | get contact list      |
 | `removeContact(long userId)`         | remove user in contact list      |
-| `updateContact(String firstName, String lastName, String cellphoneNumber, String email)` | update user info in contact list      |
+| `updateContact(String userId,String firstName, String lastName, String cellphoneNumber, String email)`| update user info in contact list      |
 | `removeContact(long userId)`         | remove user in contact list      |
 | `addContact(String firstName, String lastName, String cellphoneNumber, String email)`         | Add contact      |
 | `getThreadParticipant(int count, int offset, long threadId)`         | Get the participant list      |
