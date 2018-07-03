@@ -13,10 +13,12 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     private Chat chat;
     private ChatContract.view view;
+    private Context context;
 
     public ChatPresenter(Context context) {
         chat = Chat.init(context);
         chat.addListener(this);
+        this.context = context;
     }
 
     @Override
@@ -102,6 +104,12 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void removeContact(long id) {
         chat.removeContact(id);
+    }
+
+    @Override
+    public ArrayList syncContact() {
+        chat.syncContact(context);
+        return null;
     }
 
     @Override

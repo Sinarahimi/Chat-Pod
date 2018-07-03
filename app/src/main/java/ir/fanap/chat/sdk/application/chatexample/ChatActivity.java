@@ -24,7 +24,7 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
     private ConstraintLayout constraintLayout;
     private EditText editText;
     private EditText editTextThread;
-    private static final String[] paths = {
+    private static final String[] func = {
             "Choose function",
             "get thread",
             "rename thread",
@@ -42,6 +42,11 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
             , "add contact"
             , "remove contact"
             , "update contact"
+    };
+
+    private static final String[] funcSecond = {
+            "Choose function",
+            "Sync Contact"
     };
 
     //fel token
@@ -69,12 +74,39 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
         constraintLayout = findViewById(R.id.constraintLayout);
         textViewToken.setText(TOKEN + name);
         Spinner spinner = findViewById(R.id.spinner);
+        Spinner spinnerSecond = findViewById(R.id.spinnerSecond);
 
         presenter = new ChatPresenter(this);
         presenter.getLiveState().observe(this, textViewState::setText);
 
+        setupSpinner(spinner);
+        ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(this,
+                android.R.layout.simple_spinner_item, funcSecond);
+
+        adapterSpinner.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerSecond.setAdapter(adapterSpinner);
+        spinnerSecond.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                switch (position) {
+                    case 0:
+//            "Choose function",
+                        break;
+                    case 1:
+                        presenter.syncContact();
+                        break;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+    }
+
+    private void setupSpinner(Spinner spinner) {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, paths);
+                android.R.layout.simple_spinner_item, func);
 
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
@@ -182,7 +214,7 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
                 ArrayList<Integer> threadIds = new ArrayList<>();
                 threadIds.add(312);
                 threadIds.add(351);
-                presenter.getThread(10, 0,threadIds);
+                presenter.getThread(10, 0, threadIds);
                 break;
             case 2:
                 //            "rename thread",
@@ -222,7 +254,7 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
                 break;
             case 12:
 //            "get contacts"
-                presenter.getContact(50,0);
+                presenter.getContact(50, 0);
                 break;
             case 13:
 //            , "edit message"

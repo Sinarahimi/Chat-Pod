@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 public class ThreadCallbacks {
     private int threadIdl;
-    private ArrayList<Callbacks> callbacks;
+    private ArrayList<Callback> callbacks;
 
     public int getThreadIdl() {
         return threadIdl;
@@ -14,11 +14,11 @@ public class ThreadCallbacks {
         this.threadIdl = threadIdl;
     }
 
-    public ArrayList<Callbacks> getCallbacks() {
+    public ArrayList<Callback> getCallbacks() {
         return callbacks;
     }
 
-    public void setCallbacks(ArrayList<Callbacks> callbacks) {
+    public void setCallbacks(ArrayList<Callback> callbacks) {
         this.callbacks = callbacks;
     }
 }

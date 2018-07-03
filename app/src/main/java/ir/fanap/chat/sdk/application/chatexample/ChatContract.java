@@ -50,6 +50,8 @@ public interface ChatContract {
 
         void removeContact(long id);
 
+        ArrayList syncContact();
+
         void forwardMessage(long threadId, ArrayList<Long> messageIds);
 
         void updateContact(long id, String firstName, String lastName, String cellphoneNumber, String email);
