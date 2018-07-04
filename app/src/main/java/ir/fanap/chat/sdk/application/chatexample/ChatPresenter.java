@@ -2,6 +2,7 @@ package ir.fanap.chat.sdk.application.chatexample;
 
 import android.arch.lifecycle.LiveData;
 import android.content.Context;
+import android.net.Uri;
 
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
@@ -28,8 +29,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void getThread(int count, int offset,ArrayList<Integer> threadIds) {
-        chat.getThreads(count, offset,threadIds);
+    public void getThread(int count, int offset, ArrayList<Integer> threadIds) {
+        chat.getThreads(count, offset, threadIds);
     }
 
     @Override
@@ -104,6 +105,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void removeContact(long id) {
         chat.removeContact(id);
+    }
+
+    @Override
+    public void sendFile(String fileHost, Uri fileUri, String fileName,Context context) {
+        chat.sendFile(fileHost, fileUri, fileName,context);
     }
 
     @Override

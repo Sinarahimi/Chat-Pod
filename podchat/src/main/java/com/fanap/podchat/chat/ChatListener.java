@@ -45,4 +45,5 @@ public interface ChatListener {
     void onRemoveContact(String content);
 
     void onRenameThread(String content);
+
 }

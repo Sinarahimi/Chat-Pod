@@ -1,5 +1,8 @@
 package ir.fanap.chat.sdk.application.chatexample;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.Snackbar;
@@ -7,23 +10,29 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.fanap.podchat.model.Invitee;
+import com.fanap.podchat.util.FilePath;
+import com.orhanobut.logger.Logger;
 
 import java.util.ArrayList;
 import java.util.Date;
 
 import ir.fanap.chat.sdk.R;
 
-public class ChatActivity extends AppCompatActivity implements ChatContract.view, AdapterView.OnItemSelectedListener {
+public class ChatActivity extends AppCompatActivity implements ChatContract.view, AdapterView.OnItemSelectedListener, View.OnClickListener {
     private ChatContract.presenter presenter;
     private ConstraintLayout constraintLayout;
     private EditText editText;
     private EditText editTextThread;
+    private Button buttonFileChoose;
+    private String selectedFilePath;
+    private static final int PICK_FILE_REQUEST = 1;
     private static final String[] func = {
             "Choose function",
             "get thread",
@@ -45,8 +54,9 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
     };
 
     private static final String[] funcSecond = {
-            "Choose function",
-            "Sync Contact"
+            "Choose function"
+            , "Sync Contact"
+            , "Send file"
     };
 
     //fel token
@@ -54,6 +64,7 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
     //Fifi
     private String name = "Fifi";
     private static String TOKEN = "1fcecc269a8949d6b58312cab66a4926";
+    private Uri uri;
 //    zizi
 //    private static final String name = "zizi";
 //    private static String TOKEN = "7cba09ff83554fc98726430c30afcfc6";
@@ -72,6 +83,9 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
         editText = findViewById(R.id.editTextMessage);
         editTextThread = findViewById(R.id.editTextThread);
         constraintLayout = findViewById(R.id.constraintLayout);
+        buttonFileChoose = findViewById(R.id.buttonFileChoose);
+        buttonFileChoose.setOnClickListener(this);
+
         textViewToken.setText(TOKEN + name);
         Spinner spinner = findViewById(R.id.spinner);
         Spinner spinnerSecond = findViewById(R.id.spinnerSecond);
@@ -94,6 +108,11 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
                         break;
                     case 1:
                         presenter.syncContact();
+                        break;
+                    case 2:
+                        presenter.sendFile("http://sandbox.pod.land:8080"
+                                , Uri.parse("/storage/emulated/0/Download/fff.png")
+                                , "test file", ChatActivity.this);
                         break;
                 }
             }
@@ -185,6 +204,7 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
         } else {
             Toast.makeText(this, "Message is Empty", Toast.LENGTH_SHORT).show();
         }
+
     }
 
     public void sendReplyMessage(View view) {
@@ -269,5 +289,45 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
 
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v == buttonFileChoose) {
+            showFileChooser();
+        }
+    }
+
+    private void showFileChooser() {
+        Intent intent = new Intent();
+        //sets the select file to all types of files
+        intent.setType("*/*");
+        //allows to select data and return it
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        //starts new activity to select file and return data
+        startActivityForResult(Intent.createChooser(intent, "Choose File to Upload.."), PICK_FILE_REQUEST);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK) {
+            if (requestCode == PICK_FILE_REQUEST) {
+                if (data != null) {
+                    Uri selectedFileUri = data.getData();
+                    selectedFilePath = FilePath.getPath(this, selectedFileUri);
+                    Logger.i("Selected File Path:" + selectedFilePath);
+                    setUri(selectedFileUri);
+                }
+            }
+        }
+    }
+
+    public void setUri(Uri uri) {
+        this.uri = uri;
+    }
+
+    public Uri getUri() {
+        return uri;
     }
 }

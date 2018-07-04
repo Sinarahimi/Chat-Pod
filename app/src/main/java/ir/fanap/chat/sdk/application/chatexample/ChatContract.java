@@ -1,6 +1,8 @@
 package ir.fanap.chat.sdk.application.chatexample;
 
 import android.arch.lifecycle.LiveData;
+import android.content.Context;
+import android.net.Uri;
 
 import com.fanap.podchat.model.Invitee;
 
@@ -49,6 +51,8 @@ public interface ChatContract {
         void addContact(String firstName, String lastName, String cellphoneNumber, String email);
 
         void removeContact(long id);
+
+        void sendFile(String fileHost, Uri fileUri, String fileName, Context context);
 
         ArrayList syncContact();
 

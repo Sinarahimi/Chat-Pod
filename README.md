@@ -7,8 +7,8 @@ What things you need to Add this module to your project and after that set the `
 ```java
 <uses-permission android:name="android.permission.INTERNET" />
 ```
-
 The first step is to initialize the Chat module.
+
 ```java
 chat.init(context);
 ```
@@ -210,7 +210,7 @@ For getting call back you should extend your class from `ChatAdapter`.
 | `onRemoveContact()`         |       |
 | `onRenameThread()`         |       |
 
-## Built With
+## Built With :heart:
 
 * [moshi](https://github.com/square/moshi) - Moshi
 * [websocket-client](https://github.com/TakahikoKawasaki/nv-websocket-client) - Websocket
