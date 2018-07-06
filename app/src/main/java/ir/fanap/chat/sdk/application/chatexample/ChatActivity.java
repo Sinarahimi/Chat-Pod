@@ -299,13 +299,12 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
     }
 
     private void showFileChooser() {
-        Intent intent = new Intent();
-        //sets the select file to all types of files
-        intent.setType("*/*");
-        //allows to select data and return it
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        //starts new activity to select file and return data
-        startActivityForResult(Intent.createChooser(intent, "Choose File to Upload.."), PICK_FILE_REQUEST);
+//        Intent galleryIntent = new Intent(Intent.ACTION_PICK,
+//                android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        Intent galleryInten = new Intent();
+        galleryInten.setType("image/*");
+        galleryInten.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(galleryInten, PICK_FILE_REQUEST);
     }
 
     @Override
@@ -315,9 +314,10 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
             if (requestCode == PICK_FILE_REQUEST) {
                 if (data != null) {
                     Uri selectedFileUri = data.getData();
-                    selectedFilePath = FilePath.getPath(this, selectedFileUri);
+//                    selectedFilePath = FilePath.getPath(this, selectedFileUri);
                     Logger.i("Selected File Path:" + selectedFilePath);
                     setUri(selectedFileUri);
+
                 }
             }
         }
