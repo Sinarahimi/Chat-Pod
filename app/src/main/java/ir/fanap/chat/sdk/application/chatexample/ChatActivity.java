@@ -138,28 +138,6 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
                 "http://172.16.106.26:8080/hamsam/");
     }
 
-    public void getContact(View view) {
-        presenter.getContact(50, 0);
-    }
-
-    /**
-     * int TO_BE_USER_SSO_ID = 1;
-     * int TO_BE_USER_CONTACT_ID = 2;
-     * int TO_BE_USER_CELLPHONE_NUMBER = 3;
-     * int TO_BE_USER_USERNAME = 4;
-     */
-    public void createThread(View view) {
-        EditText editTextThread = findViewById(R.id.editTextThread);
-        String text = editTextThread.getText().toString();
-        int textThread = Integer.valueOf(editTextThread.getText().toString());
-        if (!text.equals("")) {
-            Invitee[] invite = new Invitee[]{new Invitee(textThread, 2)};
-            presenter.createThread(0, invite, "");
-        } else {
-            Snackbar.make(constraintLayout, "Message is Empty", Snackbar.LENGTH_SHORT).show();
-        }
-    }
-
     @Override
     public void onGetContacts(String content) {
         Toast.makeText(this, content, Toast.LENGTH_SHORT).show();
@@ -229,12 +207,11 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
 
                 break;
             case 1:
-                //            "get thread",
-                //312,351
-                ArrayList<Integer> threadIds = new ArrayList<>();
-                threadIds.add(312);
-                threadIds.add(351);
-                presenter.getThread(10, 0, threadIds);
+                //"get thread"
+//                ArrayList<Integer> threadIds = new ArrayList<>();
+//                threadIds.add(312);
+//                threadIds.add(351);
+                presenter.getThread(50, 0, null);
                 break;
             case 2:
                 //            "rename thread",
@@ -261,7 +238,23 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
                 //            "get thread participant",
                 break;
             case 8:
-                //            "create thread",
+                /**
+                 * int TO_BE_USER_SSO_ID = 1;
+                 * int TO_BE_USER_CONTACT_ID = 2;
+                 * int TO_BE_USER_CELLPHONE_NUMBER = 3;
+                 * int TO_BE_USER_USERNAME = 4;
+                 */
+                /**"create thread"
+                 * This is Invitee object
+                 * ---->private int id;
+                 * ---->private int idType;
+                 *
+                 */
+                //alexi 570
+                //felfeli 571
+                Invitee[] invite = new Invitee[]{new Invitee(570, 2)};
+                presenter.createThread(0, invite, "");
+
                 break;
             case 9:
                 presenter.getHistory(50, 0, "desc", 312);

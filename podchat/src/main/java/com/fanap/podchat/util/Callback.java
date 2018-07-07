@@ -18,12 +18,13 @@ public class Callback {
         this.result = result;
     }
 
-    public Callback(String uniqueId,boolean delivery, boolean seen, boolean sent) {
+    public Callback(String uniqueId, boolean delivery, boolean seen, boolean sent) {
         this.delivery = delivery;
         this.sent = sent;
         this.seen = seen;
         this.setUniqueId(uniqueId);
     }
+
     public Callback(boolean delivery, boolean seen, boolean sent) {
         this.delivery = delivery;
         this.sent = sent;
@@ -88,4 +89,5 @@ public class Callback {
     public void setUniqueId(String uniqueId) {
         this.uniqueId = uniqueId;
     }
+
 }
