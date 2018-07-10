@@ -108,8 +108,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void sendFile(String fileHost, Uri fileUri, String fileName,Context context) {
-        chat.sendFile(fileHost, fileUri, fileName,context);
+    public void sendFile(String fileHost, Uri fileUri, String fileName, Context context) {
+        chat.sendFile(fileHost, fileUri, fileName, context);
     }
 
     @Override
@@ -125,8 +125,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
 
     @Override
-    public void updateContact(long id, String firstName, String lastName, String cellphoneNumber, String email) {
-
+    public void updateContact(int id, String firstName, String lastName, String cellphoneNumber, String email) {
+        chat.updateContact(id, firstName, lastName, cellphoneNumber, email);
     }
 
     @Override

@@ -12,7 +12,7 @@ public class Thread {
     private boolean group;
     private long partner;
     private long unreadCount;
-    private long lastMessageId;
+    private long lastSeenMessageId;
     private long joinDate;
     private Inviter inviter;
     private String image;
@@ -89,12 +89,12 @@ public class Thread {
         this.unreadCount = unreadCount;
     }
 
-    public long getLastMessageId() {
-        return lastMessageId;
+    public long getLastSeenMessageId() {
+        return lastSeenMessageId;
     }
 
-    public void setLastMessageId(long lastMessageId) {
-        this.lastMessageId = lastMessageId;
+    public void setLastSeenMessageId(long lastSeenMessageId) {
+        this.lastSeenMessageId = lastSeenMessageId;
     }
 
     public long getJoinDate() {

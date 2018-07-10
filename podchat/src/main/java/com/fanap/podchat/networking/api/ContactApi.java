@@ -29,6 +29,7 @@ public interface ContactApi {
             , @Field("id") long userId);
 
     @POST("nzh/updateContacts")
+    @FormUrlEncoded
     Observable<Response<ContactRemove>> updateContact(@Header("_token_") String token
             , @Header("_token_issuer_") int tokenIssuer
             , @Field("firstName") String firstName

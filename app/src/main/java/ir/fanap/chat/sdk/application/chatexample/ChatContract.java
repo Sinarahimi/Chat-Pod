@@ -58,6 +58,6 @@ public interface ChatContract {
 
         void forwardMessage(long threadId, ArrayList<Long> messageIds);
 
-        void updateContact(long id, String firstName, String lastName, String cellphoneNumber, String email);
+        void updateContact(int id, String firstName, String lastName, String cellphoneNumber, String email);
     }
 }

@@ -1,20 +1,21 @@
 package com.fanap.podchat.networking.api;
 
+import com.fanap.podchat.model.FileUpload;
+
 import okhttp3.MultipartBody;
-import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.http.Field;
+import retrofit2.Response;
 import retrofit2.http.Header;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.Part;
+import rx.Observable;
 
 public interface FileApi {
     @Multipart
     @POST("/nzh/uploadFile/")
-    Call<ResponseBody> sendFile(
+    Observable<Response<FileUpload>> sendFile(
             @Part MultipartBody.Part file
             , @Header("_token_") String token
             , @Header("_token_issuer_") int tokenIssuer
-            , @Field("fileName") String fileName);
+            , @Part("fileName") String fileName);
 }

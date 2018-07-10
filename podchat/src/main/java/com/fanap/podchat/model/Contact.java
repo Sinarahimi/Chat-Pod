@@ -2,7 +2,7 @@ package com.fanap.podchat.model;
 
 public class Contact {
     private String firstName;
-    private String id;
+    private int id;
     private String lastName;
     private LinkedUser linkedUser;
     private String cellphoneNumber;
@@ -59,11 +59,11 @@ public class Contact {
         this.uniqueId = uniqueId;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
