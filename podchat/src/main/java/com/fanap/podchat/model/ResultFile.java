@@ -4,7 +4,7 @@ public class ResultFile {
     private int id;
     private String name;
     private String hashCode;
-    private DescriptionFile description;
+    private String description;
 
     public int getId() {
         return id;
@@ -30,11 +30,11 @@ public class ResultFile {
         this.hashCode = hashCode;
     }
 
-    public DescriptionFile getDescription() {
+    public String getDescription() {
         return description;
     }
 
-    public void setDescription(DescriptionFile description) {
+    public void setDescription(String description) {
         this.description = description;
     }
 }

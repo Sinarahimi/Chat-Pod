@@ -46,4 +46,6 @@ public interface ChatListener {
 
     void onRenameThread(String content);
 
+    void onGetFile(String url);
+
 }

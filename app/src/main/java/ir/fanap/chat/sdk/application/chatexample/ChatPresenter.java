@@ -16,10 +16,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     private ChatContract.view view;
     private Context context;
 
-    public ChatPresenter(Context context) {
+    public ChatPresenter(Context context, ChatContract.view view) {
         chat = Chat.init(context);
         chat.addListener(this);
         this.context = context;
+        this.view = view;
     }
 
     @Override
@@ -108,8 +109,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void sendFile(String fileHost, Uri fileUri, String fileName, Context context) {
-        chat.sendFile(fileHost, fileUri, fileName, context);
+    public void sendFile( Uri fileUri, String fileName, Context context) {
+        chat.sendFile(context, fileUri, fileName);
     }
 
     @Override
@@ -145,6 +146,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         view.onGetContacts(content);
     }
 
+
     @Override
     public void onInvitation(String content) {
         super.onInvitation(content);
@@ -157,6 +159,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void onUserInfo(String content) {
+        view.onGetUserInfo();
     }
 
     @Override

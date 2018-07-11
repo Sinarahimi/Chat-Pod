@@ -111,4 +111,9 @@ public class ChatAdapter implements ChatListener {
     public void onRenameThread(String content) {
 
     }
+
+    @Override
+    public void onGetFile(String url) {
+
+    }
 }

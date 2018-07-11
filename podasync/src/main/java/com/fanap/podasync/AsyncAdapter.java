@@ -15,11 +15,6 @@ public class AsyncAdapter implements AsyncListener {
     }
 
     @Override
-    public void onConnected(String textMessage) throws IOException {
-
-    }
-
-    @Override
     public void onDisconnected(String textMessage) throws IOException {
 
     }

@@ -262,4 +262,13 @@ public class ChatListenerManager {
             }
         }
     }
+    public void callOnGetfile(String url) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onGetFile(url);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
 }

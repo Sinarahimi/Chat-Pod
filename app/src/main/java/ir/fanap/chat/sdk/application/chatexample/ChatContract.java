@@ -11,6 +11,8 @@ import java.util.ArrayList;
 public interface ChatContract {
     interface view {
 
+        void onGetUserInfo();
+
         void onGetContacts(String content);
 
         void onGetUserInfoId(int UserId);
@@ -52,7 +54,7 @@ public interface ChatContract {
 
         void removeContact(long id);
 
-        void sendFile(String fileHost, Uri fileUri, String fileName, Context context);
+        void sendFile(Uri fileUri, String fileName, Context context);
 
         ArrayList syncContact();
 

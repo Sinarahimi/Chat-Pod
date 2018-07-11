@@ -130,12 +130,6 @@ class AsyncListenerManager {
         }
     }
 
-    public void callOnConnected(String message) throws IOException {
-        for (AsyncListener listener : getSynchronizedListeners()) {
-            listener.onConnected(message);
-        }
-    }
-
     public void callOnDisconnected(String message) throws IOException {
         for (AsyncListener listener : getSynchronizedListeners()) {
             listener.onDisconnected(message);

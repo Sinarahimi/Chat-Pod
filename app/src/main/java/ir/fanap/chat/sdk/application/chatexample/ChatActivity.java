@@ -18,6 +18,8 @@ import android.widget.Toast;
 
 import com.fanap.podchat.model.Invitee;
 
+import java.io.File;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -83,7 +85,7 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
         Spinner spinner = findViewById(R.id.spinner);
         Spinner spinnerSecond = findViewById(R.id.spinnerSecond);
 
-        presenter = new ChatPresenter(this);
+        presenter = new ChatPresenter(this, this);
         presenter.getLiveState().observe(this, textViewState::setText);
 
         setupSpinner(spinner);
@@ -102,9 +104,7 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
                         presenter.syncContact();
                         break;
                     case 2:
-                        presenter.sendFile("http://sandbox.pod.land:8080"
-                                , getUri()
-                                , "test file", ChatActivity.this);
+                        presenter.sendFile(getUri(), "test file", ChatActivity.this);
                         break;
                 }
             }
@@ -128,6 +128,11 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
         presenter.connect("ws://172.16.106.26:8003/ws",
                 "POD-Chat", "chat-server", TOKEN, "http://172.16.110.76",
                 "http://172.16.106.26:8080/hamsam/");
+    }
+
+    @Override
+    public void onGetUserInfo() {
+
     }
 
     @Override
@@ -249,15 +254,23 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
     @Override
     public void onClick(View v) {
         if (v == buttonFileChoose) {
+//            showPicChooser();
             showFileChooser();
         }
     }
 
-    private void showFileChooser() {
+    private void showPicChooser() {
         Intent i = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(i, PICK_FILE_REQUEST);
     }
 
+    private void showFileChooser(){
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("*/*");
+        startActivityForResult(intent, PICK_FILE_REQUEST);
+    }
+
+    //TODO get the real path of file
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -265,7 +278,13 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
             if (requestCode == PICK_FILE_REQUEST) {
                 if (data != null) {
                     Uri selectedFileUri = data.getData();
-                    setUri(selectedFileUri);
+                        String path = selectedFileUri.toString();
+                        if (path.toLowerCase().startsWith("file://"))
+                        {
+                            // Selected file/directory path is below
+                            path = (new File(URI.create(path))).getAbsolutePath();
+                            setUri(Uri.parse(path));
+                        }
                 }
             }
         }

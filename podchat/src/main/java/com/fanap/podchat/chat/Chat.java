@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
+import android.os.Looper;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -55,7 +56,9 @@ import com.fanap.podchat.util.ThreadCallbacks;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orhanobut.logger.AndroidLogAdapter;
+import com.orhanobut.logger.FormatStrategy;
 import com.orhanobut.logger.Logger;
+import com.orhanobut.logger.PrettyFormatStrategy;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import com.squareup.moshi.Types;
@@ -100,6 +103,7 @@ public class Chat extends AsyncAdapter {
     private static final String CLOSING = "CLOSING";
     private static final String CLOSED = "CLOSED";
     private static final String OPEN = "OPEN";
+    private static final String CHAT_READY = "CHAT_READY";
     private static final int TOKEN_ISSUER = 1;
     private Handler pingHandler;
     private String contact;
@@ -116,7 +120,7 @@ public class Chat extends AsyncAdapter {
             listenerManager = new ChatListenerManager();
             messageCallbacks = new HashMap<>();
             threadCallbackList = new ArrayList<>();
-            Logger.addLogAdapter(new AndroidLogAdapter());
+
         }
         return instance;
     }
@@ -126,14 +130,16 @@ public class Chat extends AsyncAdapter {
      */
     public void connect(String serverAddress, String appId, String severName, String token,
                         String ssoHost, String platformHost) {
+//        Looper.prepare();
         pingHandler = new Handler();
         async.addListener(this);
         RetrofitHelper retrofitHelper = new RetrofitHelper(platformHost);
         contactApi = retrofitHelper.getService(ContactApi.class);
         setPlatformHost(platformHost);
         setToken(token);
-        getUserInfo();
         deviceIdRequest(ssoHost, serverAddress, appId, severName);
+        FormatStrategy formatStrategy = PrettyFormatStrategy.newBuilder().tag("CHAT_LOGGER").build();
+        Logger.addLogAdapter(new AndroidLogAdapter(formatStrategy));
         state = true;
     }
 
@@ -147,6 +153,9 @@ public class Chat extends AsyncAdapter {
             case OPEN:
                 chatState = true;
 //                ping();
+                break;
+            case CHAT_READY:
+                getUserInfo();
                 break;
             case CONNECTING:
             case CLOSING:
@@ -164,8 +173,6 @@ public class Chat extends AsyncAdapter {
     public void onReceivedMessage(String textMessage) throws IOException {
         super.onReceivedMessage(textMessage);
         int messageType = 0;
-        if (BuildConfig.DEBUG) Logger.json(textMessage);
-
         JsonAdapter<ChatMessage> jsonAdapter = moshi.adapter(ChatMessage.class);
         ChatMessage chatMessage = jsonAdapter.fromJson(textMessage);
 
@@ -225,7 +232,7 @@ public class Chat extends AsyncAdapter {
                 handleResponseMessage(callback, false, 0, "", chatMessage, messageUniqueId);
                 break;
             case Constants.PING:
-
+                Logger.i("RECEIVED_CHAT_PING");
                 break;
             case Constants.RELATION_INFO:
                 break;
@@ -392,7 +399,7 @@ public class Chat extends AsyncAdapter {
         }
     }
 
-    //TODO it sould be based on Unique id on contact list
+    //TODO it should  be based on Unique id on contact list
     private void HandleSyncContact(ChatMessage chatMessage) {
         if (syncContact) {
             Type type = Types.newParameterizedType(List.class, Contact.class);
@@ -616,7 +623,7 @@ public class Chat extends AsyncAdapter {
                 if (currentTime - lastSentMessageTime > lastSentMessageTimeout) {
                     ping();
                 }
-            }, lastSentMessageTimeout);
+            }, 20000);
         } else {
             Logger.e("Async is Close");
         }
@@ -674,22 +681,38 @@ public class Chat extends AsyncAdapter {
         return result;
     }
 
-    public void sendFile(String fileHost, Uri fileUri, String fileName, Context context) {
-        RetrofitHelperFileServer retrofitHelperFileServer = new RetrofitHelperFileServer(fileHost);
-        FileApi fileApi = retrofitHelperFileServer.getService(FileApi.class);
+    public void sendFile(Context context, Uri fileUri, String fileName) {
+        if (getPlatformHost() != null) {
+            RetrofitHelperFileServer retrofitHelperFileServer = new RetrofitHelperFileServer(getPlatformHost());
+            FileApi fileApi = retrofitHelperFileServer.getService(FileApi.class);
 
-        File file = new File(getRealPathFromURI(context, fileUri));
-        RequestBody requestFile = RequestBody.create(MediaType.parse(context.getContentResolver().getType(fileUri)), file);
+            File file = new File(getRealPathFromURI(context, fileUri));
+            RequestBody requestFile = RequestBody.create(MediaType.parse(context.getContentResolver().getType(fileUri)), file);
 
-        MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), requestFile);
+            MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), requestFile);
 
-        Observable<Response<FileUpload>> uploadObservable = fileApi.sendFile(body, getToken(), TOKEN_ISSUER, fileName);
-        uploadObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Response<FileUpload>>() {
+            Observable<Response<FileUpload>> uploadObservable = fileApi.sendFile(body, getToken(), TOKEN_ISSUER, fileName);
+            uploadObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Response<FileUpload>>() {
+                @Override
+                public void call(Response<FileUpload> fileUploadResponse) {
+                    if (fileUploadResponse.isSuccessful()) {
+                        ResultFile result = fileUploadResponse.body().getResult();
+                        listenerManager.callOnGetfile(getPlatformHost() + "/nzh/file/" + "?fileId=" + result.getId() + "&downloadable=" + true + "&hashCode=" + result.getHashCode());
+//                        getFile(result.getHashCode(), fileApi, result.getId());
+                    }
+                }
+            }, throwable -> Logger.e(throwable.getMessage()));
+        }
+    }
+
+    private void getFile(String hashCode, FileApi fileApi, int fileId) {
+        Observable<Response<ResponseBody>> getFileObservable = fileApi.getFile(fileId, true, hashCode);
+        getFileObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Response<ResponseBody>>() {
             @Override
-            public void call(Response<FileUpload> fileUploadResponse) {
-                if (fileUploadResponse.isSuccessful()) {
-                    ResultFile result = fileUploadResponse.body().getResult();
-
+            public void call(Response<ResponseBody> responseBody) {
+                if (responseBody.isSuccessful()) {
+                    responseBody.body();
+                    Logger.i("respond", responseBody);
                 }
             }
         }, throwable -> Logger.e(throwable.getMessage()));

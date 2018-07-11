@@ -24,7 +24,10 @@ import com.neovisionaries.ws.client.WebSocketExtension;
 import com.neovisionaries.ws.client.WebSocketFactory;
 import com.neovisionaries.ws.client.WebSocketFrame;
 import com.neovisionaries.ws.client.WebSocketState;
+import com.orhanobut.logger.AndroidLogAdapter;
+import com.orhanobut.logger.FormatStrategy;
 import com.orhanobut.logger.Logger;
+import com.orhanobut.logger.PrettyFormatStrategy;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 
@@ -57,7 +60,7 @@ public class Async extends WebSocketAdapter {
     private boolean isDeviceRegister;
     private static SharedPreferences sharedPrefs;
     private MessageWrapperVo messageWrapperVo;
-    private static AsyncListenerManager listenerManager;
+    private static AsyncListenerManager asyncListenerManager;
     private static Moshi moshi;
     private String errorMessage;
     private long lastSendMessageTime;
@@ -71,11 +74,11 @@ public class Async extends WebSocketAdapter {
     private MutableLiveData<String> messageLiveData = new MutableLiveData<>();
     private String serverAddress;
     private final Handler pingHandler = new Handler(Looper.getMainLooper());
-    private int getMessageCalled;
     private String token;
     private String serverName;
     private String ssoHost;
-    private int retryStep = 1000;
+    private int retryStep = 1;
+    private boolean reconnectOnClose = true;
 
     public Async() {
         //Empty constructor
@@ -86,7 +89,9 @@ public class Async extends WebSocketAdapter {
             sharedPrefs = context.getSharedPreferences(AsyncConstant.Constants.PREFERENCE, Context.MODE_PRIVATE);
             moshi = new Moshi.Builder().build();
             instance = new Async();
-            listenerManager = new AsyncListenerManager();
+            asyncListenerManager = new AsyncListenerManager();
+            FormatStrategy formatStrategy = PrettyFormatStrategy.newBuilder().tag("ASYNC_LOGGER").build();
+            Logger.addLogAdapter(new AndroidLogAdapter(formatStrategy));
         }
         return instance;
     }
@@ -107,7 +112,7 @@ public class Async extends WebSocketAdapter {
             type = clientMessage.getType();
         }
 
-        scheduleSendPing(70000);
+//        scheduleCloseSocket();
         @AsyncMessageType.MessageType int currentMessageType = type;
         switch (currentMessageType) {
             case AsyncMessageType.MessageType.ACK:
@@ -142,7 +147,7 @@ public class Async extends WebSocketAdapter {
 
     /**
      * Get the current state of this WebSocket.
-     *
+     * <p>
      * <p>
      * The initial state is {@link WebSocketState#CREATED CREATED}.
      * When {@link #connect(String, String, String, String, String, String)} is called, the state is changed to
@@ -153,13 +158,12 @@ public class Async extends WebSocketAdapter {
      * when the closing handshake finished.
      * </p>
      *
-     * @return
-     *         The current state.
+     * @return The current state.
      */
     @Override
     public void onStateChanged(WebSocket websocket, WebSocketState newState) throws Exception {
         super.onStateChanged(websocket, newState);
-        listenerManager.callOnStateChanged(newState.toString());
+        asyncListenerManager.callOnStateChanged(newState.toString());
         stateLiveData.postValue(newState.toString());
         setState(newState.toString());
         if (BuildConfig.DEBUG) Logger.d("onStateChanged", newState.toString());
@@ -169,19 +173,13 @@ public class Async extends WebSocketAdapter {
     public void onError(WebSocket websocket, WebSocketException cause) throws Exception {
         super.onError(websocket, cause);
         if (BuildConfig.DEBUG) Logger.e("onError", cause.toString());
-        listenerManager.callOnError(cause.toString());
+        asyncListenerManager.callOnError(cause.toString());
     }
 
     @Override
     public void onConnectError(WebSocket websocket, WebSocketException exception) throws Exception {
         super.onConnectError(websocket, exception);
         if (BuildConfig.DEBUG) Logger.e("onConnected", exception.toString());
-    }
-
-    @Override
-    public void onConnected(WebSocket websocket, Map<String, List<String>> headers) throws Exception {
-        super.onConnected(websocket, headers);
-        listenerManager.callOnConnected(headers.toString());
     }
 
     /**
@@ -208,7 +206,7 @@ public class Async extends WebSocketAdapter {
     public void onDisconnected(WebSocket websocket, WebSocketFrame serverCloseFrame, WebSocketFrame clientCloseFrame, boolean closedByServer) throws Exception {
         super.onDisconnected(websocket, serverCloseFrame, clientCloseFrame, closedByServer);
         if (BuildConfig.DEBUG) Log.e("Disconnected", serverCloseFrame.getCloseReason());
-        listenerManager.callOnDisconnected(serverCloseFrame.getCloseReason());
+        asyncListenerManager.callOnDisconnected(serverCloseFrame.getCloseReason());
         stopSocket();
         reConnect();
     }
@@ -218,17 +216,139 @@ public class Async extends WebSocketAdapter {
         super.onCloseFrame(websocket, frame);
         if (BuildConfig.DEBUG) Log.e("onCloseFrame", frame.getCloseReason());
         stopSocket();
-        Handler handlerReconnect = new Handler();
-        handlerReconnect.postDelayed(() -> {
-            retryStep = retryStep + 1000;
-            try {
-                reConnect();
-            } catch (IOException e) {
-                if (BuildConfig.DEBUG) Logger.e("Async: reConnect", e.toString());
-            } catch (WebSocketException e) {
-                if (BuildConfig.DEBUG) Logger.e("Async: reConnect", e.toString());
+        if (reconnectOnClose) {
+            Handler handlerReconnect = new Handler();
+            handlerReconnect.postDelayed(() -> {
+                try {
+                    reConnect();
+                } catch (IOException e) {
+                    if (BuildConfig.DEBUG) Logger.e("Async: reConnect", e.getMessage());
+                } catch (WebSocketException e) {
+                    if (BuildConfig.DEBUG) Logger.e("Async: reConnect", e.getMessage());
+                }
+            }, retryStep * 1000);
+
+            if (retryStep < 60) retryStep *= 2;
+
+        } else {
+            if (BuildConfig.DEBUG) Logger.e("Socket Closed!");
+        }
+    }
+
+    public void connect(String socketServerAddress, final String appId, String serverName,
+                        String token, String ssoHost, String deviceID) {
+        WebSocketFactory webSocketFactory = new WebSocketFactory();
+        webSocketFactory.setVerifyHostname(false);
+        saveDeviceId(deviceID);
+        setAppId(appId);
+        setServerAddress(socketServerAddress);
+        setToken(token);
+        setServerName(serverName);
+        setSsoHost(ssoHost);
+        try {
+            webSocket = webSocketFactory
+                    .createSocket(socketServerAddress)
+                    .addListener(this);
+            webSocket.setMaxPayloadSize(100);
+            webSocket.addExtension(WebSocketExtension.PERMESSAGE_DEFLATE);
+            webSocket.connectAsynchronously();
+        } catch (IOException e) {
+            if (BuildConfig.DEBUG) Logger.e("Async: connect", e.getMessage());
+        }
+    }
+
+    /**
+     * @Param textContent
+     * @Param messageType it could be 3, 4, 5
+     * @Param []receiversId the Id's that we want to send
+     */
+    public void sendMessage(String textContent, int messageType, long[] receiversId) {
+        if (getState().equals("OPEN")) {
+            Message message = new Message();
+            message.setContent(textContent);
+            message.setReceivers(receiversId);
+            JsonAdapter<Message> jsonAdapter = moshi.adapter(Message.class);
+            String jsonMessage = jsonAdapter.toJson(message);
+            String wrapperJsonString = getMessageWrapper(moshi, jsonMessage, messageType);
+            sendData(webSocket, wrapperJsonString);
+        }
+    }
+
+    /**
+     * First we checking the state of the socket then we send the message
+     */
+    public void sendMessage(String textContent, int messageType) {
+        if (getState() != null) {
+            if (getState().equals("OPEN")) {
+                long ttl = new Date().getTime();
+                Message message = new Message();
+                message.setContent(textContent);
+                message.setPriority(1);
+                message.setPeerName(getServerName());
+                message.setTtl(ttl);
+
+                String json = JsonUtil.getJson(message);
+
+                messageWrapperVo = new MessageWrapperVo();
+                messageWrapperVo.setContent(json);
+                messageWrapperVo.setType(messageType);
+
+                String json1 = JsonUtil.getJson(messageWrapperVo);
+                sendData(webSocket, json1);
+            } else {
+                try {
+                    asyncListenerManager.callOnError("Socket is close");
+                } catch (IOException e) {
+                    if (BuildConfig.DEBUG) Logger.e("Socket Is", "Closed");
+                }
             }
-        }, retryStep);
+        } else {
+            if (BuildConfig.DEBUG) Logger.e("Socket Is Not Connected");
+        }
+    }
+
+    public void closeSocket() {
+        webSocket.sendClose();
+    }
+
+    public LiveData<String> getStateLiveData() {
+        return stateLiveData;
+    }
+
+    public LiveData<String> getMessageLiveData() {
+        return messageLiveData;
+    }
+
+    public void logOutSocket() {
+        removePeerId(AsyncConstant.Constants.PEER_ID, null);
+        isServerRegister = false;
+        isDeviceRegister = false;
+        webSocket.sendClose();
+    }
+
+    public void setReconnectOnClose(boolean reconnectOnClosed) {
+        reconnectOnClose = reconnectOnClosed;
+    }
+
+    /**
+     * Add a listener to receive events on this Async.
+     *
+     * @param listener A listener to add.
+     * @return {@code this} object.
+     */
+    public Async addListener(AsyncListener listener) {
+        asyncListenerManager.addListener(listener);
+        return this;
+    }
+
+    public Async addListeners(List<AsyncListener> listeners) {
+        asyncListenerManager.addListeners(listeners);
+        return this;
+    }
+
+    public Async removeListener(AsyncListener listener) {
+        asyncListenerManager.removeListener(listener);
+        return this;
     }
 
     /**
@@ -239,7 +359,7 @@ public class Async extends WebSocketAdapter {
      */
     private void handleOnAck(ClientMessage clientMessage) throws IOException {
         setMessage(clientMessage.getContent());
-        listenerManager.callOnTextMessage(clientMessage.getContent());
+        asyncListenerManager.callOnTextMessage(clientMessage.getContent());
     }
 
     /**
@@ -289,19 +409,25 @@ public class Async extends WebSocketAdapter {
     private void handleOnMessage(ClientMessage clientMessage) throws IOException {
         setMessage(clientMessage.getContent());
         messageLiveData.postValue(clientMessage.getContent());
-        listenerManager.callOnTextMessage(clientMessage.getContent());
+        asyncListenerManager.callOnTextMessage(clientMessage.getContent());
     }
 
     private void handleOnPing(WebSocket webSocket, ClientMessage clientMessage) {
         if (clientMessage.getContent() != null || !clientMessage.getContent().equals("")) {
             deviceRegister(webSocket);
         } else {
-            if (BuildConfig.DEBUG) Logger.i("PING", String.valueOf(new Date().getTime()));
+            if (BuildConfig.DEBUG) Logger.i("ASYNC_PING", String.valueOf(new Date().getTime()));
         }
     }
 
     private void handleOnServerRegister(String textMessage) {
+        if (BuildConfig.DEBUG) Logger.i("SERVER_REGISTERED");
         if (BuildConfig.DEBUG) Logger.i("READY FOR CHAT", textMessage);
+        try {
+            asyncListenerManager.callOnStateChanged("CHAT_READY");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         isServerRegister = true;
     }
 
@@ -315,7 +441,6 @@ public class Async extends WebSocketAdapter {
         String jsonSenderAckNeeded = jsonSenderAckNeededAdapter.toJson(messageSenderAckNeeded);
         String jsonSenderAckNeededWrapper = getMessageWrapper(moshi, jsonSenderAckNeeded, AsyncMessageType.MessageType.ACK);
         sendData(websocket, jsonSenderAckNeededWrapper);
-        lastSendMessageTime = new Date().getTime();
     }
 
     private void deviceRegister(WebSocket websocket) {
@@ -332,29 +457,6 @@ public class Async extends WebSocketAdapter {
         String peerMessageJson = jsonPeerMessageAdapter.toJson(peerInfo);
         String jsonPeerInfoWrapper = getMessageWrapper(moshi, peerMessageJson, AsyncMessageType.MessageType.DEVICE_REGISTER);
         sendData(websocket, jsonPeerInfoWrapper);
-        lastSendMessageTime = new Date().getTime();
-    }
-
-    public void connect(String socketServerAddress, final String appId, String serverName,
-                        String token, String ssoHost, String deviceID) {
-        WebSocketFactory webSocketFactory = new WebSocketFactory();
-        webSocketFactory.setVerifyHostname(false);
-        saveDeviceId(deviceID);
-        setAppId(appId);
-        setServerAddress(socketServerAddress);
-        setToken(token);
-        setServerName(serverName);
-        setSsoHost(ssoHost);
-        try {
-            webSocket = webSocketFactory
-                    .createSocket(socketServerAddress)
-                    .addListener(this);
-            webSocket.setMaxPayloadSize(100);
-            webSocket.addExtension(WebSocketExtension.PERMESSAGE_DEFLATE);
-            webSocket.connectAsynchronously();
-        } catch (IOException e) {
-            if (BuildConfig.DEBUG) Logger.e("Async: connect", e.toString());
-        }
     }
 
     @NonNull
@@ -364,70 +466,6 @@ public class Async extends WebSocketAdapter {
         messageWrapperVo.setType(messageType);
         JsonAdapter<MessageWrapperVo> jsonMessageWrapperVoAdapter = moshi.adapter(MessageWrapperVo.class);
         return jsonMessageWrapperVoAdapter.toJson(messageWrapperVo);
-    }
-
-    /**
-     * @Param textContent
-     * @Param messageType it could be 3, 4, 5
-     * @Param []receiversId the Id's that we want to send
-     */
-    public void sendMessage(String textContent, int messageType, long[] receiversId) {
-        if (getState().equals("OPEN")) {
-            Message message = new Message();
-            message.setContent(textContent);
-            message.setReceivers(receiversId);
-            JsonAdapter<Message> jsonAdapter = moshi.adapter(Message.class);
-            String jsonMessage = jsonAdapter.toJson(message);
-            String wrapperJsonString = getMessageWrapper(moshi, jsonMessage, messageType);
-            sendData(webSocket, wrapperJsonString);
-            lastSendMessageTime = new Date().getTime();
-        }
-    }
-
-    /**
-     * First we checking the state of the socket then we send the message
-     */
-    public void sendMessage(String textContent, int messageType) {
-        if (getState() != null) {
-            if (getState().equals("OPEN")) {
-                long ttl = new Date().getTime();
-                Message message = new Message();
-                message.setContent(textContent);
-                message.setPriority(1);
-                message.setPeerName(getServerName());
-                message.setTtl(ttl);
-
-                String json = JsonUtil.getJson(message);
-
-                messageWrapperVo = new MessageWrapperVo();
-                messageWrapperVo.setContent(json);
-                messageWrapperVo.setType(messageType);
-
-                String json1 = JsonUtil.getJson(messageWrapperVo);
-                sendData(webSocket, json1);
-                lastSendMessageTime = new Date().getTime();
-            } else {
-                try {
-                    listenerManager.callOnError("Socket is close");
-                } catch (IOException e) {
-                    if (BuildConfig.DEBUG) Logger.e("Socket Is", "Closed");
-                }
-            }
-        } else {
-            if (BuildConfig.DEBUG) Logger.e("Socket Is Not Connected");
-        }
-    }
-
-    public void closeSocket() {
-        webSocket.sendClose();
-    }
-
-    public LiveData<String> getStateLiveData() {
-        return stateLiveData;
-    }
-
-    public LiveData<String> getMessageLiveData() {
-        return messageLiveData;
     }
 
     /**
@@ -452,12 +490,6 @@ public class Async extends WebSocketAdapter {
      * Remove the peerId and send ping again but this time
      * peerId that was set in the server was removed
      */
-    public void logOutSocket() {
-        removePeerId(AsyncConstant.Constants.PEER_ID, null);
-        isServerRegister = false;
-        isDeviceRegister = false;
-        webSocket.sendClose();
-    }
 
     private void removePeerId(String peerId, String nul) {
         SharedPreferences.Editor editor = sharedPrefs.edit();
@@ -468,8 +500,7 @@ public class Async extends WebSocketAdapter {
     private void ping() {
         message = getMessageWrapper(moshi, "", AsyncMessageType.MessageType.PING);
         sendData(webSocket, message);
-        lastSendMessageTime = new Date().getTime();
-        if (BuildConfig.DEBUG) Logger.i("ASYNC PING");
+        if (BuildConfig.DEBUG) Logger.i("SEND_ASYNC_PING");
         ScheduleCloseSocket();
     }
 
@@ -485,10 +516,17 @@ public class Async extends WebSocketAdapter {
     /**
      * After a delay Time it calls the method in the Run
      */
-    private void scheduleSendPing(int delayTime) {
-        Runnable runnable;
-        runnable = this::sendPing;
-        pingHandler.postDelayed(runnable, delayTime);
+    private void scheduleCloseSocket() {
+        long currentTime = new Date().getTime();
+        Handler socketCloseHandler = new Handler();
+        socketCloseHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (currentTime - lastReceiveMessageTime > 10000) {
+                    closeSocket();
+                }
+            }
+        }, 10000);
     }
 
     /**
@@ -615,31 +653,10 @@ public class Async extends WebSocketAdapter {
     }
 
     /**
-     * Add a listener to receive events on this Async.
-     *
-     * @param listener A listener to add.
-     * @return {@code this} object.
-     */
-    public Async addListener(AsyncListener listener) {
-        listenerManager.addListener(listener);
-        return this;
-    }
-
-    public Async addListeners(List<AsyncListener> listeners) {
-        listenerManager.addListeners(listeners);
-        return this;
-    }
-
-    public Async removeListener(AsyncListener listener) {
-        listenerManager.removeListener(listener);
-        return this;
-    }
-
-    /**
      * Get the manager that manages registered listeners.
      */
     AsyncListenerManager getListenerManager() {
-        return listenerManager;
+        return asyncListenerManager;
     }
 
     private void setSsoHost(String ssoHost) {

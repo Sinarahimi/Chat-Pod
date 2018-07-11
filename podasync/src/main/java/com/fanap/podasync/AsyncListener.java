@@ -8,8 +8,6 @@ public interface AsyncListener {
 
     void onStateChanged(String state) throws IOException;
 
-    void onConnected(String textMessage) throws IOException;
-
     void onDisconnected(String textMessage) throws IOException;
 
     void onError(String textMessage) throws IOException;
