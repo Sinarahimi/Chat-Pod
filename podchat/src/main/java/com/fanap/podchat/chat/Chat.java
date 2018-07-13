@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
-import android.os.Looper;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -55,10 +54,7 @@ import com.fanap.podchat.util.ChatMessageType.Constants;
 import com.fanap.podchat.util.ThreadCallbacks;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.orhanobut.logger.AndroidLogAdapter;
-import com.orhanobut.logger.FormatStrategy;
 import com.orhanobut.logger.Logger;
-import com.orhanobut.logger.PrettyFormatStrategy;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import com.squareup.moshi.Types;
@@ -77,7 +73,6 @@ import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
-import retrofit2.Call;
 import retrofit2.Response;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -120,7 +115,6 @@ public class Chat extends AsyncAdapter {
             listenerManager = new ChatListenerManager();
             messageCallbacks = new HashMap<>();
             threadCallbackList = new ArrayList<>();
-
         }
         return instance;
     }
@@ -138,8 +132,6 @@ public class Chat extends AsyncAdapter {
         setPlatformHost(platformHost);
         setToken(token);
         deviceIdRequest(ssoHost, serverAddress, appId, severName);
-        FormatStrategy formatStrategy = PrettyFormatStrategy.newBuilder().tag("CHAT_LOGGER").build();
-        Logger.addLogAdapter(new AndroidLogAdapter(formatStrategy));
         state = true;
     }
 
@@ -566,7 +558,6 @@ public class Chat extends AsyncAdapter {
         }
     }
 
-
     /**
      * Remove the peerId and send ping again but this time
      * peerId that was set in the server was removed
@@ -681,27 +672,65 @@ public class Chat extends AsyncAdapter {
         return result;
     }
 
-    public void sendFile(Context context, Uri fileUri, String fileName) {
+    /**
+     * This method first check the type of the file and then choose the right
+     * server and send that
+     * If the left top of the picture is our start of the crop (0,0)
+     *
+     * @param xCrop
+     * @param yCrop
+     * @param hCrop height of the crop
+     * @param wCrop width of the crop
+     */
+    public void sendFile(Context context, Uri fileUri, String fileName, String xCrop, String yCrop, String hCrop, String wCrop) {
+        xCrop = xCrop != null ? xCrop : "";
+        yCrop = yCrop != null ? yCrop : "";
+        hCrop = hCrop != null ? hCrop : "";
+        wCrop = wCrop != null ? wCrop : "";
+
+        String mimeType = context.getContentResolver().getType(fileUri);
         if (getPlatformHost() != null) {
             RetrofitHelperFileServer retrofitHelperFileServer = new RetrofitHelperFileServer(getPlatformHost());
             FileApi fileApi = retrofitHelperFileServer.getService(FileApi.class);
+            if (mimeType.equals("image/png") || mimeType.equals("image/jpeg")) {
+                File file = new File(getRealPathFromURI(context, fileUri));
+                RequestBody requestFile = RequestBody.create(MediaType.parse(context.getContentResolver().getType(fileUri)), file);
 
-            File file = new File(getRealPathFromURI(context, fileUri));
-            RequestBody requestFile = RequestBody.create(MediaType.parse(context.getContentResolver().getType(fileUri)), file);
+                MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), requestFile);
 
-            MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), requestFile);
-
-            Observable<Response<FileUpload>> uploadObservable = fileApi.sendFile(body, getToken(), TOKEN_ISSUER, fileName);
-            uploadObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Response<FileUpload>>() {
-                @Override
-                public void call(Response<FileUpload> fileUploadResponse) {
-                    if (fileUploadResponse.isSuccessful()) {
-                        ResultFile result = fileUploadResponse.body().getResult();
-                        listenerManager.callOnGetfile(getPlatformHost() + "/nzh/file/" + "?fileId=" + result.getId() + "&downloadable=" + true + "&hashCode=" + result.getHashCode());
+                Observable<Response<FileUpload>> uploadObservable = fileApi.sendImageFile(body, getToken()
+                        , TOKEN_ISSUER, fileName, xCrop, yCrop, hCrop, wCrop);
+                uploadObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Response<FileUpload>>() {
+                    @Override
+                    public void call(Response<FileUpload> fileUploadResponse) {
+                        if (fileUploadResponse.isSuccessful()) {
+                            ResultFile result = fileUploadResponse.body().getResult();
+                            listenerManager.callOnGetfile(getPlatformHost() + "/nzh/file/" + "?fileId=" + result.getId() + "&downloadable=" + true + "&hashCode=" + result.getHashCode());
 //                        getFile(result.getHashCode(), fileApi, result.getId());
+                        }
                     }
-                }
-            }, throwable -> Logger.e(throwable.getMessage()));
+                }, throwable -> Logger.e(throwable.getMessage()));
+            } else {
+
+                File file = new File(getRealPathFromURI(context, fileUri));
+                RequestBody requestFile = RequestBody.create(MediaType.parse(context.getContentResolver().getType(fileUri)), file);
+
+                MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), requestFile);
+
+                Observable<Response<FileUpload>> uploadObservable = fileApi.sendFile(body, getToken(), TOKEN_ISSUER, fileName);
+                uploadObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Response<FileUpload>>() {
+                    @Override
+                    public void call(Response<FileUpload> fileUploadResponse) {
+                        if (fileUploadResponse.isSuccessful()) {
+                            ResultFile result = fileUploadResponse.body().getResult();
+                            listenerManager.callOnGetfile(getPlatformHost() + "/nzh/file/" + "?fileId=" + result.getId() + "&downloadable=" + true + "&hashCode=" + result.getHashCode());
+//                        getFile(result.getHashCode(), fileApi, result.getId());
+                        }
+                    }
+                }, throwable -> Logger.e(throwable.getMessage()));
+            }
+        } else {
+            if (BuildConfig.DEBUG) Logger.e("First connect to async", getPlatformHost());
         }
     }
 
@@ -805,7 +834,6 @@ public class Chat extends AsyncAdapter {
         if (BuildConfig.DEBUG) Logger.json(asyncContent);
         sendAsyncMessage(asyncContent, 4);
     }
-
 
     /**
      * Get the list of threads or you can just pass the thread id that you want
@@ -1141,7 +1169,6 @@ public class Chat extends AsyncAdapter {
     public LiveData<String> getState() {
         return async.getStateLiveData();
     }
-
 
     @NonNull
     private ChatMessage getChatMessage(MessageVO jsonMessage) {

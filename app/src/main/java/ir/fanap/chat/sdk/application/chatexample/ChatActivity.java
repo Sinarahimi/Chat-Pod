@@ -17,15 +17,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.fanap.podchat.model.Invitee;
+import com.jaiselrahman.filepicker.activity.FilePickerActivity;
+import com.jaiselrahman.filepicker.config.Configurations;
+import com.jaiselrahman.filepicker.model.MediaFile;
 
-import java.io.File;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
 
 import ir.fanap.chat.sdk.R;
 
 public class ChatActivity extends AppCompatActivity implements ChatContract.view, AdapterView.OnItemSelectedListener, View.OnClickListener {
+    private static final int FILE_REQUEST_CODE = 2;
     private ChatContract.presenter presenter;
     private EditText editText;
     private EditText editTextThread;
@@ -104,7 +106,11 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
                         presenter.syncContact();
                         break;
                     case 2:
-                        presenter.sendFile(getUri(), "test file", ChatActivity.this);
+                        presenter.sendFile(getUri(), "test file", ChatActivity.this
+                                ,null
+                                ,null
+                                ,null
+                                ,null);
                         break;
                 }
             }
@@ -254,8 +260,8 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
     @Override
     public void onClick(View v) {
         if (v == buttonFileChoose) {
-//            showPicChooser();
-            showFileChooser();
+            showPicChooser();
+//            showFileChooser();
         }
     }
 
@@ -264,7 +270,7 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
         startActivityForResult(i, PICK_FILE_REQUEST);
     }
 
-    private void showFileChooser(){
+    private void showFileChooser() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
         intent.setType("*/*");
         startActivityForResult(intent, PICK_FILE_REQUEST);
@@ -275,16 +281,15 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
-            if (requestCode == PICK_FILE_REQUEST) {
-                if (data != null) {
+            if (data != null) {
+                if (requestCode == PICK_FILE_REQUEST) {
                     Uri selectedFileUri = data.getData();
-                        String path = selectedFileUri.toString();
-                        if (path.toLowerCase().startsWith("file://"))
-                        {
-                            // Selected file/directory path is below
-                            path = (new File(URI.create(path))).getAbsolutePath();
-                            setUri(Uri.parse(path));
-                        }
+                    String path = selectedFileUri.toString();
+                    setUri(Uri.parse(path));
+
+                } else if (requestCode == FILE_REQUEST_CODE) {
+                    ArrayList<MediaFile> files = data.getParcelableArrayListExtra(FilePickerActivity.MEDIA_FILES);
+                    String path = files.get(0).getPath();
                 }
             }
         }

@@ -42,16 +42,9 @@ import static com.neovisionaries.ws.client.WebSocketState.OPEN;
  * By default WebSocketFactory uses for non-secure WebSocket connections (ws:)
  * and for secure WebSocket connections (wss:).
  */
-
-/**
- * Send the request from SSO host to get the device Id
- * deviceIdRequest(websocket,peerInfo);
- */
 public class Async extends WebSocketAdapter {
 
     private WebSocket webSocket;
-    private static final int TIMEOUT = 5000;
-    private static final int THRESHOLD = 20000;
     private static final int SOCKET_CLOSE_TIMEOUT = 110000;
     private WebSocket webSocketReconnect;
     private static final String TAG = "Async" + " ";
@@ -90,8 +83,7 @@ public class Async extends WebSocketAdapter {
             moshi = new Moshi.Builder().build();
             instance = new Async();
             asyncListenerManager = new AsyncListenerManager();
-            FormatStrategy formatStrategy = PrettyFormatStrategy.newBuilder().tag("ASYNC_LOGGER").build();
-            Logger.addLogAdapter(new AndroidLogAdapter(formatStrategy));
+            Logger.addLogAdapter(new AndroidLogAdapter());
         }
         return instance;
     }

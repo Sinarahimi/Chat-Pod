@@ -23,6 +23,18 @@ public interface FileApi {
             , @Header("_token_issuer_") int tokenIssuer
             , @Part("fileName") String fileName);
 
+    @Multipart
+    @POST("nzh/uploadImage/")
+    Observable<Response<FileUpload>> sendImageFile(
+            @Part MultipartBody.Part image
+            , @Header("_token_") String token
+            , @Header("_token_issuer_") int tokenIssuer
+            , @Part("fileName") String fileName
+            ,@Part("xC") String xC
+            ,@Part("yC") String yC
+            ,@Part("hC") String hC
+            ,@Part("wC") String wC);
+
     @GET("nzh/file/")
     Observable<Response<ResponseBody>> getFile(@Query("fileId") int fileId
             ,@Query("downloadable") boolean downloadable

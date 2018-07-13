@@ -42,5 +42,8 @@ dependencies {
     implementation 'io.reactivex:rxjava:1.1.6'
     implementation 'io.reactivex:rxandroid:1.2.1'
 
+    //logger
+    implementation 'com.orhanobut:logger:2.2.0'
+
     implementation project(':podasync')
 }
