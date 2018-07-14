@@ -21,6 +21,29 @@ chat.connect("ws://172.16.106.26:8003/ws",
 ```
 And now it's ready for chat .
 
+| Method                        | Description                                                                            |
+|:------------------------------|:---------------------------------------------------------------------------------------|
+| `connect(socketServerAddress, appId, serverName, token`   | connect to async.       |
+| `String ssoHost, String platformHost)`
+| `logOutSocket()`                                           | log out of socket.      |
+| `sendTextMessage(String textMessage, long threadId)`       | Send text message to thread.           |
+| `renameThread(long threadId, String title)`                |  Rename the owner thread.                |
+| `createThread(int threadType, Invitee[] invitee, String threadTitle)`                |  Create the thread.                |
+| `forwardMessage(long threadId, ArrayList<Long> messageIds)`                 | Forward the message or messages.        |
+| `replyMessage(String messageContent, long threadId, long messageId)`         | Reply the message in the thread       |
+| `editMessage(int messageId, String messageContent)`         | Edit the message      |
+| `getThreads(int count, int offset, ArrayList<Integer> threadIds)`         | gets the list of thread       |
+| `getHistory(int count, int offset, String order, long threadId)`         | get the history of the specific thread       |
+| `getContacts(int count, int offset)`         | get contact list      |
+| `removeContact(long userId)`         | remove user in contact list      |
+| `updateContact(String userId,String firstName, String lastName, String cellphoneNumber, String email)`| update user info in contact list      |
+| `removeContact(long userId)`         | remove user in contact list      |
+| `addContact(String firstName, String lastName, String cellphoneNumber, String email)`         | Add contact      |
+| `getThreadParticipant(int count, int offset, long threadId)`         | Get the participant list      |
+| `getUserInfo()`         | Get the information of the current user      |
+| `muteThread(int threadId)`         | Mute the thread      |
+| `unmuteThread(int threadId)`         | Un Mute the thread      |
+
 ### replyMessage
 ```java
 chat.sendReplyMessage("Reply to the text", 235, 532);
@@ -45,65 +68,6 @@ chat.removeContact(long userId)
 ```java
 chat.addContact("Sina", "Rahimi", "0912131", "Develop.rahimi95@gmail.com");
 ```
-### Register Listener
-After creating a Chat instance, you should call addListener method to register a ChatListener that receives Chat events.
-ChatAdapter is an empty implementation of ChatListener interface.
-For getting call back you should extend your class from `ChatAdapter`.
-
-#### The following callack methods of ChatListener are called
-| Method                        | Description                                                                            |
-|:------------------------------|:---------------------------------------------------------------------------------------|
-| `onDeliver()`   | Called when message was deliverd.       |
-| `onGetContacts()`| Called when get contact respons was return. |
-| `onGetHistory()`    |       |
-| `onGetThread()`       |            |
-| `onInvitation()`                |                 |
-| `onSeen()`                |                 |
-| `onMuteThread()`                 |         |
-| `onUnmuteThread()`         |        |
-| `onUserInfo()`         |      |
-| `onSent()`         |        |
-| `onCreateThread()`         |        |
-| `onGetThreadParticipant()`         |       |
-| `onEditedMessage()`         |       |
-| `onContactAdded()` |       |
-| `onRemoveContact()`         |       |
-| `onRenameThread()`         |       |
-
-## Built With
-
-* [moshi](https://github.com/square/moshi) - Moshi
-* [websocket-client](https://github.com/TakahikoKawasaki/nv-websocket-client) - Websocket
-* [lifecycle](https://developer.android.com/reference/android/arch/lifecycle/LiveData) - LiveData
-* [Retrofit2](https://square.github.io/retrofit/) - Retrofit2
-* [Rxjava](https://github.com/ReactiveX/RxAndroid) - Rxjava
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
-
-| Method                        | Description                                                                            |
-|:------------------------------|:---------------------------------------------------------------------------------------|
-| `connect(socketServerAddress, appId, serverName, token`   | connect to async.       |
-| `String ssoHost, String platformHost)`
-| `logOutSocket()`                                           | log out of socket.      |
-| `sendTextMessage(String textMessage, long threadId)`       | Send text message to thread.           |
-| `renameThread(long threadId, String title)`                |  Rename the owner thread.                |
-| `createThread(int threadType, Invitee[] invitee, String threadTitle)`                |  Create the thread.                |
-| `forwardMessage(long threadId, ArrayList<Long> messageIds)`                 | Forward the message or messages.        |
-| `replyMessage(String messageContent, long threadId, long messageId)`         | Reply the message in the thread       |
-| `editMessage(int messageId, String messageContent)`         | Edit the message      |
-| `getThreads(int count, int offset, ArrayList<Integer> threadIds)`         | gets the list of thread       |
-| `getHistory(int count, int offset, String order, long threadId)`         | get the history of the specific thread       |
-| `getContacts(int count, int offset)`         | get contact list      |
-| `removeContact(long userId)`         | remove user in contact list      |
-| `updateContact(String userId,String firstName, String lastName, String cellphoneNumber, String email)`| update user info in contact list      |
-| `removeContact(long userId)`         | remove user in contact list      |
-| `addContact(String firstName, String lastName, String cellphoneNumber, String email)`         | Add contact      |
-| `getThreadParticipant(int count, int offset, long threadId)`         | Get the participant list      |
-| `getUserInfo()`         | Get the information of the current user      |
-| `muteThread(int threadId)`         | Mute the thread      |
-| `unmuteThread(int threadId)`         | Un Mute the thread      |
 
 
 ### getUserInfo
