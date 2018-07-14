@@ -9,7 +9,7 @@ public class ChatMessage {
     private String content;
     private long time;
     private int contentCount;
-    private String metadata;
+    private String systemMetadata;
     private long repliedTo;
 
     public String getToken() {
@@ -60,13 +60,6 @@ public class ChatMessage {
         this.time = time;
     }
 
-    public String getMetadata() {
-        return metadata;
-    }
-
-    public void setMetadata(String metadata) {
-        this.metadata = metadata;
-    }
 
     public long getRepliedTo() {
         return repliedTo;
@@ -90,5 +83,13 @@ public class ChatMessage {
 
     public void setContentCount(int contentCount) {
         this.contentCount = contentCount;
+    }
+
+    public String getSystemMetadata() {
+        return systemMetadata;
+    }
+
+    public void setSystemMetadata(String systemMetadata) {
+        this.systemMetadata = systemMetadata;
     }
 }

@@ -54,9 +54,9 @@ public interface ChatContract {
 
         void removeContact(long id);
 
-        void sendFile(Uri fileUri, String fileName, Context context, String xCrop, String yCrop, String hCrop, String wCrop);
+        void sendFile(Context context, String description, long threadId, Uri fileUri);
 
-        ArrayList syncContact();
+        void syncContact();
 
         void forwardMessage(long threadId, ArrayList<Long> messageIds);
 

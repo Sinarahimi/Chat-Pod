@@ -109,14 +109,13 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void sendFile( Uri fileUri, String fileName, Context context, String xCrop, String yCrop, String hCrop, String wCrop) {
-        chat.sendFile(context, fileUri, fileName, xCrop, yCrop, hCrop, wCrop);
+    public void sendFile(Context context, String description, long threadId, Uri fileUri) {
+        chat.sendFile(context, description, threadId, fileUri);
     }
 
     @Override
-    public ArrayList syncContact() {
+    public void syncContact() {
         chat.syncContact(context);
-        return null;
     }
 
     @Override

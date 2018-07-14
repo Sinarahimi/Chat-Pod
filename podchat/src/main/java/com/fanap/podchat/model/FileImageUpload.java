@@ -1,11 +1,12 @@
 package com.fanap.podchat.model;
 
-public class FileImgeUpload {
+public class FileImageUpload {
     private boolean hasError;
     private int errorCode;
     private String referenceNumber;
     private int count;
     private String ott;
+    private String message;
     private ResultImageFile result;
 
     public boolean isHasError() {
@@ -54,5 +55,13 @@ public class FileImgeUpload {
 
     public void setResult(ResultImageFile result) {
         this.result = result;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

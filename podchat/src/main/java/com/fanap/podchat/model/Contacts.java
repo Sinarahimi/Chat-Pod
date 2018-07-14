@@ -6,6 +6,7 @@ public class Contacts {
 
     private Boolean hasError;
     private String referenceNumber;
+    private String message;
     private Integer errorCode;
     private Integer count;
     private String ott;
@@ -57,5 +58,13 @@ public class Contacts {
 
     public void setResult(List<ResultContacts> result) {
         this.result = result;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

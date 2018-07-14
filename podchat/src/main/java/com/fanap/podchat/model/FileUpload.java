@@ -6,6 +6,7 @@ public class FileUpload {
     private String referenceNumber;
     private int count;
     private String ott;
+    private String message;
     private ResultFile result;
 
     public boolean isHasError() {
@@ -54,5 +55,13 @@ public class FileUpload {
 
     public void setResult(ResultFile result) {
         this.result = result;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 }
