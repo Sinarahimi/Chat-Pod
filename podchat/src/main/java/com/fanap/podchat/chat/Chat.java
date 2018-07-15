@@ -17,6 +17,7 @@ import com.fanap.podasync.model.Device;
 import com.fanap.podasync.model.DeviceResult;
 import com.fanap.podasync.util.JsonUtil;
 import com.fanap.podchat.BuildConfig;
+import com.fanap.podchat.model.AddContacts;
 import com.fanap.podchat.model.ChatMessage;
 import com.fanap.podchat.model.ChatMessageContent;
 import com.fanap.podchat.model.ChatMessageForward;
@@ -25,8 +26,8 @@ import com.fanap.podchat.model.Contact;
 import com.fanap.podchat.model.ContactRemove;
 import com.fanap.podchat.model.Contacts;
 import com.fanap.podchat.model.Error;
-import com.fanap.podchat.model.FileImageUpload;
 import com.fanap.podchat.model.FileImageMetaData;
+import com.fanap.podchat.model.FileImageUpload;
 import com.fanap.podchat.model.FileMetaDataContent;
 import com.fanap.podchat.model.FileUpload;
 import com.fanap.podchat.model.Invitee;
@@ -108,7 +109,7 @@ public class Chat extends AsyncAdapter {
     private static final String OPEN = "OPEN";
     private static final String CHAT_READY = "CHAT_READY";
     private static final int TOKEN_ISSUER = 1;
-    private Handler pingHandler;
+    private Handler pingHandler = new Handler();
     private String contact;
     private Context context;
 
@@ -133,7 +134,7 @@ public class Chat extends AsyncAdapter {
     public void connect(String serverAddress, String appId, String severName, String token,
                         String ssoHost, String platformHost) {
 //        Looper.prepare();
-        pingHandler = new Handler();
+//        pingHandler = new Handler();
         async.addListener(this);
         RetrofitHelper retrofitHelper = new RetrofitHelper(platformHost);
         contactApi = retrofitHelper.getService(ContactApi.class);
@@ -398,8 +399,7 @@ public class Chat extends AsyncAdapter {
         }
     }
 
-    //TODO it should  be based on Unique id on contact list
-    private void HandleSyncContact(ChatMessage chatMessage) {
+    private void handleSyncContact(ChatMessage chatMessage) {
         Type type = Types.newParameterizedType(List.class, Contact.class);
         JsonAdapter<List<Contact>> adapter = moshi.adapter(type);
         ArrayList<String> firstNames = new ArrayList<>();
@@ -413,6 +413,7 @@ public class Chat extends AsyncAdapter {
                         if (!phoneContacts.get(j).getCellphoneNumber().equals(serverContacts.get(i).getCellphoneNumber())) {
                             firstNames.add(phoneContacts.get(j).getFirstName());
                             cellphoneNumbers.add(phoneContacts.get(j).getCellphoneNumber());
+                            break;
                         }
                     }
                 }
@@ -463,7 +464,7 @@ public class Chat extends AsyncAdapter {
             case Constants.GET_CONTACTS:
 
                 if (syncContact) {
-                    HandleSyncContact(chatMessage);
+                    handleSyncContact(chatMessage);
                 } else {
                     OutPutContact outPutContact = new OutPutContact();
                     if (hasError) {
@@ -560,9 +561,8 @@ public class Chat extends AsyncAdapter {
                     listenerManager.callOnError(errorUserInfoJson);
                 } else {
                     if (callback.isResult()) {
-                        if (BuildConfig.DEBUG) Logger.i("Participant");
+                        if (BuildConfig.DEBUG) Logger.i("RECEIVE_PARTICIPANT");
                         if (BuildConfig.DEBUG) Logger.json(chatMessage.getContent());
-                        listenerManager.callOnGetThreadParticipant(chatMessage.getContent());
                         listenerManager.callOnGetThreadParticipant(chatMessage.getContent());
                         messageCallbacks.remove(messageUniqueId);
                     }
@@ -606,7 +606,7 @@ public class Chat extends AsyncAdapter {
         String asyncContent = chatMessageJsonAdapter.toJson(chatMessage);
 
         setThreadCallbacks(threadId, uniqueId);
-        if (BuildConfig.DEBUG) Logger.d("SEND TEXT MESSAGE", asyncContent);
+        if (BuildConfig.DEBUG) Logger.d("SEND TEXT MESSAGE");
         if (BuildConfig.DEBUG) Logger.json(asyncContent);
         sendAsyncMessage(asyncContent, 4);
     }
@@ -677,13 +677,20 @@ public class Chat extends AsyncAdapter {
         }
     }
 
-    //TODO sync contact
-    public void syncContact(Context context) {
+    /**
+     * First we get the contact from server then at the respond of that
+     * {@link #handleSyncContact(ChatMessage)} we add all of the PhoneContact that get from
+     * {@link #getPhoneContact(Context)} and not in the list of serverContact
+     */
+    public void syncPhoneContact(Context context) {
         syncContact = true;
         getContacts(50, 0);
         setContext(context);
     }
 
+    /**
+     * Get the list of the Device Contact
+     */
     private List<Contact> getPhoneContact(Context context) {
         ArrayList<Contact> storeContacts = new ArrayList<>();
         String name, phoneNumber;
@@ -716,12 +723,6 @@ public class Chat extends AsyncAdapter {
     /**
      * This method first check the type of the file and then choose the right
      * server and send that
-     * If the left top of the picture is our start of the crop (0,0)
-     *
-     * @param xCrop
-     * @param yCrop
-     * @param hCrop height of the crop
-     * @param wCrop width of the crop
      */
     public void sendFile(Context context, String description, long threadId, Uri fileUri) {
 //        xCrop = xCrop != null ? xCrop : "";
@@ -1017,12 +1018,12 @@ public class Chat extends AsyncAdapter {
     }
 
     /**
-     * Add contact to the contact list
+     * Add one contact to the contact list
      *
-     * @param firstName
-     * @param lastName
-     * @param cellphoneNumber
-     * @param email
+     * @param firstName       if just put fistName without lastName its ok.
+     * @param lastName        last name of the contact
+     * @param cellphoneNumber If just put the cellPhoneNumber doesn't necessary to add email
+     * @param email           email of the contact
      */
     public void addContact(String firstName, String lastName, String cellphoneNumber, String email) {
         String uniqueId = getUniqueId();
@@ -1041,22 +1042,23 @@ public class Chat extends AsyncAdapter {
         }
     }
 
-    //TODO what should we do with uniqueIds
+    // Add list of contacts with their mobile number
     public void addContacts(ArrayList<String> firstNames, ArrayList<String> cellphoneNumbers) {
         ArrayList<String> lastNames = new ArrayList<>();
         ArrayList<String> emails = new ArrayList<>();
-        Observable<Response<Contacts>> addContactsObservable;
+        Observable<Response<AddContacts>> addContactsObservable;
         if (getPlatformHost() != null) {
             addContactsObservable = contactApi.addContacts(getToken(), 1, firstNames, lastNames, emails, cellphoneNumbers, cellphoneNumbers);
-            addContactsObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Response<Contacts>>() {
+            addContactsObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Response<AddContacts>>() {
                 @Override
-                public void call(Response<Contacts> contactsResponse) {
+                public void call(Response<AddContacts> contactsResponse) {
                     boolean error = contactsResponse.body().getHasError();
                     if (contactsResponse.isSuccessful()) {
                         if (error) {
-                            if (BuildConfig.DEBUG) Logger.e(contactsResponse.body().getMessage());
+                            if (BuildConfig.DEBUG)
+                                Logger.e(contactsResponse.body().getMessage() + "ErrorCode" + contactsResponse.body().getErrorCode());
                         } else {
-                            Contacts contacts = contactsResponse.body();
+                            AddContacts contacts = contactsResponse.body();
                             String contactsJson = JsonUtil.getJson(contacts);
 
                         }
@@ -1164,7 +1166,8 @@ public class Chat extends AsyncAdapter {
 
         JsonAdapter<ChatMessage> chatMessageJsonAdapter = moshi.adapter(ChatMessage.class);
         String asyncContent = chatMessageJsonAdapter.toJson(chatMessage);
-        Log.i("Thread Participant send", asyncContent);
+        if (BuildConfig.DEBUG) Logger.i("SEND_THREAD_PARTICIPANT");
+        if (BuildConfig.DEBUG) Logger.json(asyncContent);
         setCallBacks(null, null, null, true, Constants.THREAD_PARTICIPANTS, offset, uniqueId);
         sendAsyncMessage(asyncContent, 3);
     }
@@ -1238,17 +1241,23 @@ public class Chat extends AsyncAdapter {
      */
     public void editMessage(int messageId, String messageContent) {
         Message message = new Message();
+        String uniqueId = getUniqueId();
         message.setId(messageId);
         message.setMessage(messageContent);
+        message.setUniqueId(getUniqueId());
         String editedMessage = JsonUtil.getJson(message);
+
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setType(Constants.EDIT_MESSAGE);
-        String uniqueId = getUniqueId();
-        chatMessage.setToken(uniqueId);
+        chatMessage.setToken(getToken());
+        chatMessage.setUniqueId(uniqueId);
         chatMessage.setContent(editedMessage);
         chatMessage.setTokenIssuer("1");
+
         String asyncContent = JsonUtil.getJson(chatMessage);
         setCallBacks(null, null, null, true, Constants.EDIT_MESSAGE, null, uniqueId);
+        if(BuildConfig.DEBUG)Logger.d("SEND_EDIT_MESSAGE");
+        if(BuildConfig.DEBUG)Logger.json(asyncContent);
         sendAsyncMessage(asyncContent, 4);
     }
 

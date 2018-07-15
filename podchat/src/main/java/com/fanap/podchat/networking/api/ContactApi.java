@@ -1,5 +1,6 @@
 package com.fanap.podchat.networking.api;
 
+import com.fanap.podchat.model.AddContacts;
 import com.fanap.podchat.model.ContactRemove;
 import com.fanap.podchat.model.Contacts;
 
@@ -26,7 +27,7 @@ public interface ContactApi {
 
     @POST("nzh/addContacts")
     @FormUrlEncoded
-    Observable<Response<Contacts>> addContacts(@Header("_token_") String token
+    Observable<Response<AddContacts>> addContacts(@Header("_token_") String token
             , @Header("_token_issuer_") int tokenIssuer
             , @Field("firstName") ArrayList<String> firstName
             , @Field("lastName") ArrayList<String> lastName

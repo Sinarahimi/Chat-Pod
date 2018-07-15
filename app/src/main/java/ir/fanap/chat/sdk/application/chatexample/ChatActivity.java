@@ -106,12 +106,12 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
                         presenter.syncContact();
                         break;
                     case 2:
-                        presenter.sendFile(getUri(), "test file", ChatActivity.this
-                                ,null
-                                ,null
-                                ,null
-                                ,null);
+
+                        presenter.sendFile(ChatActivity.this, "test file", 381
+                                , getUri());
                         break;
+                    case 3:
+                        presenter.syncContact();
                 }
             }
 
@@ -142,8 +142,42 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
     }
 
     @Override
-    public void onGetContacts(String content) {
-        Toast.makeText(this, content, Toast.LENGTH_SHORT).show();
+    public void onGetThreadList() {
+
+    }
+
+    @Override
+    public void onGetThreadHistory() {
+
+    }
+
+    @Override
+    public void onGetContacts() {
+    }
+
+    @Override
+    public void onGetThreadParticipant() {
+
+    }
+
+    @Override
+    public void onSentMessage() {
+
+    }
+
+    @Override
+    public void onGetDeliverMessage() {
+
+    }
+
+    @Override
+    public void onGetSeenMessage() {
+
+    }
+
+    @Override
+    public void onEditMessage() {
+
     }
 
     @Override
@@ -152,13 +186,15 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
     }
 
     public void sendMessage(View view) {
-        String text = editText.getText().toString();
-        long textThread = Long.valueOf(editTextThread.getText().toString());
-        if (!text.equals("")) {
-            presenter.sendTextMessage(text, textThread);
-        } else {
-            Toast.makeText(this, "Message is Empty", Toast.LENGTH_SHORT).show();
-        }
+        presenter.sendTextMessage("test at" + new Date().getTime() + name, 381, null);
+
+//        String text = editText.getText().toString();
+////        long textThread = Long.valueOf(editTextThread.getText().toString());
+////        if (!text.equals("")) {
+////            presenter.sendTextMessage(text, 381, null);
+////        } else {
+////            Toast.makeText(this, "Message is Empty", Toast.LENGTH_SHORT).show();
+////        }
     }
 
     @Override
@@ -236,7 +272,7 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
                 break;
             case 13:
                 //"edit message"
-                presenter.editMessage(470, "salam this is edite" + new Date().getTime());
+                presenter.editMessage(470, "salam this is edite" + new Date().getTime() + "by" + name);
                 break;
             case 14:
                 // add contact
@@ -276,7 +312,6 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
         startActivityForResult(intent, PICK_FILE_REQUEST);
     }
 
-    //TODO get the real path of file
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

@@ -59,8 +59,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void sendTextMessage(String textMessage, long threadId) {
-        chat.sendTextMessage(textMessage, threadId);
+    public void sendTextMessage(String textMessage, long threadId, String metaData) {
+        chat.sendTextMessage(textMessage, threadId, metaData);
     }
 
     @Override
@@ -115,7 +115,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void syncContact() {
-        chat.syncContact(context);
+        chat.syncPhoneContact(context);
     }
 
     @Override
@@ -132,19 +132,20 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void onDeliver(String content) {
         super.onDeliver(content);
+        view.onGetDeliverMessage();
     }
 
     @Override
     public void onGetThread(String content) {
         super.onGetThread(content);
+        view.onGetThreadList();
     }
 
     @Override
     public void onGetContacts(String content) {
         super.onGetContacts(content);
-        view.onGetContacts(content);
+        view.onGetContacts();
     }
-
 
     @Override
     public void onInvitation(String content) {
@@ -154,6 +155,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void onSeen(String content) {
         super.onSeen(content);
+        view.onGetSeenMessage();
     }
 
     @Override
@@ -164,10 +166,29 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void onSent(String content) {
         super.onSent(content);
+        view.onSentMessage();
     }
 
     @Override
     public void onCreateThread(String content) {
 
+    }
+
+    @Override
+    public void onGetThreadParticipant(String content) {
+        super.onGetThreadParticipant(content);
+        view.onGetThreadParticipant();
+    }
+
+    @Override
+    public void onGetHistory(String content) {
+        super.onGetHistory(content);
+        view.onGetThreadHistory();
+    }
+
+    @Override
+    public void onEditedMessage(String content) {
+        super.onEditedMessage(content);
+        view.onEditMessage();
     }
 }

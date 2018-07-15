@@ -13,7 +13,21 @@ public interface ChatContract {
 
         void onGetUserInfo();
 
-        void onGetContacts(String content);
+        void onGetThreadList();
+
+        void onGetThreadHistory();
+
+        void onGetContacts();
+
+        void onGetThreadParticipant();
+
+        void onSentMessage();
+
+        void onGetDeliverMessage();
+
+        void onGetSeenMessage();
+
+        void onEditMessage();
 
         void onGetUserInfoId(int UserId);
     }
@@ -34,7 +48,7 @@ public interface ChatContract {
 
         void createThread(int threadType, Invitee[] invitee, String threadTitle);
 
-        void sendTextMessage(String textMessage, long threadId);
+        void sendTextMessage(String textMessage, long threadId, String metaData);
 
         void sendReplyMessage(String messageContent, long threadId, long messageId);
 
