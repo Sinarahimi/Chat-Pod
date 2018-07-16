@@ -29,9 +29,10 @@ public interface ChatContract {
 
         void onEditMessage();
 
-        void onGetUserInfoId(int UserId);
-
         void onCreateThread();
+
+        void onMuteThread();
+        void onUnMuteThread();
     }
 
     interface presenter {
@@ -41,8 +42,6 @@ public interface ChatContract {
         void getThread(int count, int offset, ArrayList<Integer> threadIds);
 
         void getUserInfo();
-
-        void getHistory(int count, int offset);
 
         void getHistory(int count, int offset, String order, long subjectId);
 

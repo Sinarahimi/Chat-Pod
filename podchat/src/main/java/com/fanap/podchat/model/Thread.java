@@ -18,6 +18,7 @@ public class Thread {
     private String image;
     private LastMessageVO lastMessageVO;
     private long partnerLastMessageId;
+    private long partnerLastSeenMessageId;
     private long partnerLastDeliveredMessageId;
     private int type;
     private boolean mute;
@@ -183,5 +184,13 @@ public class Thread {
 
     public void setCanEditInfo(boolean canEditInfo) {
         this.canEditInfo = canEditInfo;
+    }
+
+    public long getPartnerLastSeenMessageId() {
+        return partnerLastSeenMessageId;
+    }
+
+    public void setPartnerLastSeenMessageId(long partnerLastSeenMessageId) {
+        this.partnerLastSeenMessageId = partnerLastSeenMessageId;
     }
 }

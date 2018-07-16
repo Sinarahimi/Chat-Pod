@@ -40,10 +40,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void getHistory(int count, int offset) {
-    }
-
-    @Override
     public void getHistory(int count, int offset, String order, long subjectId) {
         chat.getHistory(count, offset, order, subjectId);
     }
@@ -182,14 +178,26 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void onEditedMessage(String content) {
+        super.onEditedMessage(content);
+        view.onEditMessage();
+    }
+
+    @Override
     public void onGetHistory(String content) {
         super.onGetHistory(content);
         view.onGetThreadHistory();
     }
 
     @Override
-    public void onEditedMessage(String content) {
-        super.onEditedMessage(content);
-        view.onEditMessage();
+    public void onMuteThread(String content) {
+        super.onMuteThread(content);
+        view.onMuteThread();
+    }
+
+    @Override
+    public void onUnmuteThread(String content) {
+        super.onUnmuteThread(content);
+        view.onUnMuteThread();
     }
 }

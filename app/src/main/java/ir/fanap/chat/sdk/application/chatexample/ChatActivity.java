@@ -61,8 +61,8 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
     };
     private Uri uri;
 
-    //fel token
-    //private static String TOKEN = "a11768091eac48f2a7b84ed6a241f9c3";
+//    fel token
+//    private static String TOKEN = "a11768091eac48f2a7b84ed6a241f9c3";
     //Fifi
 //    private String name = "Fifi";
 //    private static String TOKEN = "1fcecc269a8949d6b58312cab66a4926";
@@ -181,12 +181,17 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
     }
 
     @Override
-    public void onGetUserInfoId(int UserId) {
-        Toast.makeText(this, UserId, Toast.LENGTH_SHORT).show();
+    public void onCreateThread() {
+
     }
 
     @Override
-    public void onCreateThread() {
+    public void onMuteThread() {
+
+    }
+
+    @Override
+    public void onUnMuteThread() {
 
     }
 
@@ -240,7 +245,7 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
                 break;
             case 7:
                 //"get thread participant",
-                presenter.getThreadParticipant(50, 0, 352);
+                presenter.getThreadParticipant(50, 0, 577);
                 break;
             case 8:
                 /**
@@ -258,11 +263,11 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
                 //alexi 570
                 //felfeli 571
                 Invitee[] invite = new Invitee[]{new Invitee(570, 2)};
-                presenter.createThread(0, invite, "");
+                presenter.createThread(0, invite, null);
                 break;
             case 9:
                 //get thread history
-                presenter.getHistory(50, 0, "desc", 352);
+                presenter.getHistory(5, 0, null, 381);
                 break;
             case 10:
                 //"mute thread",
