@@ -185,6 +185,11 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
         Toast.makeText(this, UserId, Toast.LENGTH_SHORT).show();
     }
 
+    @Override
+    public void onCreateThread() {
+
+    }
+
     public void sendMessage(View view) {
         presenter.sendTextMessage("test at" + new Date().getTime() + name, 381, null);
 
@@ -227,6 +232,7 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
                 /**forward message */
                 ArrayList<Long> messageIds = new ArrayList<>();
                 messageIds.add(470L);
+                messageIds.add(1353L);
                 presenter.forwardMessage(381, messageIds);
                 break;
             case 6:
@@ -272,7 +278,7 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
                 break;
             case 13:
                 //"edit message"
-                presenter.editMessage(470, "salam this is edite" + new Date().getTime() + "by" + name);
+                presenter.editMessage(13530, "hi this is edit at" + new Date().getTime() + "by" + name);
                 break;
             case 14:
                 // add contact

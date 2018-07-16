@@ -31,7 +31,6 @@ import com.fanap.podchat.model.FileImageUpload;
 import com.fanap.podchat.model.FileMetaDataContent;
 import com.fanap.podchat.model.FileUpload;
 import com.fanap.podchat.model.Invitee;
-import com.fanap.podchat.model.Message;
 import com.fanap.podchat.model.MessageVO;
 import com.fanap.podchat.model.MetaDataFile;
 import com.fanap.podchat.model.MetaDataImageFile;
@@ -98,7 +97,7 @@ public class Chat extends AsyncAdapter {
     private int userId;
     private ContactApi contactApi;
     private static HashMap<String, Callback> messageCallbacks;
-    private static ArrayList<ThreadCallbacks> threadCallbackList;
+    private static HashMap<Long, ArrayList<Callback>> threadCallbacks;
     private boolean syncContact = false;
     private boolean state = false;
     private long lastSentMessageTime;
@@ -123,7 +122,7 @@ public class Chat extends AsyncAdapter {
             moshi = new Moshi.Builder().build();
             listenerManager = new ChatListenerManager();
             messageCallbacks = new HashMap<>();
-            threadCallbackList = new ArrayList<>();
+            threadCallbacks = new HashMap<>();
         }
         return instance;
     }
@@ -193,13 +192,13 @@ public class Chat extends AsyncAdapter {
             case Constants.CHANGE_TYPE:
                 break;
             case Constants.SENT:
-                handleSent(chatMessage);
+                handleSent(chatMessage, messageUniqueId, threadId);
                 break;
             case Constants.DELIVERY:
-                handleDelivery(chatMessage);
+                handleDelivery(chatMessage, messageUniqueId, threadId);
                 break;
             case Constants.SEEN:
-                handleSeen(chatMessage);
+                handleSeen(chatMessage, messageUniqueId, threadId);
                 break;
             case Constants.ERROR:
                 handleResponseMessage(callback, true, 0, "", chatMessage, messageUniqueId);
@@ -269,6 +268,7 @@ public class Chat extends AsyncAdapter {
     private void handleMessage(ChatMessage chatMessage) {
         if (BuildConfig.DEBUG) Logger.i("RECEIVED_MESSAGE", chatMessage.getContent());
         MessageVO jsonMessage = JsonUtil.fromJSON(chatMessage.getContent(), MessageVO.class);
+        listenerManager.callOnNewMessage(chatMessage.getContent());
         long ownerId = 0;
         if (jsonMessage != null) {
             ownerId = jsonMessage.getParticipant().getId();
@@ -281,103 +281,88 @@ public class Chat extends AsyncAdapter {
         }
     }
 
-    private void handleSent(ChatMessage chatMessage) {
-        for (ThreadCallbacks p : threadCallbackList) {
-            if (p.getThreadId() == chatMessage.getSubjectId()) {
-                int indexThread = threadCallbackList.indexOf(p);
-                for (Callback callback1 : p.getCallbacks()) {
-                    int indexUnique = p.getCallbacks().indexOf(callback1);
-                    while (indexUnique > -1) {
-                        if (p.getCallbacks().get(indexUnique).isSent()) {
-                            listenerManager.callOnSentMessage(callback1.getUniqueId());
+    private void handleSent(ChatMessage chatMessage, String messageUniqueId, long threadId) {
 
-                            ThreadCallbacks threadCallbacks = new ThreadCallbacks();
-                            threadCallbacks.setThreadId(p.getThreadId());
-                            Callback callbackUpdateSent = new Callback();
-                            callbackUpdateSent.setSent(false);
-                            callbackUpdateSent.setDelivery(callback1.isDelivery());
-                            callbackUpdateSent.setSeen(callback1.isSeen());
-                            callbackUpdateSent.setUniqueId(callback1.getUniqueId());
+        if (threadCallbacks.containsKey(threadId)) {
+            ArrayList<Callback> callbacks = threadCallbacks.get(threadId);
+            for (Callback callback : callbacks) {
+                if (messageUniqueId.equals(callback.getUniqueId())) {
+                    int indexUnique = callbacks.indexOf(callback);
+                    if (callbacks.get(indexUnique).isSent()) {
+                        listenerManager.callOnSentMessage(chatMessage.getContent());
+                        Callback callbackUpdateSent = new Callback();
+                        callbackUpdateSent.setSent(false);
+                        callbackUpdateSent.setDelivery(callback.isDelivery());
+                        callbackUpdateSent.setSeen(callback.isSeen());
+                        callbackUpdateSent.setUniqueId(callback.getUniqueId());
 
-                            ArrayList<Callback> arrayList = p.getCallbacks();
-                            arrayList.set(indexUnique, callbackUpdateSent);
-                            threadCallbacks.setCallbacks(arrayList);
-                            threadCallbackList.set(indexThread, threadCallbacks);
-                            if (BuildConfig.DEBUG)
-                                Logger.i("Is Sent", callback1.getUniqueId());
-                        }
-                        indexUnique--;
+                        callbacks.set(indexUnique, callbackUpdateSent);
+                        threadCallbacks.put(threadId, callbacks);
+                        if (BuildConfig.DEBUG) Logger.i("Is Sent", callback.getUniqueId());
+                        if (BuildConfig.DEBUG) Logger.i(chatMessage.getContent());
                     }
                 }
             }
         }
     }
 
-    private void handleSeen(ChatMessage chatMessage) {
-        for (ThreadCallbacks p : threadCallbackList) {
-            if (p.getThreadId() == chatMessage.getSubjectId()) {
-                int indexThread = threadCallbackList.indexOf(p);
-                for (Callback callback1 : p.getCallbacks()) {
-                    int indexUnique = p.getCallbacks().indexOf(callback1);
-                    while (indexUnique > -1) {
-                        if (p.getCallbacks().get(indexUnique).isSeen()) {
-                            if (p.getCallbacks().get(indexUnique).isDelivery()) {
-                                listenerManager.callOnDeliveryMessage(callback1.getUniqueId());
+    private void handleSeen(ChatMessage chatMessage, String messageUniqueId, long threadId) {
 
-                                ThreadCallbacks threadCallbacks = new ThreadCallbacks();
-                                threadCallbacks.setThreadId(p.getThreadId());
+        if (threadCallbacks.containsKey(threadId)) {
+            ArrayList<Callback> callbacks = threadCallbacks.get(threadId);
+            for (Callback callback : callbacks) {
+                if (messageUniqueId.equals(callback.getUniqueId())) {
+                    int indexUnique = callbacks.indexOf(callback);
+                    while (indexUnique > -1) {
+                        if (callbacks.get(indexUnique).isSeen()) {
+                            if (callbacks.get(indexUnique).isDelivery()) {
+                                listenerManager.callOnDeliveryMessage(callback.getUniqueId());
+
                                 Callback callbackUpdateSent = new Callback();
-                                callbackUpdateSent.setSent(callback1.isSent());
+                                callbackUpdateSent.setSent(callback.isSent());
                                 callbackUpdateSent.setDelivery(false);
-                                callbackUpdateSent.setSeen(callback1.isSeen());
-                                callbackUpdateSent.setUniqueId(callback1.getUniqueId());
-
-                                ArrayList<Callback> arrayList = p.getCallbacks();
-                                arrayList.set(indexUnique, callbackUpdateSent);
-                                threadCallbacks.setCallbacks(arrayList);
-                                threadCallbackList.set(indexThread, threadCallbacks);
+                                callbackUpdateSent.setSeen(callback.isSeen());
+                                callbackUpdateSent.setUniqueId(callback.getUniqueId());
+                                callbacks.set(indexUnique, callbackUpdateSent);
+                                threadCallbacks.put(threadId, callbacks);
                                 if (BuildConfig.DEBUG)
-                                    Logger.i(callback1.getUniqueId(), "Is Delivered");
+                                    Logger.i("Is Delivered", callback.getUniqueId());
                             }
-                            listenerManager.callOnSeenMessage(callback1.getUniqueId());
-                            threadCallbackList.remove(indexThread);
+                            listenerManager.callOnSeenMessage(callback.getUniqueId());
+                            callbacks.remove(indexUnique);
+                            threadCallbacks.put(threadId, callbacks);
                             if (BuildConfig.DEBUG)
-                                Logger.i("Is Seen", callback1.getUniqueId());
+                                Logger.i("Is Seen", callback.getUniqueId());
                         }
                         indexUnique--;
                     }
+                    break;
                 }
             }
         }
     }
 
-    private void handleDelivery(ChatMessage chatMessage) {
-        for (ThreadCallbacks p : threadCallbackList) {
-            if (p.getThreadId() == chatMessage.getSubjectId()) {
-                int indexThread = threadCallbackList.indexOf(p);
-                for (Callback callback1 : p.getCallbacks()) {
-                    int indexUnique = p.getCallbacks().indexOf(callback1);
-                    while (indexUnique > -1) {
-                        if (p.getCallbacks().get(indexUnique).isDelivery()) {
-                            listenerManager.callOnDeliveryMessage(callback1.getUniqueId());
+    private void handleDelivery(ChatMessage chatMessage, String messageUniqueId, long threadId) {
+        if (threadCallbacks.containsKey(threadId)) {
+            ArrayList<Callback> callbacks = threadCallbacks.get(threadId);
+            for (Callback callback : callbacks) {
+                int indexUnique = callbacks.indexOf(callback);
+                while (indexUnique > -1) {
+                    if (callbacks.get(indexUnique).isDelivery()) {
+                        listenerManager.callOnDeliveryMessage(callback.getUniqueId());
 
-                            ThreadCallbacks threadCallbacks = new ThreadCallbacks();
-                            threadCallbacks.setThreadId(p.getThreadId());
-                            Callback callbackUpdateSent = new Callback();
-                            callbackUpdateSent.setSent(callback1.isSent());
-                            callbackUpdateSent.setDelivery(false);
-                            callbackUpdateSent.setSeen(callback1.isSeen());
-                            callbackUpdateSent.setUniqueId(callback1.getUniqueId());
-
-                            ArrayList<Callback> arrayList = p.getCallbacks();
-                            arrayList.set(indexUnique, callbackUpdateSent);
-                            threadCallbacks.setCallbacks(arrayList);
-                            threadCallbackList.set(indexThread, threadCallbacks);
-                            if (BuildConfig.DEBUG)
-                                Logger.i("Is Delivered", callback1.getUniqueId());
-                        }
-                        indexUnique--;
+                        Callback callbackUpdateSent = new Callback();
+                        callbackUpdateSent.setSent(callback.isSent());
+                        callbackUpdateSent.setDelivery(false);
+                        callbackUpdateSent.setSeen(callback.isSeen());
+                        callbackUpdateSent.setUniqueId(callback.getUniqueId());
+                        callbacks.set(indexUnique, callbackUpdateSent);
+                        threadCallbacks.put(threadId, callbacks);
+//                        threadCallbackList.set(indexThread, threadCallbacks);
+                        if (BuildConfig.DEBUG)
+                            Logger.i("Is Delivered", callback.getUniqueId());
                     }
+                    indexUnique--;
                 }
             }
         }
@@ -641,8 +626,10 @@ public class Chat extends AsyncAdapter {
         callback.setUniqueId(uniqueId);
         ArrayList<Callback> callbacks = new ArrayList<>();
         callbacks.add(callback);
-        ThreadCallbacks threadCallbacks = new ThreadCallbacks(threadId, callbacks);
-        threadCallbackList.add(threadCallbacks);
+        threadCallbacks.put(threadId, callbacks);
+
+//        ThreadCallbacks threadCallbacks = new ThreadCallbacks(threadId, callbacks);
+//        threadCallbackList.add(threadCallbacks);
     }
 
     private void sendAsyncMessage(String asyncContent, int asyncMsgType) {
@@ -884,9 +871,7 @@ public class Chat extends AsyncAdapter {
             callback.setUniqueId(uniqueId);
             callbacks.add(callback);
         }
-        ThreadCallbacks threadCallbacks = new ThreadCallbacks(threadId, callbacks);
-        threadCallbackList.add(threadCallbacks);
-
+        threadCallbacks.put(threadId, callbacks);
         try {
             chatMessageForward.setUniqueId(mapper.writeValueAsString(uniqueIds));
         } catch (JsonProcessingException e) {
@@ -1119,7 +1104,7 @@ public class Chat extends AsyncAdapter {
     public void createThread(int threadType, Invitee[] invitee, String threadTitle) {
         List<Invitee> invitees = new ArrayList<>(Arrays.asList(invitee));
         ChatThread chatThread = new ChatThread();
-        chatThread.setType(threadType);
+        chatThread.setThreadType(threadType);
         chatThread.setInvitees(invitees);
         chatThread.setTitle(threadTitle);
 
@@ -1240,24 +1225,20 @@ public class Chat extends AsyncAdapter {
      * content to editMessage function
      */
     public void editMessage(int messageId, String messageContent) {
-        Message message = new Message();
         String uniqueId = getUniqueId();
-        message.setId(messageId);
-        message.setMessage(messageContent);
-        message.setUniqueId(getUniqueId());
-        String editedMessage = JsonUtil.getJson(message);
 
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setType(Constants.EDIT_MESSAGE);
         chatMessage.setToken(getToken());
         chatMessage.setUniqueId(uniqueId);
-        chatMessage.setContent(editedMessage);
+        chatMessage.setSubjectId(messageId);
+        chatMessage.setContent(messageContent);
         chatMessage.setTokenIssuer("1");
 
         String asyncContent = JsonUtil.getJson(chatMessage);
         setCallBacks(null, null, null, true, Constants.EDIT_MESSAGE, null, uniqueId);
-        if(BuildConfig.DEBUG)Logger.d("SEND_EDIT_MESSAGE");
-        if(BuildConfig.DEBUG)Logger.json(asyncContent);
+        if (BuildConfig.DEBUG) Logger.d("SEND_EDIT_MESSAGE");
+        if (BuildConfig.DEBUG) Logger.json(asyncContent);
         sendAsyncMessage(asyncContent, 4);
     }
 

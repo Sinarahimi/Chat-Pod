@@ -171,7 +171,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void onCreateThread(String content) {
-
+        super.onCreateThread(content);
+        view.onCreateThread();
     }
 
     @Override

@@ -48,4 +48,6 @@ public interface ChatListener {
 
     void onGetFile(String url);
 
+    void onNewMessage(String content);
+
 }

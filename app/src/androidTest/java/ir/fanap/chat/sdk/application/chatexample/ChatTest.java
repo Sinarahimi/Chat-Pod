@@ -9,6 +9,7 @@ import android.support.test.runner.AndroidJUnit4;
 
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
+import com.fanap.podchat.model.Invitee;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -21,7 +22,7 @@ import org.mockito.MockitoAnnotations;
 import java.util.Date;
 
 @RunWith(AndroidJUnit4.class)
-public class ChatTest extends ChatAdapter {
+public class ChatTest {
 
     private static ChatContract.presenter presenter;
     @Mock
@@ -30,7 +31,6 @@ public class ChatTest extends ChatAdapter {
     @Rule
     public ActivityTestRule<ChatActivity> mActivityRule = new ActivityTestRule<>(ChatActivity.class);
     //TOKEN = ALEXI
-    private static Chat chat;
     private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
     private static String NAME = "ALEXI";
 
@@ -38,9 +38,8 @@ public class ChatTest extends ChatAdapter {
     public void setUp() {
         Context appContext = InstrumentationRegistry.getTargetContext();
         MockitoAnnotations.initMocks(this);
-        chat = Chat.init(appContext).addListener(this);
-        presenter = Mockito.spy(new ChatPresenter(appContext, view));
-        chat.connect("ws://172.16.106.26:8003/ws",
+        presenter = new ChatPresenter(appContext,view);
+        presenter.connect("ws://172.16.106.26:8003/ws",
                 "POD-Chat", "chat-server", TOKEN, "http://172.16.110.76",
                 "http://172.16.106.26:8080/hamsam/");
     }
@@ -139,9 +138,46 @@ public class ChatTest extends ChatAdapter {
     @Test
     @MediumTest
     public void editMessage() {
-        presenter.editMessage(470, "salam this is edite" + new Date().getTime() + "by" + NAME);
-        view.onEditMessage();
-        Mockito.verify(view,Mockito.times(1)).onEditMessage();
+        presenter.sendTextMessage("this is test", 381, null);
+        view.onSentMessage();
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Mockito.verify(view, Mockito.times(1)).onSentMessage();
 
+        presenter.editMessage(1350, "salam this is edite" + new Date().getTime() + "by" + NAME);
+        view.onEditMessage();
+        Mockito.verify(view, Mockito.times(1)).onEditMessage();
     }
+
+    /**
+     * int TO_BE_USER_SSO_ID = 1;
+     * int TO_BE_USER_CONTACT_ID = 2;
+     * int TO_BE_USER_CELLPHONE_NUMBER = 3;
+     * int TO_BE_USER_USERNAME = 4;
+     */
+    /**
+     * "create thread"
+     * This is Invitee object
+     * ---->private int id;
+     * ---->private int idType;
+     */
+    @Test
+    @MediumTest
+    public void createThread() {
+        //alexi 570
+        //felfeli 571
+        Invitee[] invite = new Invitee[]{new Invitee(570, 2),new Invitee(571,2)};
+        presenter.createThread(0, invite, "yes");
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Mockito.verify(view,Mockito.times(1)).onCreateThread();
+    }
+
+
 }

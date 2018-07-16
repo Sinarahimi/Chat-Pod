@@ -253,6 +253,7 @@ public class ChatListenerManager {
             }
         }
     }
+
     public void callOnRenameThread(String content) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
@@ -262,10 +263,21 @@ public class ChatListenerManager {
             }
         }
     }
+
     public void callOnGetfile(String url) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onGetFile(url);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnNewMessage(String content) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onNewMessage(content);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }

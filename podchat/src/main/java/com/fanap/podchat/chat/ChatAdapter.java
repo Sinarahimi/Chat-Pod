@@ -116,4 +116,10 @@ public class ChatAdapter implements ChatListener {
     public void onGetFile(String url) {
 
     }
+
+    @Override
+    public void onNewMessage(String content) {
+
+    }
+
 }

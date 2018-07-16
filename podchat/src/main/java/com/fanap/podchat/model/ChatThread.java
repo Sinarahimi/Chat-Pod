@@ -1,7 +1,15 @@
 package com.fanap.podchat.model;
 
 import java.util.List;
-
+/**
+ * + CreateThreadRequest    {object}
+ *    - ownerSsoId          {string}
+ *    + invitees            {object}
+ *       -id                {string}
+ *       -idType            {int} ** inviteeVOidTypes
+ *    - title               {string}
+ *    - type                {int} ** createThreadTypes
+ */
 public class ChatThread {
 
     private int type;
@@ -10,11 +18,11 @@ public class ChatThread {
     private List<Invitee[]> arrayInvitees;
     private String title;
 
-    public int getType() {
+    public int getThreadType() {
         return type;
     }
 
-    public void setType(int type) {
+    public void setThreadType(int type) {
         this.type = type;
     }
 

@@ -30,6 +30,8 @@ public interface ChatContract {
         void onEditMessage();
 
         void onGetUserInfoId(int UserId);
+
+        void onCreateThread();
     }
 
     interface presenter {

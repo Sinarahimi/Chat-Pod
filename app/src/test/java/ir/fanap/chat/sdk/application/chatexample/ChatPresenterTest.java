@@ -19,7 +19,7 @@ public class ChatPresenterTest {
 
     @Test
     public void getThread() {
-        presenter.getThread(50,0);
+        presenter.getThread(50,0,null);
         Assert.assertEquals(1,1);
     }
 
