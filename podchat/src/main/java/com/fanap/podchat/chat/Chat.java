@@ -165,6 +165,7 @@ public class Chat extends AsyncAdapter {
         }
     }
 
+    //TODO refactor handleResponseMessage
     /**
      * First we check the message type and then we set the
      * the  specific callback for that
@@ -301,6 +302,7 @@ public class Chat extends AsyncAdapter {
                         if (BuildConfig.DEBUG) Logger.i("Is Sent", callback.getUniqueId());
                         if (BuildConfig.DEBUG) Logger.i(chatMessage.getContent());
                     }
+                    break;
                 }
             }
         }
@@ -346,23 +348,26 @@ public class Chat extends AsyncAdapter {
         if (threadCallbacks.containsKey(threadId)) {
             ArrayList<Callback> callbacks = threadCallbacks.get(threadId);
             for (Callback callback : callbacks) {
-                int indexUnique = callbacks.indexOf(callback);
-                while (indexUnique > -1) {
-                    if (callbacks.get(indexUnique).isDelivery()) {
-                        listenerManager.callOnDeliveryMessage(callback.getUniqueId());
+                if (messageUniqueId.equals(callback.getUniqueId())) {
+                    int indexUnique = callbacks.indexOf(callback);
+                    while (indexUnique > -1) {
+                        if (callbacks.get(indexUnique).isDelivery()) {
+                            listenerManager.callOnDeliveryMessage(callback.getUniqueId());
 
-                        Callback callbackUpdateSent = new Callback();
-                        callbackUpdateSent.setSent(callback.isSent());
-                        callbackUpdateSent.setDelivery(false);
-                        callbackUpdateSent.setSeen(callback.isSeen());
-                        callbackUpdateSent.setUniqueId(callback.getUniqueId());
-                        callbacks.set(indexUnique, callbackUpdateSent);
-                        threadCallbacks.put(threadId, callbacks);
+                            Callback callbackUpdateSent = new Callback();
+                            callbackUpdateSent.setSent(callback.isSent());
+                            callbackUpdateSent.setDelivery(false);
+                            callbackUpdateSent.setSeen(callback.isSeen());
+                            callbackUpdateSent.setUniqueId(callback.getUniqueId());
+                            callbacks.set(indexUnique, callbackUpdateSent);
+                            threadCallbacks.put(threadId, callbacks);
 //                        threadCallbackList.set(indexThread, threadCallbacks);
-                        if (BuildConfig.DEBUG)
-                            Logger.i("Is Delivered", callback.getUniqueId());
+                            if (BuildConfig.DEBUG)
+                                Logger.i("Is Delivered", callback.getUniqueId());
+                        }
+                        indexUnique--;
                     }
-                    indexUnique--;
+                    break;
                 }
             }
         }

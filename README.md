@@ -127,7 +127,7 @@ chat.forwardMessage(312, messageIds);
 
 ### replyMessage
 ```java
-chat.sendReplyMessage("Reply to the text", 235, 532);
+chat.replyMessage("Reply to the text", 235, 532);
 ```
 
 ### editMessage
