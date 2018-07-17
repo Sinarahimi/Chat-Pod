@@ -1,25 +1,24 @@
-package com.fanap.podchat.model;
+package com.fanap.podchat.mainmodel;
 
-import com.fanap.podchat.mainmodel.Inviter;
-import com.fanap.podchat.mainmodel.Participant;
+import com.fanap.podchat.model.LastMessageVO;
 
 import java.util.List;
 
 public class Thread {
     private long id;
+    private long joinDate;
+    private Inviter inviter;
     private String title;
-    private String lastMessage;
     private List<Participant> participants;
     private long time;
+    private String lastMessage;
     private String lastParticipantName;
     private boolean group;
     private long partner;
-    private long unreadCount;
-    private long lastSeenMessageId;
-    private long joinDate;
-    private Inviter inviter;
     private String image;
+    private long unreadCount;
     private LastMessageVO lastMessageVO;
+    private long lastSeenMessageId;
     private long partnerLastMessageId;
     private long partnerLastSeenMessageId;
     private long partnerLastDeliveredMessageId;

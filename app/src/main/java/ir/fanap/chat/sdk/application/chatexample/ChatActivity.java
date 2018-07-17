@@ -62,11 +62,11 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
 //    fel token
 //    private static String TOKEN = "a11768091eac48f2a7b84ed6a241f9c3";
     //Fifi
-//    private String name = "Fifi";
-//    private static String TOKEN = "1fcecc269a8949d6b58312cab66a4926";
+    private String name = "Fifi";
+    private static String TOKEN = "1fcecc269a8949d6b58312cab66a4926";
     //Token Alexi
-    private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
-    private static String name = "Alexi";
+//    private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
+//    private static String name = "Alexi";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -225,7 +225,7 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
                 break;
             case 2:
                 //"rename thread",
-                presenter.renameThread(632, "new group name");
+                presenter.renameThread(634, "***new group amiri *");
                 break;
             case 3:
                 //"get user info",
@@ -247,7 +247,7 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
                 break;
             case 7:
                 //"get thread participant",
-                presenter.getThreadParticipant(50, 0, 577);
+                presenter.getThreadParticipant(10, 0, 381);
                 break;
             case 8:
                 /**
@@ -265,14 +265,15 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
                 //alexi 570
                 //felfeli 571
                 Invitee[] invite = new Invitee[]{new Invitee(567,2)
-                        ,new Invitee(571,2)
                         ,new Invitee(566,2)
+                        ,new Invitee(571,2)
+                        ,new Invitee(570,2)
                 };
                 presenter.createThread(0, invite, null);
                 break;
             case 9:
                 //get thread history
-                presenter.getHistory(5, 0, null, 381);
+                presenter.getHistory(10, 0, null, 381);
                 break;
             case 10:
                 //"mute thread",

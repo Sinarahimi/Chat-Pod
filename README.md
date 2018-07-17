@@ -39,7 +39,7 @@ And now it's ready for chat .
 | `updateContact(String userId,String firstName, String lastName, String cellphoneNumber, String email)`| update user info in contact list      |
 | `removeContact(long userId)`         | remove user in contact list      |
 | `addContact(String firstName, String lastName, String cellphoneNumber, String email)`         | Add contact      |
-| `getThreadParticipant(int count, int offset, long threadId)`         | Get the participant list      |
+| `getThreadParticipants(int count, int offset, long threadId)`         | Get the participant list      |
 | `getUserInfo()`         | Get the information of the current user      |
 | `muteThread(int threadId)`         | Mute the thread      |
 | `unmuteThread(int threadId)`         | Un Mute the thread      |
@@ -95,7 +95,7 @@ presenter.getHistory(50, 0, "desc", 312);
 
 ### getThreadParticipant
 ```java
-chat.getThreadParticipant(50, 5, 235);
+chat.getThreadParticipants(50, 5, 235);
 ```
 
 ### renameThread

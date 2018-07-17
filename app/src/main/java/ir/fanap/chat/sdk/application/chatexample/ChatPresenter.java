@@ -91,7 +91,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void getThreadParticipant(int count, int offset, long threadId) {
-        chat.getThreadParticipant(count, offset, threadId);
+        chat.getThreadParticipants(count, offset, threadId);
     }
 
     @Override

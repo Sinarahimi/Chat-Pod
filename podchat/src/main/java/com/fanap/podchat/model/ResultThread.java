@@ -1,5 +1,7 @@
 package com.fanap.podchat.model;
 
+import com.fanap.podchat.mainmodel.Thread;
+
 public class ResultThread {
     private Thread thread;
 

@@ -1,5 +1,7 @@
 package com.fanap.podchat.model;
 
+import com.fanap.podchat.mainmodel.Thread;
+
 import java.util.List;
 
 public class ResultThreads {
