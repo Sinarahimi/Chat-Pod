@@ -6,7 +6,7 @@ import android.net.Uri;
 
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
-import com.fanap.podchat.model.Invitee;
+import com.fanap.podchat.mainmodel.Invitee;
 
 import java.util.ArrayList;
 
@@ -60,7 +60,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void sendReplyMessage(String messageContent, long threadId, long messageId) {
+    public void replyMessage(String messageContent, long threadId, long messageId) {
         chat.replyMessage(messageContent, threadId, messageId);
     }
 
@@ -199,5 +199,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void onUnmuteThread(String content) {
         super.onUnmuteThread(content);
         view.onUnMuteThread();
+    }
+
+    @Override
+    public void onRenameThread(String content) {
+        super.onRenameThread(content);
+        view.onRenameGroupThread();
     }
 }

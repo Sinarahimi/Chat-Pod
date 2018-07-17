@@ -1,5 +1,7 @@
 package com.fanap.podchat.model;
 
+import com.fanap.podchat.mainmodel.Participant;
+
 public class ReplyInfoVO {
     private Participant participant;
     private long repliedToMessageId;

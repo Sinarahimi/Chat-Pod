@@ -4,7 +4,7 @@ import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.net.Uri;
 
-import com.fanap.podchat.model.Invitee;
+import com.fanap.podchat.mainmodel.Invitee;
 
 import java.util.ArrayList;
 
@@ -32,8 +32,11 @@ public interface ChatContract {
         void onCreateThread();
 
         void onMuteThread();
+
         void onUnMuteThread();
-    }
+
+        void onRenameGroupThread();
+        }
 
     interface presenter {
 
@@ -51,7 +54,7 @@ public interface ChatContract {
 
         void sendTextMessage(String textMessage, long threadId, String metaData);
 
-        void sendReplyMessage(String messageContent, long threadId, long messageId);
+        void replyMessage(String messageContent, long threadId, long messageId);
 
         LiveData<String> getLiveState();
 

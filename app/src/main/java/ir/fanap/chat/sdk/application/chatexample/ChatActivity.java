@@ -14,11 +14,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.fanap.podchat.model.Invitee;
+import com.fanap.podchat.mainmodel.Invitee;
 import com.jaiselrahman.filepicker.activity.FilePickerActivity;
-import com.jaiselrahman.filepicker.config.Configurations;
 import com.jaiselrahman.filepicker.model.MediaFile;
 
 import java.util.ArrayList;
@@ -195,6 +193,11 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
 
     }
 
+    @Override
+    public void onRenameGroupThread() {
+
+    }
+
     public void sendMessage(View view) {
         presenter.sendTextMessage("test at" + new Date().getTime() + name, 381, null);
 
@@ -212,18 +215,17 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
         switch (position) {
             case 0:
 //            "Choose function",
-
                 break;
             case 1:
                 //"get thread"
 //                ArrayList<Integer> threadIds = new ArrayList<>();
 //                threadIds.add(312);
 //                threadIds.add(351);
-                presenter.getThread(50, 0, null);
+                presenter.getThread(2, 0, null);
                 break;
             case 2:
                 //"rename thread",
-                presenter.renameThread(379, "new group name");
+                presenter.renameThread(632, "new group name");
                 break;
             case 3:
                 //"get user info",
@@ -231,7 +233,7 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
                 break;
             case 4:
                 //"reply message",
-                presenter.sendReplyMessage("this is reply", 231, 1544);
+                presenter.replyMessage("this is reply", 231, 1544);
                 break;
             case 5:
                 /**forward message */
@@ -262,7 +264,10 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
                  */
                 //alexi 570
                 //felfeli 571
-                Invitee[] invite = new Invitee[]{new Invitee(570, 2)};
+                Invitee[] invite = new Invitee[]{new Invitee(567,2)
+                        ,new Invitee(571,2)
+                        ,new Invitee(566,2)
+                };
                 presenter.createThread(0, invite, null);
                 break;
             case 9:
@@ -287,11 +292,11 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
                 break;
             case 14:
                 // add contact
-                presenter.addContact("masoud", "rahimi", "09122451131", "dev@gmail.com");
+                presenter.addContact("masoud", "sadeghi", "09122981131", "deviant@gmail.com");
                 break;
             case 15:
                 // remove contact
-                presenter.removeContact(682);
+                presenter.removeContact(802);
                 break;
             case 16:
                 /**UPDATE CONTACTS*/

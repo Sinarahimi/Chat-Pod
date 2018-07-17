@@ -1,19 +1,14 @@
 package ir.fanap.chat.sdk.application.chatexample;
 
 import android.content.Context;
-import android.os.Handler;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
-import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 
-import com.fanap.podchat.chat.Chat;
-import com.fanap.podchat.chat.ChatAdapter;
-import com.fanap.podchat.model.Invitee;
+import com.fanap.podchat.mainmodel.Invitee;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -251,5 +246,59 @@ public class ChatTest {
         Mockito.verify(view, Mockito.times(1)).onMuteThread();
     }
 
+    @Test
+    @MediumTest
+    public void replyMessage(){
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        presenter.replyMessage("this is reply to all of you at"+new Date().getTime()
+                ,381,1353);
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+//        Mockito.verify(view, Mockito.times(1)).
+    }
+
+    //fifi is the admin of groupId = 632
+    @Test
+    @MediumTest
+    public void renameThread(){
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        presenter.renameThread(632,"گروه خودمونی");
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Mockito.verify(view,Mockito.times(1)).onRenameGroupThread();
+    }
+
+
+    //TODO not complete
+    @Test
+    @MediumTest
+    public void addContact(){
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        presenter.addContact("masoud", "rahimi", "09122451131", "dev@gmail.com");
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 
 }

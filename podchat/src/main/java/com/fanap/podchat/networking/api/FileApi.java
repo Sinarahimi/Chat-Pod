@@ -1,7 +1,7 @@
 package com.fanap.podchat.networking.api;
 
 import com.fanap.podchat.model.FileImageUpload;
-import com.fanap.podchat.model.FileUpload;
+import com.fanap.podchat.mainmodel.FileUpload;
 
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;

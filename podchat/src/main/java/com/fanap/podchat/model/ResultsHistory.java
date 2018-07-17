@@ -2,7 +2,7 @@ package com.fanap.podchat.model;
 
 import java.util.List;
 
-public class Results {
+public class ResultsHistory {
 
     private List contacts;
     private long contentCount;

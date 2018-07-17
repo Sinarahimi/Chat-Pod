@@ -1,4 +1,4 @@
-package com.fanap.podchat.model;
+package com.fanap.podchat.mainmodel;
 
 import com.google.gson.annotations.SerializedName;
 

@@ -1,4 +1,6 @@
-package com.fanap.podchat.model;
+package com.fanap.podchat.mainmodel;
+
+import com.fanap.podchat.model.ResultFile;
 
 public class FileUpload {
     private boolean hasError;

@@ -5,7 +5,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
-import android.os.Looper;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -19,23 +18,24 @@ import com.fanap.podasync.model.DeviceResult;
 import com.fanap.podasync.util.JsonUtil;
 import com.fanap.podchat.BuildConfig;
 import com.fanap.podchat.model.AddContacts;
-import com.fanap.podchat.model.ChatMessage;
-import com.fanap.podchat.model.ChatMessageContent;
+import com.fanap.podchat.mainmodel.ChatMessage;
+import com.fanap.podchat.mainmodel.ChatMessageContent;
 import com.fanap.podchat.model.ChatMessageForward;
-import com.fanap.podchat.model.ChatThread;
-import com.fanap.podchat.model.Contact;
+import com.fanap.podchat.mainmodel.ChatThread;
+import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.model.ContactRemove;
 import com.fanap.podchat.model.Contacts;
 import com.fanap.podchat.model.Error;
 import com.fanap.podchat.model.FileImageMetaData;
 import com.fanap.podchat.model.FileImageUpload;
 import com.fanap.podchat.model.FileMetaDataContent;
-import com.fanap.podchat.model.FileUpload;
-import com.fanap.podchat.model.Invitee;
+import com.fanap.podchat.mainmodel.FileUpload;
+import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.model.MessageVO;
 import com.fanap.podchat.model.MetaDataFile;
 import com.fanap.podchat.model.MetaDataImageFile;
 import com.fanap.podchat.model.OutPut;
+import com.fanap.podchat.model.OutPutAddContact;
 import com.fanap.podchat.model.OutPutContact;
 import com.fanap.podchat.model.OutPutThread;
 import com.fanap.podchat.model.OutPutThreads;
@@ -46,8 +46,8 @@ import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultUserInfo;
-import com.fanap.podchat.model.Results;
-import com.fanap.podchat.model.SdkFile;
+import com.fanap.podchat.model.ResultsHistory;
+import com.fanap.podchat.mainmodel.SdkFile;
 import com.fanap.podchat.model.SdkImageFile;
 import com.fanap.podchat.model.Thread;
 import com.fanap.podchat.model.UserInfo;
@@ -60,7 +60,7 @@ import com.fanap.podchat.networking.api.TokenApi;
 import com.fanap.podchat.util.Callback;
 import com.fanap.podchat.util.ChatMessageType;
 import com.fanap.podchat.util.ChatMessageType.Constants;
-import com.fanap.podchat.util.ThreadCallbacks;
+import com.fanap.podchat.util.Util;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.orhanobut.logger.Logger;
@@ -241,7 +241,7 @@ public class Chat extends AsyncAdapter {
             case Constants.REMOVE_PARTICIPANT:
                 break;
             case Constants.RENAME:
-                listenerManager.callOnRenameThread(chatMessage.getContent());
+                handleResponseMessage(callback, false, 0, "", chatMessage, messageUniqueId);
                 break;
             case Constants.THREAD_PARTICIPANTS:
                 handleResponseMessage(callback, false, 0, "", chatMessage, messageUniqueId);
@@ -419,7 +419,7 @@ public class Chat extends AsyncAdapter {
     }
 
     private void handleResponseMessage(Callback callback, boolean hasError, int errorCode, String errorMessage, ChatMessage chatMessage, String messageUniqueId) {
-        Results results = new Results();
+        ResultsHistory resultsHistory = new ResultsHistory();
         OutPut outPut = new OutPut();
         switch (callback.getRequestType()) {
             case Constants.GET_HISTORY:
@@ -427,14 +427,14 @@ public class Chat extends AsyncAdapter {
                     String errorJson = reformatError(true, chatMessage, outPut);
                     listenerManager.callOnError(errorJson);
                 } else {
-                    results.setContentCount(chatMessage.getContentCount());
+                    resultsHistory.setContentCount(chatMessage.getContentCount());
                     if (chatMessage.getContent().length() + callback.getOffset() < chatMessage.getContentCount()) {
-                        results.setHasNext(true);
+                        resultsHistory.setHasNext(true);
                     } else {
-                        results.setHasNext(false);
+                        resultsHistory.setHasNext(false);
                     }
-                    results.setHistory(chatMessage.getContent());
-                    results.setNextOffset(callback.getOffset() + chatMessage.getContent().length());
+                    resultsHistory.setHistory(chatMessage.getContent());
+                    resultsHistory.setNextOffset(callback.getOffset() + chatMessage.getContent().length());
                     outPut.setErrorCode(errorCode);
                     outPut.setHasError(false);
                     outPut.setErrorMessage(errorMessage);
@@ -571,6 +571,19 @@ public class Chat extends AsyncAdapter {
                     }
                 }
                 break;
+
+            case Constants.RENAME:
+                if (hasError) {
+                    String errorUserInfoJson = reformatError(true, chatMessage, outPut);
+                    listenerManager.callOnError(errorUserInfoJson);
+                } else {
+                    if (callback.isResult()) {
+                        listenerManager.callOnRenameThread(chatMessage.getContent());
+                        messageCallbacks.remove(messageUniqueId);
+                        if (BuildConfig.DEBUG) Logger.i("RECEIVE_RENAME_THREAD");
+                        if (BuildConfig.DEBUG) Logger.json(chatMessage.getContent());
+                    }
+                }
         }
     }
 
@@ -847,7 +860,7 @@ public class Chat extends AsyncAdapter {
     }
 
     /**
-     * You should consider that this method is for rename group and you have to be the admin
+     * Notice : You should consider that this method is for rename group and you have to be the admin
      * to change the thread name if not you don't have the permission
      */
     public void renameThread(long threadId, String title) {
@@ -862,7 +875,7 @@ public class Chat extends AsyncAdapter {
         setCallBacks(null, null, null, true, Constants.RENAME, null, uniqueId);
         String asyncContent = JsonUtil.getJson(chatMessage);
         sendAsyncMessage(asyncContent, 4);
-        if (BuildConfig.DEBUG) Logger.i("SEND RENAME THREAD");
+        if (BuildConfig.DEBUG) Logger.i("SEND_RENAME_THREAD");
         if (BuildConfig.DEBUG) Logger.json(asyncContent);
     }
 
@@ -907,7 +920,7 @@ public class Chat extends AsyncAdapter {
     }
 
     /**
-     * Reply the message in the current thread
+     * Reply the message in the current thread and send az message and receive at the
      *
      * @param messageContent content of the reply message
      * @param threadId       id of the thread
@@ -927,7 +940,7 @@ public class Chat extends AsyncAdapter {
         chatMessage.setType(Constants.MESSAGE);
         JsonAdapter<ChatMessage> chatMessageJsonAdapter = moshi.adapter(ChatMessage.class);
         String asyncContent = chatMessageJsonAdapter.toJson(chatMessage);
-        if (BuildConfig.DEBUG) Logger.d("Send Reply Message");
+        if (BuildConfig.DEBUG) Logger.d("SEND_REPLY_MESSAGE");
         if (BuildConfig.DEBUG) Logger.json(asyncContent);
         sendAsyncMessage(asyncContent, 4);
     }
@@ -1028,9 +1041,9 @@ public class Chat extends AsyncAdapter {
     /**
      * Add one contact to the contact list
      *
-     * @param firstName       if just put fistName without lastName its ok.
+     * @param firstName       Notice: if just put fistName without lastName its ok.
      * @param lastName        last name of the contact
-     * @param cellphoneNumber If just put the cellPhoneNumber doesn't necessary to add email
+     * @param cellphoneNumber Notice: If you just  put the cellPhoneNumber doesn't necessary to add email
      * @param email           email of the contact
      */
     public void addContact(String firstName, String lastName, String cellphoneNumber, String email) {
@@ -1041,8 +1054,15 @@ public class Chat extends AsyncAdapter {
             addContactObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(addContactResponse -> {
                 if (addContactResponse.isSuccessful()) {
                     Contacts contacts = addContactResponse.body();
-                    String contactsJson = JsonUtil.getJson(contacts);
-                    listenerManager.callOnAddContact(contactsJson);
+                    if (!contacts.getHasError()) {
+                        OutPutAddContact outPutAddContact = Util.getReformatOutPutAddContact(contacts);
+
+                        String contactsJson = JsonUtil.getJson(outPutAddContact);
+                        listenerManager.callOnAddContact(contactsJson);
+                    } else {
+                        if (BuildConfig.DEBUG) Logger.e(contacts.getMessage());
+                    }
+
                 }
             }, throwable -> Logger.e("Error on add contact", throwable.toString()));
         } else {
@@ -1050,8 +1070,9 @@ public class Chat extends AsyncAdapter {
         }
     }
 
+
     // Add list of contacts with their mobile number
-    public void addContacts(ArrayList<String> firstNames, ArrayList<String> cellphoneNumbers) {
+    private void addContacts(ArrayList<String> firstNames, ArrayList<String> cellphoneNumbers) {
         ArrayList<String> lastNames = new ArrayList<>();
         ArrayList<String> emails = new ArrayList<>();
         Observable<Response<AddContacts>> addContactsObservable;
@@ -1087,12 +1108,18 @@ public class Chat extends AsyncAdapter {
             removeContactObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(response -> {
                 if (response.isSuccessful()) {
                     ContactRemove contactRemove = response.body();
-                    String contactRemoveJson = JsonUtil.getJson(contactRemove);
-                    listenerManager.callOnRemoveContact(contactRemoveJson);
+                    if (!contactRemove.getHasError()) {
+
+
+                        String contactRemoveJson = JsonUtil.getJson(contactRemove);
+                        listenerManager.callOnRemoveContact(contactRemoveJson);
+                    } else {
+                        if (BuildConfig.DEBUG) Logger.e(contactRemove.getErrorMessage());
+                    }
                 }
             }, throwable -> Log.e("Error on remove contact", throwable.toString()));
         } else {
-            Logger.e("PlatformHost address is :", "Empty");
+            if (BuildConfig.DEBUG) Logger.e("PlatformHost address is :", "Empty");
         }
     }
 
@@ -1386,23 +1413,29 @@ public class Chat extends AsyncAdapter {
      */
     private String reformatGetThreadsResponse(ChatMessage chatMessage, OutPutThreads outPutThreads) {
         if (BuildConfig.DEBUG) Logger.json(chatMessage.getContent());
-        ArrayList<Thread> threads = null;
-        ObjectMapper objectMapper = new ObjectMapper();
-
+        List<Thread> threads = new ArrayList<>();
+        Type type = Types.newParameterizedType(List.class, Thread.class);
+        JsonAdapter<List<Thread>> adapter = moshi.adapter(type);
         try {
-            threads = objectMapper.readValue(
-                    chatMessage.getContent(),
-                    objectMapper.getTypeFactory().constructCollectionType(
-                            ArrayList.class, Thread.class));
+            threads = adapter.fromJson(chatMessage.getContent());
         } catch (IOException e) {
-            Log.e("IOException", e.toString());
+            if (BuildConfig.DEBUG) Logger.e(e.getMessage() + e.getCause());
         }
+
+        //if (chatMessage.getContent().length() + callback.getOffset() < chatMessage.getContentCount()) {
+        //                        resultsHistory.setHasNext(true);
+        //                    } else {
+        //                        resultsHistory.setHasNext(false);
+        //                    }
         ResultThreads resultThreads = new ResultThreads();
         resultThreads.setThreads(threads);
         outPutThreads.setContentCount(chatMessage.getContentCount());
         outPutThreads.setErrorCode(0);
         outPutThreads.setErrorMessage("");
         outPutThreads.setHasError(false);
+//        outPutThreads.setHasNext();
+//        outPutThreads.setNextOffset();
+
         outPutThreads.setResult(resultThreads);
         return JsonUtil.getJson(outPutThreads);
     }

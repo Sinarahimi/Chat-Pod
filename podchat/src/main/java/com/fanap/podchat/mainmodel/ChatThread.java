@@ -1,4 +1,4 @@
-package com.fanap.podchat.model;
+package com.fanap.podchat.mainmodel;
 
 import java.util.List;
 /**

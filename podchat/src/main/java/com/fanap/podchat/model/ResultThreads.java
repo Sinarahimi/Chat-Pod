@@ -1,15 +1,15 @@
 package com.fanap.podchat.model;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class ResultThreads {
-    private ArrayList<Thread> threads;
+    private List<Thread> threads;
 
-    public ArrayList<Thread> getThreads() {
+    public List<Thread> getThreads() {
         return threads;
     }
 
-    public void setThreads(ArrayList<Thread> threads) {
+    public void setThreads(List<Thread> threads) {
         this.threads = threads;
     }
 }

@@ -1,5 +1,7 @@
 package com.fanap.podchat.model;
 
+import com.fanap.podchat.mainmodel.SdkFile;
+
 public class MetaDataFile {
     private SdkFile sdk;
     private String user;

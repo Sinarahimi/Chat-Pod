@@ -6,6 +6,7 @@ public class ContactRemove {
     private Integer errorCode;
     private Integer count;
     private String ott;
+    private String errorMessage;
     private boolean result;
 
     public Boolean getHasError() {
@@ -54,5 +55,13 @@ public class ContactRemove {
 
     public void setResult(boolean result) {
         this.result = result;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
     }
 }

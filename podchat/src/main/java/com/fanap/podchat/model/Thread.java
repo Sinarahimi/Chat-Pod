@@ -1,5 +1,8 @@
 package com.fanap.podchat.model;
 
+import com.fanap.podchat.mainmodel.Inviter;
+import com.fanap.podchat.mainmodel.Participant;
+
 import java.util.List;
 
 public class Thread {

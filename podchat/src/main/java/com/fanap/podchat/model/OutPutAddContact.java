@@ -1,14 +1,11 @@
 package com.fanap.podchat.model;
 
-public class OutPutThreads {
+public class OutPutAddContact {
     private boolean hasError;
     private String errorMessage;
     private long errorCode;
-    private ResultThreads result;
     private long contentCount;
-    private boolean hasNext;
-    private long nextOffset;
-
+    private ResultAddContact result;
 
     public boolean isHasError() {
         return hasError;
@@ -34,14 +31,6 @@ public class OutPutThreads {
         this.errorCode = errorCode;
     }
 
-    public ResultThreads getResult() {
-        return result;
-    }
-
-    public void setResult(ResultThreads result) {
-        this.result = result;
-    }
-
     public long getContentCount() {
         return contentCount;
     }
@@ -50,19 +39,11 @@ public class OutPutThreads {
         this.contentCount = contentCount;
     }
 
-    public boolean isHasNext() {
-        return hasNext;
+    public ResultAddContact getResult() {
+        return result;
     }
 
-    public void setHasNext(boolean hasNext) {
-        this.hasNext = hasNext;
-    }
-
-    public long getNextOffset() {
-        return nextOffset;
-    }
-
-    public void setNextOffset(long nextOffset) {
-        this.nextOffset = nextOffset;
+    public void setResult(ResultAddContact result) {
+        this.result = result;
     }
 }

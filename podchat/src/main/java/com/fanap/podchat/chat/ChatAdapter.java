@@ -121,5 +121,4 @@ public class ChatAdapter implements ChatListener {
     public void onNewMessage(String content) {
 
     }
-
 }
