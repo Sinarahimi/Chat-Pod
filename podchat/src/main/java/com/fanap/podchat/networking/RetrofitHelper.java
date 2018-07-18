@@ -8,6 +8,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import retrofit2.converter.gson.GsonConverterFactory;
+import rx.Observable;
 import rx.Single;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
@@ -35,6 +36,18 @@ public class RetrofitHelper {
 
     public static <T> void request(Single<Response<T>> single, ApiListener<T> listener) {
         single.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe((Response<T> tResponse) -> {
+            if (tResponse.isSuccessful()) {
+                listener.onSuccess(tResponse.body());
+            } else {
+                if (tResponse.errorBody() != null) {
+                    listener.onServerError(tResponse.errorBody().toString());
+                }
+            }
+        }, listener::onError);
+    }
+
+    public static <T> void observerRequest(Observable<Response<T>> observable, RetrofitHelperSsoHost.ApiListener<T> listener) {
+        observable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe((Response<T> tResponse) -> {
             if (tResponse.isSuccessful()) {
                 listener.onSuccess(tResponse.body());
             } else {

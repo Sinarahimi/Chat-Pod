@@ -301,7 +301,7 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
                 break;
             case 16:
                 /**UPDATE CONTACTS*/
-                presenter.updateContact(682, "sina", "amjadi", "09122964316", "dev@gmail.com"
+                presenter.updateContact(571, "Fel", "", "", "devfelfel@gmail.com"
                 );
         }
     }

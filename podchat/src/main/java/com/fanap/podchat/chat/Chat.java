@@ -17,7 +17,9 @@ import com.fanap.podasync.model.Device;
 import com.fanap.podasync.model.DeviceResult;
 import com.fanap.podasync.util.JsonUtil;
 import com.fanap.podchat.BuildConfig;
+import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Participant;
+import com.fanap.podchat.mainmodel.UpdateContact;
 import com.fanap.podchat.model.AddContacts;
 import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.mainmodel.ChatMessageContent;
@@ -41,6 +43,7 @@ import com.fanap.podchat.model.OutPutContact;
 import com.fanap.podchat.model.OutPutParticipant;
 import com.fanap.podchat.model.OutPutThread;
 import com.fanap.podchat.model.OutPutThreads;
+import com.fanap.podchat.model.OutPutUpdateContact;
 import com.fanap.podchat.model.OutPutUserInfo;
 import com.fanap.podchat.model.ResultContact;
 import com.fanap.podchat.model.ResultFile;
@@ -48,6 +51,7 @@ import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.model.ResultParticipant;
 import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
+import com.fanap.podchat.model.ResultUpdateContact;
 import com.fanap.podchat.model.ResultUserInfo;
 import com.fanap.podchat.model.ResultsHistory;
 import com.fanap.podchat.mainmodel.SdkFile;
@@ -70,6 +74,8 @@ import com.orhanobut.logger.Logger;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import com.squareup.moshi.Types;
+
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -1042,14 +1048,14 @@ public class Chat extends AsyncAdapter {
      * @param threadId Id of the thread that we want to get the history
      */
     public void getHistory(int count, int offset, String order, long threadId) {
-        ChatMessageContent chatMessageContent = new ChatMessageContent();
+        History history = new History();
         if (order != null) {
-            chatMessageContent.setOrder(order);
+            history.setOrder(order);
         }
-        chatMessageContent.setCount(count);
-        chatMessageContent.setOffset(offset);
-        JsonAdapter<ChatMessageContent> messageContentJsonAdapter = moshi.adapter(ChatMessageContent.class);
-        String content = messageContentJsonAdapter.toJson(chatMessageContent);
+        history.setCount(count);
+        history.setOffset(offset);
+        JsonAdapter<History> messageContentJsonAdapter = moshi.adapter(History.class);
+        String content = messageContentJsonAdapter.toJson(history);
 
         String uniqueId = getUniqueId();
 
@@ -1119,7 +1125,8 @@ public class Chat extends AsyncAdapter {
                     }
 
                 }
-            }, throwable -> Logger.e("Error on add contact", throwable.toString()));
+            }, throwable ->
+                    Logger.e("Error on add contact", throwable.toString()));
         } else {
             if (BuildConfig.DEBUG) Logger.e("PlatformHost Address Is Empty!");
         }
@@ -1180,22 +1187,38 @@ public class Chat extends AsyncAdapter {
 
     /**
      * Update contacts
+     * all of the params all required to update
      */
-    public void updateContact(int userId, String firstName, String lastName, String cellphoneNumber, String email) {
-        Contact contact = new Contact();
-        contact.setFirstName(firstName);
-        contact.setLastName(lastName);
-        contact.setCellphoneNumber(cellphoneNumber);
-        contact.setEmail(email);
-        contact.setId(userId);
-        contact.setUniqueId(getUniqueId());
-        Observable<Response<ContactRemove>> updateContactObservable = contactApi.updateContact(getToken(), 1
-                , firstName, lastName, email, getUniqueId(), cellphoneNumber);
+    public void updateContact(long userId, String firstName, String lastName, String cellphoneNumber, String email) {
+        Observable<Response<UpdateContact>> updateContactObservable = contactApi.updateContact(getToken(), 1
+                , userId, firstName, lastName, email, getUniqueId(), cellphoneNumber);
         updateContactObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(response -> {
             if (response.isSuccessful()) {
-                listenerManager.callOnUpdateContact(response.body().toString());
+                UpdateContact updateContact = response.body();
+                if (!response.body().getHasError()) {
+                    OutPutUpdateContact outPut = new OutPutUpdateContact();
+                    outPut.setMessage(updateContact.getMessage());
+                    outPut.setErrorCode(updateContact.getErrorCode());
+                    outPut.setHasError(updateContact.getHasError());
+                    outPut.setOtt(updateContact.getOtt());
+                    outPut.setReferenceNumber(updateContact.getReferenceNumber());
+                    outPut.setCount(updateContact.getCount());
+                    ResultUpdateContact resultUpdateContact = new ResultUpdateContact();
+                    resultUpdateContact.setContacts(updateContact.getResult());
+                    outPut.setResult(resultUpdateContact);
+                    String json = JsonUtil.getJson(outPut);
+                    listenerManager.callOnUpdateContact(json);
+                    Logger.json(json);
+                } else {
+                    if (BuildConfig.DEBUG) Logger.e(response.body().getMessage());
+                }
             }
-        }, throwable -> Log.e("Error on update contact", throwable.toString()));
+        }, (Throwable throwable) ->
+        {
+            if (throwable != null) {
+                Logger.e("cause" + "" + throwable.getCause());
+            }
+        });
     }
 
     /**

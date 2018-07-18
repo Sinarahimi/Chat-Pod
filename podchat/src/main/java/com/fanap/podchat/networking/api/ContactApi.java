@@ -1,5 +1,6 @@
 package com.fanap.podchat.networking.api;
 
+import com.fanap.podchat.mainmodel.UpdateContact;
 import com.fanap.podchat.model.AddContacts;
 import com.fanap.podchat.model.ContactRemove;
 import com.fanap.podchat.model.Contacts;
@@ -43,8 +44,9 @@ public interface ContactApi {
 
     @POST("nzh/updateContacts")
     @FormUrlEncoded
-    Observable<Response<ContactRemove>> updateContact(@Header("_token_") String token
+    Observable<Response<UpdateContact>> updateContact(@Header("_token_") String token
             , @Header("_token_issuer_") int tokenIssuer
+            , @Field("id") long id
             , @Field("firstName") String firstName
             , @Field("lastName") String lastName
             , @Field("email") String email
