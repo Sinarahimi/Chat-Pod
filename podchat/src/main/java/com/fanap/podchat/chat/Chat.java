@@ -17,23 +17,26 @@ import com.fanap.podasync.model.Device;
 import com.fanap.podasync.model.DeviceResult;
 import com.fanap.podasync.util.JsonUtil;
 import com.fanap.podchat.BuildConfig;
-import com.fanap.podchat.mainmodel.History;
-import com.fanap.podchat.mainmodel.Participant;
-import com.fanap.podchat.mainmodel.UpdateContact;
-import com.fanap.podchat.model.AddContacts;
 import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.mainmodel.ChatMessageContent;
-import com.fanap.podchat.model.ChatMessageForward;
 import com.fanap.podchat.mainmodel.ChatThread;
 import com.fanap.podchat.mainmodel.Contact;
+import com.fanap.podchat.mainmodel.FileUpload;
+import com.fanap.podchat.mainmodel.History;
+import com.fanap.podchat.mainmodel.Invitee;
+import com.fanap.podchat.mainmodel.Participant;
+import com.fanap.podchat.mainmodel.SdkFile;
+import com.fanap.podchat.mainmodel.Thread;
+import com.fanap.podchat.mainmodel.UpdateContact;
+import com.fanap.podchat.mainmodel.UserInfo;
+import com.fanap.podchat.model.AddContacts;
+import com.fanap.podchat.model.ChatMessageForward;
 import com.fanap.podchat.model.ContactRemove;
 import com.fanap.podchat.model.Contacts;
 import com.fanap.podchat.model.Error;
 import com.fanap.podchat.model.FileImageMetaData;
 import com.fanap.podchat.model.FileImageUpload;
 import com.fanap.podchat.model.FileMetaDataContent;
-import com.fanap.podchat.mainmodel.FileUpload;
-import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.model.MessageVO;
 import com.fanap.podchat.model.MetaDataFile;
 import com.fanap.podchat.model.MetaDataImageFile;
@@ -54,10 +57,7 @@ import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultUpdateContact;
 import com.fanap.podchat.model.ResultUserInfo;
 import com.fanap.podchat.model.ResultsHistory;
-import com.fanap.podchat.mainmodel.SdkFile;
 import com.fanap.podchat.model.SdkImageFile;
-import com.fanap.podchat.mainmodel.Thread;
-import com.fanap.podchat.mainmodel.UserInfo;
 import com.fanap.podchat.networking.RetrofitHelper;
 import com.fanap.podchat.networking.RetrofitHelperFileServer;
 import com.fanap.podchat.networking.RetrofitHelperSsoHost;
@@ -74,8 +74,6 @@ import com.orhanobut.logger.Logger;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import com.squareup.moshi.Types;
-
-import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -121,6 +119,7 @@ public class Chat extends AsyncAdapter {
     private Handler pingHandler;
     private String contact;
     private Context context;
+    private boolean currentDeviceExist;
 
     /**
      * Initialize the Chat
@@ -141,16 +140,20 @@ public class Chat extends AsyncAdapter {
     public void connect(String serverAddress, String appId, String severName, String token,
                         String ssoHost, String platformHost) {
 //        Looper.prepare();
-        pingHandler = new Handler();
-        messageCallbacks = new HashMap<>();
-        threadCallbacks = new HashMap<>();
-        async.addListener(this);
-        RetrofitHelper retrofitHelper = new RetrofitHelper(platformHost);
-        contactApi = retrofitHelper.getService(ContactApi.class);
-        setPlatformHost(platformHost);
-        setToken(token);
-        deviceIdRequest(ssoHost, serverAddress, appId, severName);
-        state = true;
+        if (platformHost.endsWith("/")) {
+            pingHandler = new Handler();
+            messageCallbacks = new HashMap<>();
+            threadCallbacks = new HashMap<>();
+            async.addListener(this);
+            RetrofitHelper retrofitHelper = new RetrofitHelper(platformHost);
+            contactApi = retrofitHelper.getService(ContactApi.class);
+            setPlatformHost(platformHost);
+            setToken(token);
+            deviceIdRequest(ssoHost, serverAddress, appId, severName);
+            state = true;
+        } else {
+            Logger.e("baseUrl must end in /:" + " " + platformHost);
+        }
     }
 
     /**
@@ -277,8 +280,12 @@ public class Chat extends AsyncAdapter {
         }
     }
 
+    /**
+     * When the new message arrived we send the deliver message to the sender user.
+     */
     private void handleMessage(ChatMessage chatMessage) {
-        if (BuildConfig.DEBUG) Logger.i("RECEIVED_MESSAGE", chatMessage.getContent());
+        if (BuildConfig.DEBUG) Logger.i("RECEIVED_NEW_MESSAGE");
+        if (BuildConfig.DEBUG) Logger.json(chatMessage.getContent());
         MessageVO jsonMessage = JsonUtil.fromJSON(chatMessage.getContent(), MessageVO.class);
         listenerManager.callOnNewMessage(chatMessage.getContent());
         long ownerId = 0;
@@ -310,8 +317,7 @@ public class Chat extends AsyncAdapter {
 
                         callbacks.set(indexUnique, callbackUpdateSent);
                         threadCallbacks.put(threadId, callbacks);
-                        if (BuildConfig.DEBUG) Logger.i("Is Sent", callback.getUniqueId());
-                        if (BuildConfig.DEBUG) Logger.i(chatMessage.getContent());
+                        if (BuildConfig.DEBUG) Logger.i("Is Sent" + " " + callback.getUniqueId());
                     }
                     break;
                 }
@@ -339,13 +345,13 @@ public class Chat extends AsyncAdapter {
                                 callbacks.set(indexUnique, callbackUpdateSent);
                                 threadCallbacks.put(threadId, callbacks);
                                 if (BuildConfig.DEBUG)
-                                    Logger.i("Is Delivered", callback.getUniqueId());
+                                    Logger.i("Is Delivered" + " " + callback.getUniqueId());
                             }
                             listenerManager.callOnSeenMessage(callback.getUniqueId());
                             callbacks.remove(indexUnique);
                             threadCallbacks.put(threadId, callbacks);
                             if (BuildConfig.DEBUG)
-                                Logger.i("Is Seen", callback.getUniqueId());
+                                Logger.i("Is Seen" + " " + callback.getUniqueId());
                         }
                         indexUnique--;
                     }
@@ -372,9 +378,9 @@ public class Chat extends AsyncAdapter {
                             callbackUpdateSent.setUniqueId(callback.getUniqueId());
                             callbacks.set(indexUnique, callbackUpdateSent);
                             threadCallbacks.put(threadId, callbacks);
-//                        threadCallbackList.set(indexThread, threadCallbacks);
-                            if (BuildConfig.DEBUG)
-                                Logger.i("Is Delivered", callback.getUniqueId());
+                            if (BuildConfig.DEBUG) {
+                                Logger.i("Is Delivered" + " " + callback.getUniqueId());
+                            }
                         }
                         indexUnique--;
                     }
@@ -396,6 +402,8 @@ public class Chat extends AsyncAdapter {
             ChatMessage message = getChatMessage(jsonMessage);
             JsonAdapter<ChatMessage> chatMessageJsonAdapter = moshi.adapter(ChatMessage.class);
             String asyncContent = chatMessageJsonAdapter.toJson(message);
+            if (BuildConfig.DEBUG) Logger.i("SEND_DELIVERY_MESSAGE");
+            if (BuildConfig.DEBUG) Logger.json(asyncContent);
             async.sendMessage(asyncContent, 4);
         }
     }
@@ -409,21 +417,25 @@ public class Chat extends AsyncAdapter {
             List<Contact> serverContacts = adapter.fromJson(chatMessage.getContent());
             if (serverContacts != null) {
                 List<Contact> phoneContacts = getPhoneContact(getContext());
+                HashMap<String, String> mapServerContact = new HashMap<>();
+                for (int a = 0; a < serverContacts.size(); a++) {
+                    mapServerContact.put(serverContacts.get(a).getCellphoneNumber(), serverContacts.get(a).getFirstName());
+                }
                 for (int j = 0; j < phoneContacts.size(); j++) {
-                    for (int i = 0; i < serverContacts.size(); i++) {
-                        if (!phoneContacts.get(j).getCellphoneNumber().equals(serverContacts.get(i).getCellphoneNumber())) {
-                            firstNames.add(phoneContacts.get(j).getFirstName());
-                            cellphoneNumbers.add(phoneContacts.get(j).getCellphoneNumber());
-                            break;
-                        }
+                    if (mapServerContact.containsKey(phoneContacts.get(j).getCellphoneNumber())) {
+                        Log.i("yes", "handleSyncContact: ");
+                    } else {
+                        firstNames.add(phoneContacts.get(j).getFirstName());
+                        cellphoneNumbers.add(phoneContacts.get(j).getCellphoneNumber());
                     }
                 }
             }
-
         } catch (IOException e) {
             e.printStackTrace();
         }
-        addContacts(firstNames, cellphoneNumbers);
+        if (!firstNames.isEmpty() || !cellphoneNumbers.isEmpty()) {
+            addContacts(firstNames, cellphoneNumbers);
+        }
         syncContact = false;
     }
 
@@ -705,7 +717,7 @@ public class Chat extends AsyncAdapter {
         String asyncContent = chatMessageJsonAdapter.toJson(chatMessage);
 
         setThreadCallbacks(threadId, uniqueId);
-        if (BuildConfig.DEBUG) Logger.d("SEND TEXT MESSAGE", asyncContent);
+        if (BuildConfig.DEBUG) Logger.d("SEND_TXT_MSG_WITH_META");
         if (BuildConfig.DEBUG) Logger.json(asyncContent);
         sendAsyncMessage(asyncContent, 4);
     }
@@ -759,9 +771,9 @@ public class Chat extends AsyncAdapter {
     /**
      * First we get the contact from server then at the respond of that
      * {@link #handleSyncContact(ChatMessage)} we add all of the PhoneContact that get from
-     * {@link #getPhoneContact(Context)} and not in the list of serverContact
+     * {@link #getPhoneContact(Context)} that's not in the list of serverContact.
      */
-    public void syncPhoneContact(Context context) {
+    public void syncContact(Context context) {
         syncContact = true;
         getContacts(50, 0);
         setContext(context);
@@ -828,8 +840,8 @@ public class Chat extends AsyncAdapter {
                     public void call(Response<FileImageUpload> fileUploadResponse) {
                         if (fileUploadResponse.isSuccessful()) {
                             boolean error = fileUploadResponse.body().isHasError();
-                            String errorMessage = fileUploadResponse.body().getMessage();
                             if (error) {
+                                String errorMessage = fileUploadResponse.body().getMessage();
                                 Logger.e(errorMessage);
                             } else {
                                 ResultImageFile result = fileUploadResponse.body().getResult();
@@ -869,11 +881,9 @@ public class Chat extends AsyncAdapter {
                     @Override
                     public void call(Response<FileUpload> fileUploadResponse) {
                         if (fileUploadResponse.isSuccessful()) {
-
                             boolean error = fileUploadResponse.body().isHasError();
-                            String errorMessage = fileUploadResponse.body().getMessage();
-
                             if (error) {
+                                String errorMessage = fileUploadResponse.body().getMessage();
                                 Logger.e(errorMessage);
                             } else {
 
@@ -975,7 +985,7 @@ public class Chat extends AsyncAdapter {
         chatMessageForward.setType(Constants.FORWARD_MESSAGE);
 
         String asyncContent = JsonUtil.getJson(chatMessageForward);
-        if (BuildConfig.DEBUG) Logger.i("SEND FORWARD MESSAGE");
+        if (BuildConfig.DEBUG) Logger.i("SEND_FORWARD_MESSAGE");
         if (BuildConfig.DEBUG) Logger.json(asyncContent);
         sendAsyncMessage(asyncContent, 4);
     }
@@ -1001,6 +1011,8 @@ public class Chat extends AsyncAdapter {
         chatMessage.setType(Constants.MESSAGE);
         JsonAdapter<ChatMessage> chatMessageJsonAdapter = moshi.adapter(ChatMessage.class);
         String asyncContent = chatMessageJsonAdapter.toJson(chatMessage);
+
+        setThreadCallbacks(threadId, uniqueId);
         if (BuildConfig.DEBUG) Logger.d("SEND_REPLY_MESSAGE");
         if (BuildConfig.DEBUG) Logger.json(asyncContent);
         sendAsyncMessage(asyncContent, 4);
@@ -1133,13 +1145,17 @@ public class Chat extends AsyncAdapter {
     }
 
 
-    // Add list of contacts with their mobile number
+    // Add list of contacts with their mobile numbers and their cellphoneNumbers
     private void addContacts(ArrayList<String> firstNames, ArrayList<String> cellphoneNumbers) {
         ArrayList<String> lastNames = new ArrayList<>();
         ArrayList<String> emails = new ArrayList<>();
+        for (int i = 0; i < cellphoneNumbers.size(); i++) {
+            emails.add("");
+            lastNames.add("");
+        }
         Observable<Response<AddContacts>> addContactsObservable;
         if (getPlatformHost() != null) {
-            addContactsObservable = contactApi.addContacts(getToken(), 1, firstNames, lastNames, emails, cellphoneNumbers, cellphoneNumbers);
+            addContactsObservable = contactApi.addContacts(getToken(), TOKEN_ISSUER, firstNames, lastNames, emails, cellphoneNumbers, cellphoneNumbers);
             addContactsObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Response<AddContacts>>() {
                 @Override
                 public void call(Response<AddContacts> contactsResponse) {
@@ -1155,7 +1171,12 @@ public class Chat extends AsyncAdapter {
                         }
                     }
                 }
-            }, throwable -> Logger.e("Error on add contact", throwable.toString()));
+            }, new Action1<Throwable>() {
+                @Override
+                public void call(Throwable throwable) {
+                    Logger.e("Error on add contacts", throwable.toString());
+                }
+            });
         }
     }
 
@@ -1465,6 +1486,7 @@ public class Chat extends AsyncAdapter {
     }
 
     private void deviceIdRequest(String ssoHost, String serverAddress, String appId, String severName) {
+        currentDeviceExist = false;
         RetrofitHelperSsoHost retrofitHelperSsoHost = new RetrofitHelperSsoHost(ssoHost);
         TokenApi tokenApi = retrofitHelperSsoHost.getService(TokenApi.class);
         rx.Observable<Response<DeviceResult>> listObservable = tokenApi.getDeviceId("Bearer" + " " + getToken());
@@ -1473,15 +1495,18 @@ public class Chat extends AsyncAdapter {
                 ArrayList<Device> devices = deviceResults.body().getDevices();
                 for (Device device : devices) {
                     if (device.isCurrent()) {
+                        currentDeviceExist = true;
                         if (BuildConfig.DEBUG) Logger.i("DEVICE_ID :" + device.getUid());
                         async.connect(serverAddress, appId, severName, token, ssoHost, device.getUid());
                         break;
                     }
                 }
+                if (!currentDeviceExist) {
+                    if (BuildConfig.DEBUG) Logger.e("No Current Device");
+                }
             } else {
-                if (BuildConfig.DEBUG) Logger.e(deviceResults.message());
+                if (BuildConfig.DEBUG) Logger.e("Error on get devices");
             }
-            if (BuildConfig.DEBUG) Logger.e("No Current Device");
         }, throwable ->
                 Logger.e("Error on get devices"));
     }

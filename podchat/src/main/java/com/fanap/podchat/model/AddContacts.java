@@ -3,14 +3,13 @@ package com.fanap.podchat.model;
 import java.util.List;
 
 public class AddContacts {
-
     private Boolean hasError;
     private String referenceNumber;
     private String message;
     private Integer errorCode;
     private Integer count;
     private String ott;
-    private List<ResultAddContacts> result ;
+    private List<ResultAddContact> result ;
 
     public Boolean getHasError() {
         return hasError;
@@ -52,19 +51,19 @@ public class AddContacts {
         this.ott = ott;
     }
 
-    public List<ResultAddContacts> getResult() {
-        return result;
-    }
-
-    public void setResult(List<ResultAddContacts> result) {
-        this.result = result;
-    }
-
     public String getMessage() {
         return message;
     }
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public List<ResultAddContact> getResult() {
+        return result;
+    }
+
+    public void setResult(List<ResultAddContact> result) {
+        this.result = result;
     }
 }

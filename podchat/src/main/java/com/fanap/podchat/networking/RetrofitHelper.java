@@ -1,6 +1,7 @@
 package com.fanap.podchat.networking;
 
 
+import com.orhanobut.logger.Logger;
 
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -22,7 +23,6 @@ public class RetrofitHelper {
     private Retrofit.Builder retrofit;
 
     public RetrofitHelper(String platformHost) {
-
         retrofit = new Retrofit.Builder()
                 .baseUrl(platformHost)
                 .client(new OkHttpClient().newBuilder().addNetworkInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)).build())

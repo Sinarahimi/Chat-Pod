@@ -1,11 +1,9 @@
 package com.fanap.podchat.model;
 
-import com.fanap.podchat.mainmodel.LinkedUser;
-
 public class ResultAddContact {
 
-    private String firstName;
     private int id;
+    private String firstName;
     private String lastName;
     private String cellphoneNumber;
     private String email;

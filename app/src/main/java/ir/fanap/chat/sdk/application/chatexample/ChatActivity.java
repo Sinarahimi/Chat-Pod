@@ -59,14 +59,15 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
     };
     private Uri uri;
 
-//    fel token
+    //    fel token
 //    private static String TOKEN = "a11768091eac48f2a7b84ed6a241f9c3";
     //Fifi
-    private String name = "Fifi";
-    private static String TOKEN = "1fcecc269a8949d6b58312cab66a4926";
+//    private String name = "Fifi";
+//    private static String TOKEN = "1fcecc269a8949d6b58312cab66a4926";
     //Token Alexi
 //    private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
-//    private static String name = "Alexi";
+    private static String name = "Alexi";
+    private static String TOKEN = "612028b7d7bc425b8b1c8f3f931c6888";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -129,9 +130,21 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
     }
 
     public void connect(View view) {
-        presenter.connect("ws://172.16.106.26:8003/ws",
-                "POD-Chat", "chat-server", TOKEN, "http://172.16.110.76",
-                "http://172.16.106.26:8080/hamsam/");
+
+//socketAddress: "wss://chat-sandbox.pod.land/ws",
+// {**REQUIRED**} Socket Address ssoHost: "
+//https://accounts.pod.land", // {**REQUIRED**} Socket Address
+// ssoGrantDevicesAddress: "/oauth2/grants/devices",
+// {**REQUIRED**} Socket Address platformHost: "//https://sandbox.pod.land:8043/srv/basic-platform", fileServer: "
+//http://sandbox.fanapium.com:8080", serverName: "chat-server", // {**REQUIRED**} Server to to register on
+
+//        presenter.connect("ws://172.16.106.26:8003/ws",
+//                "POD-Chat", "chat-server", TOKEN, "http://172.16.110.76",
+//                "http://172.16.106.26:8080/hamsam/");
+
+        presenter.connect("wss://chat-sandbox.pod.land/ws",
+                "POD-Chat", "chat-server", TOKEN, "https://accounts.pod.land",
+                "https://sandbox.pod.land:8043/srv/basic-platform/");
     }
 
     @Override
@@ -199,7 +212,7 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
     }
 
     public void sendMessage(View view) {
-        presenter.sendTextMessage("test at" + new Date().getTime() + name, 381, null);
+        presenter.sendTextMessage("test at" + new Date().getTime() + name, 22, null);
 
 //        String text = editText.getText().toString();
 ////        long textThread = Long.valueOf(editTextThread.getText().toString());
@@ -218,10 +231,10 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
                 break;
             case 1:
                 //"get thread"
-//                ArrayList<Integer> threadIds = new ArrayList<>();
-//                threadIds.add(312);
+                ArrayList<Integer> threadIds = new ArrayList<>();
+                threadIds.add(381);
 //                threadIds.add(351);
-                presenter.getThread(2, 0, null);
+                presenter.getThread(10, 0, threadIds);
                 break;
             case 2:
                 //"rename thread",
@@ -233,7 +246,7 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
                 break;
             case 4:
                 //"reply message",
-                presenter.replyMessage("this is reply", 231, 1544);
+                presenter.replyMessage("this is reply from john", 381, 13604);
                 break;
             case 5:
                 /**forward message */
@@ -264,10 +277,10 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
                  */
                 //alexi 570
                 //felfeli 571
-                Invitee[] invite = new Invitee[]{new Invitee(567,2)
-                        ,new Invitee(566,2)
-                        ,new Invitee(571,2)
-                        ,new Invitee(570,2)
+                Invitee[] invite = new Invitee[]{new Invitee(589, 2)
+//                        , new Invitee(566, 2)
+//                        , new Invitee(571, 2)
+//                        , new Invitee(570, 2)
                 };
                 presenter.createThread(0, invite, null);
                 break;
@@ -293,7 +306,7 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
                 break;
             case 14:
                 // add contact
-                presenter.addContact("masoud", "sadeghi", "09122981131", "deviant@gmail.com");
+                presenter.addContact("pooria", "", "09387181694", "");
                 break;
             case 15:
                 // remove contact

@@ -24,6 +24,7 @@ public class Thread {
     private long partnerLastDeliveredMessageId;
     private int type;
     private boolean mute;
+    private String metadata;
     private boolean canEditInfo;
     private long participantCount;
 
@@ -194,5 +195,13 @@ public class Thread {
 
     public void setPartnerLastSeenMessageId(long partnerLastSeenMessageId) {
         this.partnerLastSeenMessageId = partnerLastSeenMessageId;
+    }
+
+    public String getMetadata() {
+        return metadata;
+    }
+
+    public void setMetadata(String metadata) {
+        this.metadata = metadata;
     }
 }

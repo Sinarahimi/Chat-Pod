@@ -111,7 +111,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void syncContact() {
-        chat.syncPhoneContact(context);
+        chat.syncContact(context);
     }
 
     @Override

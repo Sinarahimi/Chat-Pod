@@ -16,6 +16,8 @@ public class MessageVO {
     private long time;
     private String metadata;
     private Thread conversation;
+    private ReplyInfoVO replyInfoVO;
+    private ForwardInfo forwardInfo;
 
     public boolean isEdited() {
         return edited;
@@ -111,5 +113,21 @@ public class MessageVO {
 
     public void setConversation(Thread conversation) {
         this.conversation = conversation;
+    }
+
+    public ReplyInfoVO getReplyInfoVO() {
+        return replyInfoVO;
+    }
+
+    public void setReplyInfoVO(ReplyInfoVO replyInfoVO) {
+        this.replyInfoVO = replyInfoVO;
+    }
+
+    public ForwardInfo getForwardInfo() {
+        return forwardInfo;
+    }
+
+    public void setForwardInfo(ForwardInfo forwardInfo) {
+        this.forwardInfo = forwardInfo;
     }
 }
