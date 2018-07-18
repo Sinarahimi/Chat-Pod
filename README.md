@@ -43,6 +43,8 @@ And now it's ready for chat .
 | `getUserInfo()`         | Get the information of the current user      |
 | `muteThread(int threadId)`         | Mute the thread      |
 | `unmuteThread(int threadId)`         | Un Mute the thread      |
+| `sendFile(Context context, String description, long threadId, Uri fileUri)`         | Send file      |
+| `syncContact(Context context)`         | Sync Contact      |
 
 ### replyMessage
 ```java
@@ -157,17 +159,16 @@ For getting call back you should extend your class from `ChatAdapter`.
 #### The following callack methods of ChatListener are called
 | Method                        | Description                                                                            |
 |:------------------------------|:---------------------------------------------------------------------------------------|
-| `onDeliver()`   | Called when message was deliverd.       |
-| `onGetContacts()`| Called when get contact respons was return. |
-| `onGetHistory()`    |       |
-| `onGetThread()`       |            |
+| `onDeliver()`   | Called when message is delivered.       |
+| `onGetContacts()`| Called when get history of the thread is return.      |
+| `onGetThread()`       |  Called when get threads is return.          |
 | `onInvitation()`                |                 |
-| `onSeen()`                |                 |
-| `onMuteThread()`                 |         |
-| `onUnmuteThread()`         |        |
-| `onUserInfo()`         |      |
-| `onSent()`         |        |
-| `onCreateThread()`         |        |
+| `onSeen()`                |  Called when message is seen.               |
+| `onMuteThread()`                 |Called when thread is muted.         |
+| `onUnmuteThread()`         | Called when message is un muted.      |
+| `onUserInfo()`         | Called when information of the user is return.     |
+| `onSent()`         | Called when message is sent.       |
+| `onCreateThread()`         |Called when thread is created.         |
 | `onGetThreadParticipant()`         |       |
 | `onEditedMessage()`         |       |
 | `onContactAdded()` |       |

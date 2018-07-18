@@ -422,9 +422,7 @@ public class Chat extends AsyncAdapter {
                     mapServerContact.put(serverContacts.get(a).getCellphoneNumber(), serverContacts.get(a).getFirstName());
                 }
                 for (int j = 0; j < phoneContacts.size(); j++) {
-                    if (mapServerContact.containsKey(phoneContacts.get(j).getCellphoneNumber())) {
-                        Log.i("yes", "handleSyncContact: ");
-                    } else {
+                    if (!mapServerContact.containsKey(phoneContacts.get(j).getCellphoneNumber())) {
                         firstNames.add(phoneContacts.get(j).getFirstName());
                         cellphoneNumbers.add(phoneContacts.get(j).getCellphoneNumber());
                     }
@@ -1167,7 +1165,7 @@ public class Chat extends AsyncAdapter {
                         } else {
                             AddContacts contacts = contactsResponse.body();
                             String contactsJson = JsonUtil.getJson(contacts);
-
+                            listenerManager.callOnAddContact(contactsJson);
                         }
                     }
                 }
