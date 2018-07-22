@@ -247,7 +247,7 @@ public class ChatListenerManager {
     public void callOnUpdateContact(String content) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onCreateThread(content);
+                listener.onUpdateContact(content);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
@@ -278,6 +278,34 @@ public class ChatListenerManager {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onNewMessage(content);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+    public void callOnGetImageFile(String content) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onGetImageFile(content);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnUploadImageFile(String content) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onUploadImageFile(content);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+    public void callOnUploadFile(String content) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onUploadFile(content);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }

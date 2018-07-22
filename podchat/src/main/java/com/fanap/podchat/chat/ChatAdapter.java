@@ -118,7 +118,27 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
+    public void onGetImageFile(String url) {
+
+    }
+
+    @Override
     public void onNewMessage(String content) {
+
+    }
+
+    @Override
+    public void onUpdateContact(String content) {
+
+    }
+
+    @Override
+    public void onUploadFile(String content) {
+
+    }
+
+    @Override
+    public void onUploadImageFile(String content) {
 
     }
 }

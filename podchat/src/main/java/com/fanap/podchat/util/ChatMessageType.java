@@ -40,6 +40,8 @@ public class ChatMessageType {
             Constants.RELATION_INFO,
             Constants.THREAD_PARTICIPANTS,
             Constants.EDIT_MESSAGE,
+            Constants.THREAD_INFO_UPDATED,
+            Constants.LAST_SEEN_UPDATED,
             Constants.DELETE_MESSAGE,
             Constants.ERROR,
     })
@@ -75,6 +77,8 @@ public class ChatMessageType {
         int THREAD_PARTICIPANTS = 27;
         int EDIT_MESSAGE = 28;
         int DELETE_MESSAGE = 29;
+        int THREAD_INFO_UPDATED= 30;
+        int LAST_SEEN_UPDATED= 31;
         int ERROR = 999;
     }
 }

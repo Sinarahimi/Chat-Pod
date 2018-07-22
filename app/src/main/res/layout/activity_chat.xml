@@ -35,13 +35,14 @@
     <Button
         android:id="@+id/buttonSendMessage"
         style="@style/Widget.AppCompat.Button.Colored"
-        android:layout_width="128dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:layout_marginTop="17dp"
         android:onClick="sendMessage"
         android:text="Send message"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/button3"
         app:layout_constraintTop_toBottomOf="@+id/editTextMessage" />
 
     <EditText
@@ -88,17 +89,6 @@
         app:layout_constraintBottom_toTopOf="@+id/spinner"
         app:layout_constraintStart_toStartOf="@+id/spinner" />
 
-    <Button
-        android:id="@+id/buttonSendReplyMessage"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="29dp"
-        android:layout_marginTop="24dp"
-        android:onClick="sendReplyMessage"
-        android:text="Button"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonSendMessage" />
-
     <Spinner
         android:id="@+id/spinner"
         android:layout_width="0dp"
@@ -134,7 +124,20 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="70dp"
         android:layout_marginTop="26dp"
-        android:text="FileChoose"
+        android:text="ChooseImage"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/buttonChooseFile"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="88dp"
+        android:layout_marginStart="46dp"
+        android:layout_marginTop="17dp"
+        android:text="ChooseFile"
+        android:onClick="ChooseFile"
+        app:layout_constraintEnd_toStartOf="@+id/buttonSendMessage"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextMessage" />
 </android.support.constraint.ConstraintLayout>

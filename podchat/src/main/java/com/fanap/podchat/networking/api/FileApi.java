@@ -22,7 +22,7 @@ public interface FileApi {
             @Part MultipartBody.Part file
             , @Header("_token_") String token
             , @Header("_token_issuer_") int tokenIssuer
-            , @Part("fileName") String fileName);
+            , @Part("fileName") RequestBody fileName);
 
     @Multipart
     @POST("nzh/uploadImage")

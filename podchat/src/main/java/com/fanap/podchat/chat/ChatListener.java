@@ -48,5 +48,13 @@ public interface ChatListener {
 
     void onGetFile(String url);
 
+    void onGetImageFile(String url);
+
     void onNewMessage(String content);
+
+    void onUpdateContact(String content);
+
+    void onUploadFile(String content);
+
+    void onUploadImageFile(String content);
 }

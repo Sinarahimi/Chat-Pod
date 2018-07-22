@@ -1,5 +1,6 @@
 package ir.fanap.chat.sdk.application.chatexample;
 
+import android.app.Activity;
 import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.net.Uri;
@@ -36,11 +37,22 @@ public interface ChatContract {
         void onUnMuteThread();
 
         void onRenameGroupThread();
-        }
+
+        void onAddContact();
+
+        void onUpdateContact();
+
+        void onUploadFile();
+
+        void onUploadImageFile();
+
+        void onRemoveContact();
+    }
 
     interface presenter {
 
-        void connect(String serverAddress, String appId, String severName, String token, String ssoHost, String platformHost);
+        void connect(String serverAddress, String appId, String severName, String token, String ssoHost
+                , String platformHost, String fileServer);
 
         void getThread(int count, int offset, ArrayList<Integer> threadIds);
 
@@ -72,12 +84,20 @@ public interface ChatContract {
 
         void removeContact(long id);
 
-        void sendFile(Context context, String description, long threadId, Uri fileUri);
+        void sendFile(Context context, Activity activity, String description, long threadId, Uri fileUri);
 
-        void syncContact();
+        void syncContact(Activity activity);
 
         void forwardMessage(long threadId, ArrayList<Long> messageIds);
 
         void updateContact(int id, String firstName, String lastName, String cellphoneNumber, String email);
+
+        void uploadImage(Context context, Activity activity, Uri fileUri);
+
+        void uploadFile(Context context, Activity activity, String fileUri, Uri uri);
+
+        void seenMessage(int messageId);
+
+        void logOut();
     }
 }

@@ -16,22 +16,21 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.fanap.podchat.mainmodel.Invitee;
-import com.jaiselrahman.filepicker.activity.FilePickerActivity;
-import com.jaiselrahman.filepicker.model.MediaFile;
 
 import java.util.ArrayList;
 import java.util.Date;
 
 import ir.fanap.chat.sdk.R;
 
-public class ChatActivity extends AppCompatActivity implements ChatContract.view, AdapterView.OnItemSelectedListener, View.OnClickListener {
+public class ChatActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener, View.OnClickListener {
     private static final int FILE_REQUEST_CODE = 2;
     private ChatContract.presenter presenter;
     private EditText editText;
     private EditText editTextThread;
     private Button buttonFileChoose;
     private String selectedFilePath;
-    private static final int PICK_FILE_REQUEST = 1;
+    private static final int PICK_IMAGE_FILE_REQUEST = 1;
+    private static final int PICK_FILE_REQUEST = 2;
     private static final String[] func = {
             "Choose function",
             "get thread",
@@ -56,18 +55,21 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
             "Choose function"
             , "Sync Contact"
             , "Send file"
+            , "Upload Image"
+            , "Upload File"
     };
     private Uri uri;
 
     //    fel token
 //    private static String TOKEN = "a11768091eac48f2a7b84ed6a241f9c3";
     //Fifi
-//    private String name = "Fifi";
-//    private static String TOKEN = "1fcecc269a8949d6b58312cab66a4926";
+    private String name = "Fifi";
+    private static String TOKEN = "1fcecc269a8949d6b58312cab66a4926";
     //Token Alexi
 //    private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
-    private static String name = "Alexi";
-    private static String TOKEN = "612028b7d7bc425b8b1c8f3f931c6888";
+//    private static String name = "Alexi";
+    private String fileUri;
+//    private static String TOKEN = "11a2fc342a304a1d89dc2c90ade9d588";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,8 +87,97 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
         textViewToken.setText(TOKEN + name);
         Spinner spinner = findViewById(R.id.spinner);
         Spinner spinnerSecond = findViewById(R.id.spinnerSecond);
+        ChatContract.view view = new ChatContract.view() {
+            @Override
+            public void onGetUserInfo() {
 
-        presenter = new ChatPresenter(this, this);
+            }
+
+            @Override
+            public void onGetThreadList() {
+
+            }
+
+            @Override
+            public void onGetThreadHistory() {
+
+            }
+
+            @Override
+            public void onGetContacts() {
+
+            }
+
+            @Override
+            public void onGetThreadParticipant() {
+
+            }
+
+            @Override
+            public void onSentMessage() {
+
+            }
+
+            @Override
+            public void onGetDeliverMessage() {
+            }
+
+            @Override
+            public void onGetSeenMessage() {
+
+            }
+
+            @Override
+            public void onEditMessage() {
+
+            }
+
+            @Override
+            public void onCreateThread() {
+
+            }
+
+            @Override
+            public void onMuteThread() {
+
+            }
+
+            @Override
+            public void onUnMuteThread() {
+
+            }
+
+            @Override
+            public void onRenameGroupThread() {
+
+            }
+
+            @Override
+            public void onAddContact() {
+
+            }
+
+            @Override
+            public void onUpdateContact() {
+
+            }
+
+            @Override
+            public void onUploadFile() {
+
+            }
+
+            @Override
+            public void onUploadImageFile() {
+
+            }
+
+            @Override
+            public void onRemoveContact() {
+
+            }
+        };
+        presenter = new ChatPresenter(this, view);
         presenter.getLiveState().observe(this, textViewState::setText);
 
         setupSpinner(spinner);
@@ -102,15 +193,17 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
 //            "Choose function",
                         break;
                     case 1:
-                        presenter.syncContact();
+                        presenter.syncContact(ChatActivity.this);
                         break;
                     case 2:
-
-                        presenter.sendFile(ChatActivity.this, "test file", 381
+                        presenter.sendFile(ChatActivity.this, ChatActivity.this, "test file", 381
                                 , getUri());
                         break;
                     case 3:
-                        presenter.syncContact();
+                        presenter.uploadImage(ChatActivity.this, ChatActivity.this, getUri());
+                    case 4:
+                        presenter.uploadFile(ChatActivity.this, ChatActivity.this, getFileUri(),getUri());
+                        break;
                 }
             }
 
@@ -138,81 +231,17 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
 // {**REQUIRED**} Socket Address platformHost: "//https://sandbox.pod.land:8043/srv/basic-platform", fileServer: "
 //http://sandbox.fanapium.com:8080", serverName: "chat-server", // {**REQUIRED**} Server to to register on
 
-//        presenter.connect("ws://172.16.106.26:8003/ws",
-//                "POD-Chat", "chat-server", TOKEN, "http://172.16.110.76",
-//                "http://172.16.106.26:8080/hamsam/");
+        presenter.connect("ws://172.16.106.26:8003/ws",
+                "POD-Chat", "chat-server", TOKEN, "http://172.16.110.76",
+                "http://172.16.106.26:8080/hamsam/", "http://172.16.106.26:8080/hamsam/");
 
-        presenter.connect("wss://chat-sandbox.pod.land/ws",
-                "POD-Chat", "chat-server", TOKEN, "https://accounts.pod.land",
-                "https://sandbox.pod.land:8043/srv/basic-platform/");
-    }
-
-    @Override
-    public void onGetUserInfo() {
-
-    }
-
-    @Override
-    public void onGetThreadList() {
-
-    }
-
-    @Override
-    public void onGetThreadHistory() {
-
-    }
-
-    @Override
-    public void onGetContacts() {
-    }
-
-    @Override
-    public void onGetThreadParticipant() {
-
-    }
-
-    @Override
-    public void onSentMessage() {
-
-    }
-
-    @Override
-    public void onGetDeliverMessage() {
-
-    }
-
-    @Override
-    public void onGetSeenMessage() {
-
-    }
-
-    @Override
-    public void onEditMessage() {
-
-    }
-
-    @Override
-    public void onCreateThread() {
-
-    }
-
-    @Override
-    public void onMuteThread() {
-
-    }
-
-    @Override
-    public void onUnMuteThread() {
-
-    }
-
-    @Override
-    public void onRenameGroupThread() {
-
+//        presenter.connect("ws://chat-sandbox.pod.land/ws",
+//                "POD-Chat", "chat-server", TOKEN, "https://accounts.pod.land",
+//                "https://sandbox.pod.land:8043/srv/basic-platform/","http://sandbox.fanapium.com:8080/");
     }
 
     public void sendMessage(View view) {
-        presenter.sendTextMessage("test at" + new Date().getTime() + name, 22, null);
+        presenter.sendTextMessage("test at" + new Date().getTime() + name, 381, null);
 
 //        String text = editText.getText().toString();
 ////        long textThread = Long.valueOf(editTextThread.getText().toString());
@@ -310,7 +339,7 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
                 break;
             case 15:
                 // remove contact
-                presenter.removeContact(802);
+                presenter.removeContact(890);
                 break;
             case 16:
                 /**UPDATE CONTACTS*/
@@ -327,19 +356,12 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
     public void onClick(View v) {
         if (v == buttonFileChoose) {
             showPicChooser();
-//            showFileChooser();
         }
     }
 
     private void showPicChooser() {
         Intent i = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-        startActivityForResult(i, PICK_FILE_REQUEST);
-    }
-
-    private void showFileChooser() {
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("*/*");
-        startActivityForResult(intent, PICK_FILE_REQUEST);
+        startActivityForResult(i, PICK_IMAGE_FILE_REQUEST);
     }
 
     @Override
@@ -347,14 +369,16 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
             if (data != null) {
-                if (requestCode == PICK_FILE_REQUEST) {
+                if (requestCode == PICK_IMAGE_FILE_REQUEST) {
                     Uri selectedFileUri = data.getData();
                     String path = selectedFileUri.toString();
                     setUri(Uri.parse(path));
 
                 } else if (requestCode == FILE_REQUEST_CODE) {
-                    ArrayList<MediaFile> files = data.getParcelableArrayListExtra(FilePickerActivity.MEDIA_FILES);
-                    String path = files.get(0).getPath();
+                    Uri fileUri = data.getData();
+                    String path = FilePick.getSmartFilePath(this, fileUri);
+                    setFileUri(path);
+                    setUri(fileUri);
                 }
             }
         }
@@ -366,5 +390,23 @@ public class ChatActivity extends AppCompatActivity implements ChatContract.view
 
     public Uri getUri() {
         return uri;
+    }
+
+    public void ChooseFile(View view) {
+        Intent chooseFile;
+        Intent intent;
+        chooseFile = new Intent(Intent.ACTION_GET_CONTENT);
+        chooseFile.addCategory(Intent.CATEGORY_OPENABLE);
+        chooseFile.setType("*/*");
+        intent = Intent.createChooser(chooseFile, "Choose a file");
+        startActivityForResult(intent, FILE_REQUEST_CODE);
+    }
+
+    public void setFileUri(String fileUri) {
+        this.fileUri = fileUri;
+    }
+
+    public String getFileUri() {
+        return fileUri;
     }
 }

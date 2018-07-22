@@ -16,7 +16,7 @@ Then you need to connect.
 ```java
 chat.connect("ws://172.16.106.26:8003/ws",
                 "POD-Chat", "chat-server", TOKEN, "http://172.16.110.76",
-                "http://172.16.106.26:8080")
+                "http://172.16.106.26:8080","http://172.16.106.26:8080")
 
 ```
 And now it's ready for chat .
@@ -24,7 +24,7 @@ And now it's ready for chat .
 | Method                        | Description                                                                            |
 |:------------------------------|:---------------------------------------------------------------------------------------|
 | `connect(socketServerAddress, appId, serverName, token`   | connect to async.       |
-| `String ssoHost, String platformHost)`
+| `String ssoHost, String platformHost, String fileServer)`
 | `logOutSocket()`                                           | log out of socket.      |
 | `sendTextMessage(String textMessage, long threadId)`       | Send text message to thread.           |
 | `renameThread(long threadId, String title)`                |  Rename the owner thread.                |
@@ -44,7 +44,9 @@ And now it's ready for chat .
 | `muteThread(int threadId)`         | Mute the thread      |
 | `unmuteThread(int threadId)`         | Un Mute the thread      |
 | `sendFile(Context context, String description, long threadId, Uri fileUri)`         | Send file      |
-| `syncContact(Context context)`         | Sync Contact      |
+| `syncContact(Context context, Activity activity)`         | Sync Contact      |
+| `uploadFile(Context context, Activity activity, String fileUri, Uri uri)`         | Upload file      |
+| `uploadImage(Context context, Activity activity, Uri fileUri)`         | Upload image      |
 
 ### replyMessage
 ```java
@@ -69,6 +71,10 @@ chat.removeContact(long userId)
 ### addContact
 ```java
 chat.addContact("Sina", "Rahimi", "0912131", "Develop.rahimi95@gmail.com");
+```
+### syncContact
+```java
+chat.syncContact(this, this);
 ```
 
 

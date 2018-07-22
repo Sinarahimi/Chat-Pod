@@ -1,5 +1,6 @@
 package ir.fanap.chat.sdk.application.chatexample;
 
+import android.app.Activity;
 import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.net.Uri;
@@ -25,8 +26,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void connect(String serverAddress, String appId, String severName,
-                        String token, String ssoHost, String platformHost) {
-        chat.connect(serverAddress, appId, severName, token, ssoHost, platformHost);
+                        String token, String ssoHost, String platformHost, String fileServer) {
+        chat.connect(serverAddress, appId, severName, token, ssoHost, platformHost, fileServer);
     }
 
     @Override
@@ -105,13 +106,13 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void sendFile(Context context, String description, long threadId, Uri fileUri) {
-        chat.sendFile(context, description, threadId, fileUri);
+    public void sendFile(Context context, Activity activity, String description, long threadId, Uri fileUri) {
+        chat.sendFileMessage(context, activity, description, threadId, fileUri);
     }
 
     @Override
-    public void syncContact() {
-        chat.syncContact(context);
+    public void syncContact(Activity activity) {
+        chat.syncContact(context, activity);
     }
 
     @Override
@@ -126,9 +127,31 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void uploadImage(Context context, Activity activity, Uri fileUri) {
+        chat.uploadImage(context, activity, fileUri);
+    }
+
+    @Override
+    public void uploadFile(Context context, Activity activity, String fileUri, Uri uri) {
+        chat.uploadFile(context, activity, fileUri, uri);
+    }
+
+    @Override
+    public void seenMessage(int messageId) {
+        chat.seenMessage(messageId);
+    }
+
+
+    @Override
+    public void logOut() {
+        chat.logOutSocket();
+    }
+
+    @Override
     public void onDeliver(String content) {
         super.onDeliver(content);
         view.onGetDeliverMessage();
+        chat.seenMessage(Integer.valueOf(content));
     }
 
     @Override
@@ -205,5 +228,36 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void onRenameThread(String content) {
         super.onRenameThread(content);
         view.onRenameGroupThread();
+    }
+
+
+    @Override
+    public void onContactAdded(String content) {
+        super.onContactAdded(content);
+        view.onAddContact();
+    }
+
+    @Override
+    public void onUpdateContact(String content) {
+        super.onUpdateContact(content);
+        view.onUpdateContact();
+    }
+
+    @Override
+    public void onUploadFile(String content) {
+        super.onUploadFile(content);
+        view.onUploadFile();
+    }
+
+    @Override
+    public void onUploadImageFile(String content) {
+        super.onUploadImageFile(content);
+        view.onUploadImageFile();
+    }
+
+    @Override
+    public void onRemoveContact(String content) {
+        super.onRemoveContact(content);
+        view.onRemoveContact();
     }
 }

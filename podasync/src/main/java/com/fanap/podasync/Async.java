@@ -164,7 +164,8 @@ public class Async extends WebSocketAdapter {
     @Override
     public void onError(WebSocket websocket, WebSocketException cause) throws Exception {
         super.onError(websocket, cause);
-        if (BuildConfig.DEBUG) Logger.e("onError", cause.toString());
+        if (BuildConfig.DEBUG) Logger.e("onError");
+        if (BuildConfig.DEBUG) Logger.e(cause.toString());
         asyncListenerManager.callOnError(cause.toString());
     }
 

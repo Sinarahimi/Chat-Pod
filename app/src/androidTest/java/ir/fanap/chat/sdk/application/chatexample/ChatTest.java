@@ -1,6 +1,8 @@
 package ir.fanap.chat.sdk.application.chatexample;
 
+import android.app.Activity;
 import android.content.Context;
+import android.net.Uri;
 import android.support.test.InstrumentationRegistry;
 import android.support.test.filters.LargeTest;
 import android.support.test.filters.MediumTest;
@@ -8,6 +10,8 @@ import android.support.test.runner.AndroidJUnit4;
 
 import com.fanap.podchat.mainmodel.Invitee;
 
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,21 +27,26 @@ public class ChatTest {
     private static ChatContract.presenter presenter;
     @Mock
     private static ChatContract.view view;
+    @Mock
+    private Activity activity;
+    private Context appContext;
 
     //    @Rule
 //    public ActivityTestRule<ChatActivity> mActivityRule = new ActivityTestRule<>(ChatActivity.class);
     //TOKEN = ALEXI
-    private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
+    private static String TOKEN = "1fcecc269a8949d6b58312cab66a4926";
+
+    //    private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
     private static String NAME = "ALEXI";
 
     @Before
     public void setUp() {
-        Context appContext = InstrumentationRegistry.getTargetContext();
+        appContext = InstrumentationRegistry.getTargetContext();
         MockitoAnnotations.initMocks(this);
         presenter = new ChatPresenter(appContext, view);
         presenter.connect("ws://172.16.106.26:8003/ws",
                 "POD-Chat", "chat-server", TOKEN, "http://172.16.110.76",
-                "http://172.16.106.26:8080/hamsam/");
+                "http://172.16.106.26:8080/hamsam/", "http://172.16.106.26:8080/hamsam/");
     }
 
     @Test
@@ -56,7 +65,7 @@ public class ChatTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        presenter.getThread(20, 0, null);
+        presenter.getThread(10, 0, null);
         try {
             Thread.sleep(5000);
         } catch (InterruptedException e) {
@@ -71,13 +80,13 @@ public class ChatTest {
     @MediumTest
     public void getThreadHistory() {
         try {
-            Thread.sleep(5000);
+            Thread.sleep(3000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
         presenter.getHistory(50, 0, null, 381);
         try {
-            Thread.sleep(5000);
+            Thread.sleep(3000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -88,13 +97,13 @@ public class ChatTest {
     @MediumTest
     public void getContacts() {
         try {
-            Thread.sleep(5000);
+            Thread.sleep(3000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        presenter.getContact(20, 0);
+        presenter.getContact(50, 0);
         try {
-            Thread.sleep(5000);
+            Thread.sleep(3000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -105,7 +114,7 @@ public class ChatTest {
     @MediumTest
     public void getThreadParticipant() {
         try {
-            Thread.sleep(5000);
+            Thread.sleep(3000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -134,6 +143,11 @@ public class ChatTest {
     @Test
     @MediumTest
     public void sendTestMessageOnDeliver() {
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         presenter.sendTextMessage("this is test", 381, null);
         view.onSentMessage();
         try {
@@ -141,21 +155,23 @@ public class ChatTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        view.onGetDeliverMessage();
         Mockito.verify(view, Mockito.times(1)).onGetDeliverMessage();
     }
 
     @Test
     @LargeTest
     public void sendTestMessageOnSeen() {
-        presenter.sendTextMessage("this is test", 381, null);
-        view.onSentMessage();
         try {
-            Thread.sleep(5000);
+            Thread.sleep(3000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        view.onGetSeenMessage();
+        presenter.sendTextMessage("this is test", 381, null);
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         Mockito.verify(view, Mockito.times(1)).onGetSeenMessage();
     }
 
@@ -163,13 +179,13 @@ public class ChatTest {
     @Test
     @MediumTest
     public void editMessage() {
-        presenter.sendTextMessage("this is test", 381, null);
         view.onSentMessage();
         try {
             Thread.sleep(5000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        presenter.sendTextMessage("this is test", 381, null);
         Mockito.verify(view, Mockito.times(1)).onSentMessage();
         try {
             Thread.sleep(3000);
@@ -202,7 +218,7 @@ public class ChatTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        Invitee[] invite = new Invitee[]{new Invitee(577, 2)};
+        Invitee[] invite = new Invitee[]{new Invitee(566, 2)};
         presenter.createThread(0, invite, "yes");
         try {
             Thread.sleep(3000);
@@ -243,20 +259,20 @@ public class ChatTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        Mockito.verify(view, Mockito.times(1)).onMuteThread();
+        Mockito.verify(view, Mockito.times(1)).onUnMuteThread();
     }
 
     @Test
     @MediumTest
-    public void replyMessage(){
+    public void replyMessage() {
         try {
             Thread.sleep(5000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-        presenter.replyMessage("this is reply to all of you at"+new Date().getTime()
-                ,381,1353);
+        presenter.replyMessage("this is reply to all of you at" + new Date().getTime()
+                , 381, 1353);
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
@@ -268,37 +284,125 @@ public class ChatTest {
     //fifi is the admin of groupId = 632
     @Test
     @MediumTest
-    public void renameThread(){
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        presenter.renameThread(632,"گروه خودمونی");
+    public void renameThread() {
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        Mockito.verify(view,Mockito.times(1)).onRenameGroupThread();
+        presenter.renameThread(632, "5_گروه خودمونی");
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Mockito.verify(view, Mockito.times(1)).onRenameGroupThread();
     }
 
-
-    //TODO not complete
     @Test
     @MediumTest
-    public void addContact(){
+    public void addContact() {
         try {
             Thread.sleep(5000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        presenter.addContact("masoud", "rahimi", "09122451131", "dev@gmail.com");
+        presenter.addContact("maman", "sadeghi", "09122488169", "dev55@gmail.com");
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        Mockito.verify(view, Mockito.times(1)).onAddContact();
     }
 
+    //    fifiUser
+    @Test
+    @MediumTest
+    public void updateContact() {
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        presenter.updateContact(861, "masoud", "rahimi2", "09122488169"
+                , "dev@gmail.com");
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Mockito.verify(view, Mockito.times(1)).onUpdateContact();
+    }
+
+    @Test
+    @MediumTest
+    public void removeContact(){
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        presenter.removeContact(861);
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Mockito.verify(view, Mockito.times(1)).onRemoveContact();
+    }
+
+    @Test
+    @MediumTest
+    public void uploadFile() {
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Uri uri = Uri.parse("content://com.android.providers.downloads.documents/document/230");
+        String fileUri = "/storage/emulated/0/Download/Manager.v6.31.Build.3.Crack.Only_pd.zip";
+        presenter.uploadFile(appContext, activity, fileUri, uri);
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Mockito.verify(view, Mockito.times(1)).onUploadFile();
+    }
+
+    @Test
+    @MediumTest
+    public void UploadImageFile(){
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Uri uri = Uri.parse("content://media/external/images/media/781");
+        presenter.uploadImage(appContext,activity,uri);
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Mockito.verify(view, Mockito.times(1)).onUploadImageFile();
+    }
+
+    @Test
+    @MediumTest
+    public void syncContact(){
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        presenter.syncContact(activity);
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Mockito.verify(view,Mockito.times(1)).onAddContact();
+    }
 }
