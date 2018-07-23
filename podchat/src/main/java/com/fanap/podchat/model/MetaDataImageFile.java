@@ -1,22 +1,13 @@
 package com.fanap.podchat.model;
 
 public class MetaDataImageFile {
-    private SdkImageFile sdk;
-    private String user;
+    private FileImageMetaData file;
 
-    public SdkImageFile getSdk() {
-        return sdk;
+    public FileImageMetaData getFile() {
+        return file;
     }
 
-    public void setSdk(SdkImageFile sdk) {
-        this.sdk = sdk;
-    }
-
-    public String getUser() {
-        return user;
-    }
-
-    public void setUser(String user) {
-        this.user = user;
+    public void setFile(FileImageMetaData file) {
+        this.file = file;
     }
 }

@@ -57,4 +57,6 @@ public interface ChatListener {
     void onUploadFile(String content);
 
     void onUploadImageFile(String content);
+
+    void onSyncContact(String content);
 }

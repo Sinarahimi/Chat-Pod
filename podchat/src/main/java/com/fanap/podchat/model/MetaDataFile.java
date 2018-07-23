@@ -1,25 +1,13 @@
 package com.fanap.podchat.model;
 
-import com.fanap.podchat.mainmodel.SdkFile;
-
 public class MetaDataFile {
-    private SdkFile sdk;
-    private String user;
+    private FileMetaDataContent file;
 
-
-    public String getUser() {
-        return user;
+    public FileMetaDataContent getFile() {
+        return file;
     }
 
-    public void setUser(String user) {
-        this.user = user;
-    }
-
-    public SdkFile getSdk() {
-        return sdk;
-    }
-
-    public void setSdk(SdkFile sdk) {
-        this.sdk = sdk;
+    public void setFile(FileMetaDataContent file) {
+        this.file = file;
     }
 }

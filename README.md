@@ -175,11 +175,12 @@ For getting call back you should extend your class from `ChatAdapter`.
 | `onUserInfo()`         | Called when information of the user is return.     |
 | `onSent()`         | Called when message is sent.       |
 | `onCreateThread()`         |Called when thread is created.         |
-| `onGetThreadParticipant()`         |       |
-| `onEditedMessage()`         |       |
-| `onContactAdded()` |       |
-| `onRemoveContact()`         |       |
-| `onRenameThread()`         |       |
+| `onGetThreadParticipant()`         |Called when you want participants of the specific thread.         |
+| `onEditedMessage()`         |Called when message edited       |
+| `onContactAdded()` |Called when contact added to your contact       |
+| `onRemoveContact()`         |Called when you want to remove contact       |
+| `onRenameThread()`         |Called when you rename of the thread that you are admin of that       |
+| `onSyncContact()`         |Called your phone contact sync to the server contact       |
 
 ## Built With :heart:
 

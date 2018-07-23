@@ -311,4 +311,14 @@ public class ChatListenerManager {
             }
         }
     }
+
+    public void callOnSyncContact(String content) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onSyncContact(content);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
 }

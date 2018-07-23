@@ -20,7 +20,6 @@ public class SocketPresenterTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        //TODO what should i do with context that socket presenter need
 //        socketPresenter = new SocketPresenter(view,)
     }
 

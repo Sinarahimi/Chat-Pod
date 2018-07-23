@@ -5,6 +5,9 @@ public class FileMetaDataContent {
     private String hashCode;
     private String name;
     private int id;
+    private String originalName;
+    private int size;
+    private String mimeType;
 
     public String getLink() {
         return link;

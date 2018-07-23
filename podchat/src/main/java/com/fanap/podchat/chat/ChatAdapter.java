@@ -141,4 +141,9 @@ public class ChatAdapter implements ChatListener {
     public void onUploadImageFile(String content) {
 
     }
+
+    @Override
+    public void onSyncContact(String content) {
+
+    }
 }

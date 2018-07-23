@@ -1,12 +1,39 @@
 package com.fanap.podchat.model;
 
 public class FileImageMetaData {
+    private int id;
+    private String originalName;
     private String link;
     private String hashCode;
     private String name;
-    private int id;
     private int actualHeight;
     private int actualWidth;
+    private int size;
+    private String mimeType;
+
+    public String getOriginalName() {
+        return originalName;
+    }
+
+    public void setOriginalName(String originalName) {
+        this.originalName = originalName;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
+    }
+
+    public String getMimeType() {
+        return mimeType;
+    }
+
+    public void setMimeType(String mimeType) {
+        this.mimeType = mimeType;
+    }
 
     public String getLink() {
         return link;

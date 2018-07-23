@@ -6,7 +6,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
-import android.os.Looper;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -27,7 +26,6 @@ import com.fanap.podchat.mainmodel.FileUpload;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.Participant;
-import com.fanap.podchat.mainmodel.SdkFile;
 import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.mainmodel.UpdateContact;
 import com.fanap.podchat.mainmodel.UserInfo;
@@ -59,7 +57,6 @@ import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultUpdateContact;
 import com.fanap.podchat.model.ResultUserInfo;
 import com.fanap.podchat.model.ResultsHistory;
-import com.fanap.podchat.model.SdkImageFile;
 import com.fanap.podchat.networking.RetrofitHelper;
 import com.fanap.podchat.networking.RetrofitHelperFileServer;
 import com.fanap.podchat.networking.RetrofitHelperSsoHost;
@@ -125,6 +122,7 @@ public class Chat extends AsyncAdapter {
     private boolean currentDeviceExist;
     private Activity activity;
     private String fileServer;
+    private boolean addContacts = false;
 
     /**
      * Initialize the Chat
@@ -140,9 +138,17 @@ public class Chat extends AsyncAdapter {
     }
 
     /**
-     * Connect to the Async with params that client set to it.
+     * Connect to the Async .
+     *
+     * @param socketAddress {**REQUIRED**}
+     * @param platformHost  {**REQUIRED**}
+     * @param severName     {**REQUIRED**}
+     * @param appId         {**REQUIRED**}
+     * @param token         {**REQUIRED**}
+     * @param fileServer    {**REQUIRED**}
+     * @param ssoHost       {**REQUIRED**}
      */
-    public void connect(String serverAddress, String appId, String severName, String token,
+    public void connect(String socketAddress, String appId, String severName, String token,
                         String ssoHost, String platformHost, String fileServer) {
 //        Looper.prepare();
         if (platformHost.endsWith("/")) {
@@ -155,7 +161,7 @@ public class Chat extends AsyncAdapter {
             setPlatformHost(platformHost);
             setToken(token);
             setFileServer(fileServer);
-            deviceIdRequest(ssoHost, serverAddress, appId, severName);
+            deviceIdRequest(ssoHost, socketAddress, appId, severName);
             state = true;
         } else {
             Logger.e("baseUrl must end in /:" + " " + platformHost);
@@ -183,8 +189,6 @@ public class Chat extends AsyncAdapter {
                 break;
         }
     }
-
-    //TODO refactor handleResponseMessage
 
     /**
      * First we check the message type and then we set the
@@ -441,6 +445,7 @@ public class Chat extends AsyncAdapter {
         }
         if (!firstNames.isEmpty() || !cellphoneNumbers.isEmpty()) {
             addContacts(firstNames, cellphoneNumbers);
+            addContacts = true;
         }
         syncContact = false;
     }
@@ -723,7 +728,7 @@ public class Chat extends AsyncAdapter {
         String asyncContent = chatMessageJsonAdapter.toJson(chatMessage);
 
         setThreadCallbacks(threadId, uniqueId);
-        if (BuildConfig.DEBUG) Logger.d("SEND_TXT_MSG_WITH_META");
+        if (BuildConfig.DEBUG) Logger.d("SEND_TXT_MSG_WITH_FILE");
         if (BuildConfig.DEBUG) Logger.json(asyncContent);
         sendAsyncMessage(asyncContent, 4);
     }
@@ -822,6 +827,10 @@ public class Chat extends AsyncAdapter {
     /**
      * This method first check the type of the file and then choose the right
      * server and send that
+     *
+     * @param description Its the description that you want to send with file in the thread
+     * @param fileUri     Uri of the file that you want to send to thread
+     * @param threadId    Id of the thread that you want to send file
      */
     public void sendFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri) {
 //        xCrop = xCrop != null ? xCrop : "";
@@ -857,20 +866,14 @@ public class Chat extends AsyncAdapter {
                                     String hashCode = result.getHashCode();
 
                                     MetaDataImageFile metaData = new MetaDataImageFile();
-                                    SdkImageFile sdkImageFile = new SdkImageFile();
-                                    sdkImageFile.setMimeType(mimeType);
-                                    sdkImageFile.setOriginalName(fileName);
-                                    sdkImageFile.setSize(fileSize);
-
                                     FileImageMetaData fileMetaData = new FileImageMetaData();
                                     fileMetaData.setHashCode(hashCode);
                                     fileMetaData.setId(imageId);
                                     fileMetaData.setActualHeight(result.getActualHeight());
                                     fileMetaData.setActualWidth(result.getActualWidth());
                                     fileMetaData.setLink(getPlatformHost() + "nzh/uploadImage" + "?imageId=" + imageId + "&downloadable=" + "true" + "&hashCode=" + hashCode);
+                                    metaData.setFile(fileMetaData);
 
-                                    sdkImageFile.setFile(fileMetaData);
-                                    metaData.setSdk(sdkImageFile);
                                     String metaJson = JsonUtil.getJson(metaData);
                                     if (BuildConfig.DEBUG) Logger.json(metaJson);
                                     sendTextMessageWithFile(description, threadId, metaJson);
@@ -900,18 +903,13 @@ public class Chat extends AsyncAdapter {
                                     String hashCode = result.getHashCode();
 
                                     MetaDataFile metaDataFile = new MetaDataFile();
-                                    SdkFile sdkFile = new SdkFile();
-                                    sdkFile.setMimeType(mimeType);
-                                    sdkFile.setSize(fileSize);
-                                    sdkFile.setOriginalName(fileName);
-
                                     FileMetaDataContent metaDataContent = new FileMetaDataContent();
                                     metaDataContent.setHashCode(hashCode);
                                     metaDataContent.setId(fileId);
                                     metaDataContent.setName(fileName);
                                     metaDataContent.setLink(fileServer + "/nzh/file/" + "?fileId=" + result.getId() + "&downloadable=" + true + "&hashCode=" + result.getHashCode());
-                                    sdkFile.setFile(metaDataContent);
-                                    metaDataFile.setSdk(sdkFile);
+
+                                    metaDataFile.setFile(metaDataContent);
 
                                     String jsonMeta = JsonUtil.getJson(metaDataFile);
                                     if (BuildConfig.DEBUG) Logger.json(jsonMeta);
@@ -922,7 +920,7 @@ public class Chat extends AsyncAdapter {
                     }, throwable -> Logger.e(throwable.getMessage()));
                 }
             } else {
-                if (BuildConfig.DEBUG) Logger.e("First connect to async", getFileServer());
+                if (BuildConfig.DEBUG) Logger.e("First connect to async");
             }
         } else {
             if (BuildConfig.DEBUG) Logger.e("READ_EXTERNAL_STORAGE Permission Needed!");
@@ -1260,7 +1258,13 @@ public class Chat extends AsyncAdapter {
                         } else {
                             AddContacts contacts = contactsResponse.body();
                             String contactsJson = JsonUtil.getJson(contacts);
-                            listenerManager.callOnAddContact(contactsJson);
+                            if (addContacts) {
+                                listenerManager.callOnSyncContact(contactsJson);
+                                if (BuildConfig.DEBUG) Logger.i("SYNC_CONTACT");
+                            } else {
+                                listenerManager.callOnAddContact(contactsJson);
+                                if (BuildConfig.DEBUG) Logger.i("ADD_CONTACTS");
+                            }
                             if (BuildConfig.DEBUG) Logger.json(contactsJson);
                         }
                     }
