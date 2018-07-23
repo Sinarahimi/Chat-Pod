@@ -146,4 +146,19 @@ public class ChatAdapter implements ChatListener {
     public void onSyncContact(String content) {
 
     }
+
+    @Override
+    public void onThreadAddPartcipant(String content) {
+
+    }
+
+    @Override
+    public void onThreadRemovePartcipant(String content) {
+
+    }
+
+    @Override
+    public void onThreadLeavePartcipant(String content) {
+
+    }
 }

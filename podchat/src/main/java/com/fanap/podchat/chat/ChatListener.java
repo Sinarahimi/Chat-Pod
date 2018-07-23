@@ -59,4 +59,10 @@ public interface ChatListener {
     void onUploadImageFile(String content);
 
     void onSyncContact(String content);
+
+    void onThreadAddPartcipant(String content);
+
+    void onThreadRemovePartcipant(String content);
+
+    void onThreadLeavePartcipant(String content);
 }

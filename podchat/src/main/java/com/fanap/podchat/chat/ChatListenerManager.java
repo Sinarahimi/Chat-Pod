@@ -283,6 +283,7 @@ public class ChatListenerManager {
             }
         }
     }
+
     public void callOnGetImageFile(String content) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
@@ -302,6 +303,7 @@ public class ChatListenerManager {
             }
         }
     }
+
     public void callOnUploadFile(String content) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
@@ -316,6 +318,36 @@ public class ChatListenerManager {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onSyncContact(content);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callonThreadAddPartcipant(String content) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onThreadAddPartcipant(content);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callonThreadRemovePartcipant(String content) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onThreadRemovePartcipant(content);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callonThreadLeavePartcipant(String content) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onThreadLeavePartcipant(content);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
