@@ -12,6 +12,7 @@ All notable changes to this project will be documented here.
 -   Search in thread
 -   Remove participant
 -   Add participant
+-   Add Sync Contact listener
 
 ## Version [0.0.7.0] -2018-07-22
 
