@@ -19,6 +19,7 @@ import com.fanap.podchat.mainmodel.Invitee;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import ir.fanap.chat.sdk.R;
 
@@ -57,17 +58,20 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
             , "Send file"
             , "Upload Image"
             , "Upload File"
+            , "Remove Thread Participant"
+            , "Add Thread Participant"
+            , "Leave Thread"
     };
     private Uri uri;
 
     //    fel token
 //    private static String TOKEN = "a11768091eac48f2a7b84ed6a241f9c3";
     //Fifi
-    private String name = "Fifi";
-    private static String TOKEN = "1fcecc269a8949d6b58312cab66a4926";
+//    private String name = "Fifi";
+//    private static String TOKEN = "1fcecc269a8949d6b58312cab66a4926";
     //Token Alexi
-//    private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
-//    private static String name = "Alexi";
+    private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
+    private static String name = "Alexi";
     private String fileUri;
 //    private static String TOKEN = "11a2fc342a304a1d89dc2c90ade9d588";
 
@@ -196,14 +200,28 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                         presenter.syncContact(ChatActivity.this);
                         break;
                     case 2:
-                        presenter.sendFile(ChatActivity.this, ChatActivity.this, "test file", 381
+                        presenter.sendFileMessage(ChatActivity.this, ChatActivity.this,
+                                "test file message",
+                                381
                                 , getUri());
                         break;
                     case 3:
                         presenter.uploadImage(ChatActivity.this, ChatActivity.this, getUri());
                     case 4:
-                        presenter.uploadFile(ChatActivity.this, ChatActivity.this, getFileUri(),getUri());
+                        presenter.uploadFile(ChatActivity.this, ChatActivity.this, getFileUri(), getUri());
                         break;
+                    case 5:
+                        List<Long> contactIds = new ArrayList<>();
+                        contactIds.add(82L);
+                        presenter.removeParticipants(691, contactIds);
+                        break;
+                    case 6:
+                        List<Long> participantIds = new ArrayList<>();
+                        participantIds.add(577L);
+                        presenter.addParticipants(691, participantIds);
+                        break;
+                    case 7:
+                        presenter.leaveThread(658);
                 }
             }
 
@@ -230,7 +248,6 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 // ssoGrantDevicesAddress: "/oauth2/grants/devices",
 // {**REQUIRED**} Socket Address platformHost: "//https://sandbox.pod.land:8043/srv/basic-platform", fileServer: "
 //http://sandbox.fanapium.com:8080", serverName: "chat-server", // {**REQUIRED**} Server to to register on
-
         presenter.connect("ws://172.16.106.26:8003/ws",
                 "POD-Chat", "chat-server", TOKEN, "http://172.16.110.76",
                 "http://172.16.106.26:8080/hamsam/", "http://172.16.106.26:8080/hamsam/");
@@ -263,7 +280,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 ArrayList<Integer> threadIds = new ArrayList<>();
                 threadIds.add(381);
 //                threadIds.add(351);
-                presenter.getThread(10, 0, threadIds);
+                presenter.getThread(20, 0, null);
                 break;
             case 2:
                 //"rename thread",
@@ -306,10 +323,10 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                  */
                 //alexi 570
                 //felfeli 571
-                Invitee[] invite = new Invitee[]{new Invitee(589, 2)
-//                        , new Invitee(566, 2)
-//                        , new Invitee(571, 2)
-//                        , new Invitee(570, 2)
+                Invitee[] invite = new Invitee[]{new Invitee(485, 2)
+                        , new Invitee(577, 2)
+                        , new Invitee(578, 2)
+                        , new Invitee(824, 2)
                 };
                 presenter.createThread(0, invite, null);
                 break;

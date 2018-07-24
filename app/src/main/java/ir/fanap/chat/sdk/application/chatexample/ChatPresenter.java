@@ -8,8 +8,10 @@ import android.net.Uri;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.mainmodel.Invitee;
+import com.fanap.podchat.mainmodel.ParticipantContent;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class ChatPresenter extends ChatAdapter implements ChatContract.presenter {
 
@@ -106,7 +108,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void sendFile(Context context, Activity activity, String description, long threadId, Uri fileUri) {
+    public void sendFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri) {
         chat.sendFileMessage(context, activity, description, threadId, fileUri);
     }
 
@@ -119,7 +121,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void forwardMessage(long threadId, ArrayList<Long> messageIds) {
         chat.forwardMessage(threadId, messageIds);
     }
-
 
     @Override
     public void updateContact(int id, String firstName, String lastName, String cellphoneNumber, String email) {
@@ -141,10 +142,24 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         chat.seenMessage(messageId);
     }
 
-
     @Override
     public void logOut() {
         chat.logOutSocket();
+    }
+
+    @Override
+    public void removeParticipants(long threadId, List<Long> contactIds) {
+        chat.removeParticipants(threadId, contactIds);
+    }
+
+    @Override
+    public void addParticipants(long threadId, List<Long> contactIds) {
+        chat.addParticipants(threadId, contactIds);
+    }
+
+    @Override
+    public void leaveThread(long threadId) {
+        chat.leaveThread(threadId);
     }
 
     @Override
@@ -229,7 +244,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         super.onRenameThread(content);
         view.onRenameGroupThread();
     }
-
 
     @Override
     public void onContactAdded(String content) {

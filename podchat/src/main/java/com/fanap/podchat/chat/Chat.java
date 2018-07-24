@@ -28,6 +28,7 @@ import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.ParticipantContent;
+import com.fanap.podchat.mainmodel.RemoveParticipant;
 import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.mainmodel.UpdateContact;
 import com.fanap.podchat.mainmodel.UserInfo;
@@ -68,11 +69,14 @@ import com.fanap.podchat.networking.api.TokenApi;
 import com.fanap.podchat.util.Callback;
 import com.fanap.podchat.util.ChatMessageType;
 import com.fanap.podchat.util.ChatMessageType.Constants;
+import com.fanap.podchat.util.FilePick;
 import com.fanap.podchat.util.Permission;
 import com.fanap.podchat.util.Util;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.JsonArray;
 import com.orhanobut.logger.Logger;
+import com.squareup.moshi.Json;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import com.squareup.moshi.Types;
@@ -229,7 +233,7 @@ public class Chat extends AsyncAdapter {
                 handleSeen(chatMessage, messageUniqueId, threadId);
                 break;
             case Constants.ERROR:
-                handleResponseMessage(callback, true, "", chatMessage, messageUniqueId);
+                handleError(chatMessage);
                 break;
             case Constants.FORWARD_MESSAGE:
                 handleForwardMessage(chatMessage);
@@ -251,6 +255,7 @@ public class Chat extends AsyncAdapter {
             case Constants.LAST_SEEN_TYPE:
                 break;
             case Constants.LEAVE_THREAD:
+                handleResponseMessage(callback, false, "", chatMessage, messageUniqueId);
                 break;
             case Constants.MESSAGE:
                 handleNewMessage(chatMessage);
@@ -264,6 +269,7 @@ public class Chat extends AsyncAdapter {
             case Constants.RELATION_INFO:
                 break;
             case Constants.REMOVE_PARTICIPANT:
+                handleResponseMessage(callback, false, "", chatMessage, messageUniqueId);
                 break;
             case Constants.RENAME:
                 handleResponseMessage(callback, false, "", chatMessage, messageUniqueId);
@@ -291,6 +297,17 @@ public class Chat extends AsyncAdapter {
                 handleResponseMessage(callback, false, "", chatMessage, messageUniqueId);
                 break;
         }
+    }
+
+    private void handleError(ChatMessage chatMessage) {
+        OutPut outPut = new OutPut();
+        Error error = JsonUtil.fromJSON(chatMessage.getContent(), Error.class);
+        if (BuildConfig.DEBUG) Log.e("CHAT", "ErrorMessage" + error.getMessage());
+        if (BuildConfig.DEBUG) Log.e("CHAT", "ErrorCode" + "" + String.valueOf(error.getCode()));
+        outPut.setErrorMessage(error.getMessage());
+        outPut.setErrorCode(error.getCode());
+        String errorJson = JsonUtil.getJson(outPut);
+        listenerManager.callOnError(errorJson);
     }
 
     /**
@@ -482,13 +499,7 @@ public class Chat extends AsyncAdapter {
                 }
                 break;
             case Constants.ERROR:
-                Error error = JsonUtil.fromJSON(chatMessage.getContent(), Error.class);
-                if (BuildConfig.DEBUG) Log.e("ErrorMessage", error.getMessage());
-                if (BuildConfig.DEBUG) Log.e("ErrorCode", String.valueOf(error.getCode()));
-                outPut.setErrorMessage(error.getMessage());
-                outPut.setErrorCode(error.getCode());
-                String errorJson = JsonUtil.getJson(outPut);
-                listenerManager.callOnError(errorJson);
+
                 break;
             case Constants.GET_CONTACTS:
                 if (syncContact) {
@@ -610,24 +621,42 @@ public class Chat extends AsyncAdapter {
                 }
                 break;
 
-                //TODO
+            //TODO
+            //{"id":691,"title":"گروه","time":1532431030809,"group":true,"type":0,"participantCount":3}
             case Constants.ADD_PARTICIPANT:
                 if (callback.isResult()) {
                     reformatThreadParticipants(callback, chatMessage);
 
 //                    String json = JsonUtil.getJson(outPut);
-                    listenerManager.callonThreadAddPartcipant(json);
+//                    listenerManager.callonThreadAddPartcipant(json);
                     messageCallbacks.remove(messageUniqueId);
                     if (BuildConfig.DEBUG) Logger.i("RECEIVE_PARTICIPANT");
                     if (BuildConfig.DEBUG) Logger.json(chatMessage.getContent());
                 }
                 break;
-            //TODO
             case Constants.REMOVE_PARTICIPANT:
                 if (callback.isResult()) {
                     reformatThreadParticipants(callback, chatMessage);
 
-                    String json = JsonUtil.getJson(outPut);
+                    OutPutParticipant outPutParticipant = new OutPutParticipant();
+                    outPutParticipant.setErrorCode(0);
+                    outPutParticipant.setErrorMessage("");
+                    outPutParticipant.setHasError(false);
+                    ResultParticipant resultParticipant = new ResultParticipant();
+
+                    List<Participant> participants = new ArrayList<>();
+                    Type type = Types.newParameterizedType(List.class, Participant.class);
+                    JsonAdapter<List<Participant>> adapter = moshi.adapter(type);
+                    try {
+                        participants = adapter.fromJson(chatMessage.getContent());
+                    } catch (IOException e) {
+                        if (BuildConfig.DEBUG) Logger.e(e.getMessage() + e.getCause());
+                    }
+
+                    resultParticipant.setParticipants(participants);
+                    outPutParticipant.setResult(resultParticipant);
+                    String json = JsonUtil.getJson(outPutParticipant);
+
                     listenerManager.callOnGetThreadParticipant(json);
                     messageCallbacks.remove(messageUniqueId);
                     if (BuildConfig.DEBUG) Logger.i("RECEIVE_PARTICIPANT");
@@ -863,6 +892,8 @@ public class Chat extends AsyncAdapter {
         return result;
     }
 
+    //TODO
+
     /**
      * This method first check the type of the file and then choose the right
      * server and send that
@@ -876,56 +907,20 @@ public class Chat extends AsyncAdapter {
 //        yCrop = yCrop != null ? yCrop : "";
 //        hCrop = hCrop != null ? hCrop : "";
 //        wCrop = wCrop != null ? wCrop : "";
-        if (!Permission.Check_READ_STORAGE(activity)) {
-            String mimeType = context.getContentResolver().getType(fileUri);
-            if (getPlatformHost() != null) {
-                RetrofitHelperFileServer retrofitHelperFileServer = new RetrofitHelperFileServer(getFileServer());
-                FileApi fileApi = retrofitHelperFileServer.getService(FileApi.class);
-                File file = new File(getRealPathFromURI(context, fileUri));
-                String fileName = file.getName();
-                int fileSize = Integer.parseInt(String.valueOf(file.length() / 1024));
-                if (mimeType.equals("image/png") || mimeType.equals("image/jpeg")) {
+        String mimeType = context.getContentResolver().getType(fileUri);
+        if (mimeType.equals("image/png") || mimeType.equals("image/jpeg")) {
+            sendImageFileMessage(context, activity, description, threadId, fileUri);
+        } else {
+            String path = FilePick.getSmartFilePath(context, fileUri);
 
-                    RequestBody requestFile = RequestBody.create(MediaType.parse("image/*"), file);
-                    MultipartBody.Part body = MultipartBody.Part.createFormData("image", file.getName(), requestFile);
+            if (Permission.Check_READ_STORAGE(activity)) {
+                if (getFileServer() != null) {
+                    File file = new File(path);
+                    RetrofitHelperFileServer retrofitHelperFileServer = new RetrofitHelperFileServer(getFileServer());
+                    FileApi fileApi = retrofitHelperFileServer.getService(FileApi.class);
                     RequestBody name = RequestBody.create(MediaType.parse("text/plain"), file.getName());
-
-                    Observable<Response<FileImageUpload>> uploadObservable = fileApi.sendImageFile(body, getToken(), TOKEN_ISSUER, name);
-                    uploadObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Response<FileImageUpload>>() {
-                        @Override
-                        public void call(Response<FileImageUpload> fileUploadResponse) {
-                            if (fileUploadResponse.isSuccessful()) {
-                                boolean error = fileUploadResponse.body().isHasError();
-                                if (error) {
-                                    String errorMessage = fileUploadResponse.body().getMessage();
-                                    Logger.e(errorMessage);
-                                } else {
-                                    ResultImageFile result = fileUploadResponse.body().getResult();
-                                    int imageId = result.getId();
-                                    String hashCode = result.getHashCode();
-
-                                    MetaDataImageFile metaData = new MetaDataImageFile();
-                                    FileImageMetaData fileMetaData = new FileImageMetaData();
-                                    fileMetaData.setHashCode(hashCode);
-                                    fileMetaData.setId(imageId);
-                                    fileMetaData.setActualHeight(result.getActualHeight());
-                                    fileMetaData.setActualWidth(result.getActualWidth());
-                                    fileMetaData.setLink(getPlatformHost() + "nzh/uploadImage" + "?imageId=" + imageId + "&downloadable=" + "true" + "&hashCode=" + hashCode);
-                                    metaData.setFile(fileMetaData);
-
-                                    String metaJson = JsonUtil.getJson(metaData);
-                                    if (BuildConfig.DEBUG) Logger.json(metaJson);
-                                    sendTextMessageWithFile(description, threadId, metaJson);
-                                }
-                            }
-                        }
-                    }, throwable -> Logger.e(throwable.getMessage()));
-                } else {
-
-                    RequestBody requestFile = RequestBody.create(MediaType.parse(context.getContentResolver().getType(fileUri)), file);
-                    RequestBody name = RequestBody.create(MediaType.parse("text/plain"), file.getName());
+                    RequestBody requestFile = RequestBody.create(MediaType.parse(mimeType), file);
                     MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), requestFile);
-
                     Observable<Response<FileUpload>> uploadObservable = fileApi.sendFile(body, getToken(), TOKEN_ISSUER, name);
                     uploadObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Response<FileUpload>>() {
                         @Override
@@ -934,7 +929,7 @@ public class Chat extends AsyncAdapter {
                                 boolean error = fileUploadResponse.body().isHasError();
                                 if (error) {
                                     String errorMessage = fileUploadResponse.body().getMessage();
-                                    Logger.e(errorMessage);
+                                    if (BuildConfig.DEBUG) Logger.e(errorMessage);
                                 } else {
 
                                     ResultFile result = fileUploadResponse.body().getResult();
@@ -945,7 +940,7 @@ public class Chat extends AsyncAdapter {
                                     FileMetaDataContent metaDataContent = new FileMetaDataContent();
                                     metaDataContent.setHashCode(hashCode);
                                     metaDataContent.setId(fileId);
-                                    metaDataContent.setName(fileName);
+                                    metaDataContent.setName(result.getName());
                                     metaDataContent.setLink(fileServer + "/nzh/file/" + "?fileId=" + result.getId() + "&downloadable=" + true + "&hashCode=" + result.getHashCode());
 
                                     metaDataFile.setFile(metaDataContent);
@@ -956,15 +951,72 @@ public class Chat extends AsyncAdapter {
                                 }
                             }
                         }
-                    }, throwable -> Logger.e(throwable.getMessage()));
+                    }, throwable -> {
+                        if (BuildConfig.DEBUG) Logger.e(throwable.getMessage());
+                    });
+                } else {
+                    if (BuildConfig.DEBUG) Logger.e("FileServer url Is null");
                 }
+
             } else {
-                if (BuildConfig.DEBUG) Logger.e("First connect to async");
+                if (BuildConfig.DEBUG) Logger.e("READ_EXTERNAL_STORAGE Permission Is Needed!");
+            }
+        }
+    }
+
+    private void sendImageFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri) {
+        if (fileServer != null) {
+            if (Permission.Check_READ_STORAGE(activity)) {
+                RetrofitHelperFileServer retrofitHelperFileServer = new RetrofitHelperFileServer(getFileServer());
+                FileApi fileApi = retrofitHelperFileServer.getService(FileApi.class);
+                File file = new File(getRealPathFromURI(context, fileUri));
+                RequestBody requestFile = RequestBody.create(MediaType.parse("image/*"), file);
+                MultipartBody.Part body = MultipartBody.Part.createFormData("image", file.getName(), requestFile);
+                RequestBody name = RequestBody.create(MediaType.parse("text/plain"), file.getName());
+
+                Observable<Response<FileImageUpload>> uploadObservable = fileApi.sendImageFile(body, getToken(), TOKEN_ISSUER, name);
+                uploadObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Response<FileImageUpload>>() {
+                    @Override
+                    public void call(Response<FileImageUpload> fileUploadResponse) {
+                        if (fileUploadResponse.isSuccessful()) {
+                            boolean error = fileUploadResponse.body().isHasError();
+                            if (error) {
+                                String errorMessage = fileUploadResponse.body().getMessage();
+                                Logger.e(errorMessage);
+                            } else {
+
+                                ResultImageFile result = fileUploadResponse.body().getResult();
+                                int imageId = result.getId();
+                                String hashCode = result.getHashCode();
+
+                                MetaDataImageFile metaData = new MetaDataImageFile();
+                                FileImageMetaData fileMetaData = new FileImageMetaData();
+                                fileMetaData.setHashCode(hashCode);
+                                fileMetaData.setId(imageId);
+                                fileMetaData.setActualHeight(result.getActualHeight());
+                                fileMetaData.setActualWidth(result.getActualWidth());
+                                fileMetaData.setLink(getPlatformHost() + "nzh/uploadImage" + "?imageId=" + imageId + "&downloadable=" + "true" + "&hashCode=" + hashCode);
+                                metaData.setFile(fileMetaData);
+
+                                String metaJson = JsonUtil.getJson(metaData);
+                                if (BuildConfig.DEBUG) Logger.json(metaJson);
+                                sendTextMessageWithFile(description, threadId, metaJson);
+
+                                FileImageUpload fileImageUpload = fileUploadResponse.body();
+                                String imageJson = JsonUtil.getJson(fileImageUpload);
+                                listenerManager.callOnUploadImageFile(imageJson);
+                                if (BuildConfig.DEBUG) Logger.json(imageJson);
+                            }
+                        }
+                    }
+                }, throwable -> Logger.e(throwable.getMessage()));
+
+            } else {
+                if (BuildConfig.DEBUG) Logger.e("READ_EXTERNAL_STORAGE Permission Needed!");
             }
         } else {
-            if (BuildConfig.DEBUG) Logger.e("READ_EXTERNAL_STORAGE Permission Needed!");
+            if (BuildConfig.DEBUG) Logger.e("FileServer url Is null");
         }
-
     }
 
     public void uploadImage(Context context, Activity activity, Uri fileUri) {
@@ -1082,59 +1134,75 @@ public class Chat extends AsyncAdapter {
         if (BuildConfig.DEBUG) Logger.json(asyncContent);
     }
 
-    //TODO addParticipants
-    public void addParticipants(long threadId, List<ParticipantContent> contactIds) {
+    /**
+     * @param contactIds List of CONTACT IDs
+     * @param threadId   Id of the thread that you are {*NOTICE*}admin of that and you want to
+     *                   add someone as a participant.
+     */
+    public void addParticipants(long threadId, List<Long> contactIds) {
         AddParticipant addParticipant = new AddParticipant();
         String uniqueId = getUniqueId();
-        addParticipant.setContent(contactIds);
         addParticipant.setSubjectId(threadId);
         addParticipant.setUniqueId(uniqueId);
-
-        ChatMessage chatMessage = new ChatMessage();
-        chatMessage.setSubjectId(threadId);
-        chatMessage.setToken(getToken());
-        chatMessage.setTokenIssuer("1");
-        chatMessage.setUniqueId(uniqueId);
-        chatMessage.setType(Constants.ADD_PARTICIPANT);
-
+        JsonArray contacts = new JsonArray();
+        for (Long p : contactIds) {
+            contacts.add(p);
+        }
+        addParticipant.setContent(contacts.toString());
+        addParticipant.setSubjectId(threadId);
+        addParticipant.setToken(getToken());
+        addParticipant.setTokenIssuer("1");
+        addParticipant.setUniqueId(uniqueId);
+        addParticipant.setType(Constants.ADD_PARTICIPANT);
+        String asyncContent = JsonUtil.getJson(addParticipant);
         setCallBacks(null, null, null, true, Constants.ADD_PARTICIPANT, null, uniqueId);
-
+        sendAsyncMessage(asyncContent, 4);
     }
 
-    //TODO removeParticipants
-
     /**
-     * @param contactIds List of PARTICIPANT IDs from Thread's Participants object
-     * @param threadId   Id of the thread that we wants to remove their participant
+     * @param participantIds List of PARTICIPANT IDs from Thread's Participants object
+     * @param threadId       Id of the thread that we wants to remove their participant
      */
-    public void removeParticipants(long threadId, List<ParticipantContent> contactIds) {
+    public void removeParticipants(long threadId, List<Long> participantIds) {
 
         String uniqueId = getUniqueId();
-        ChatMessage chatMessage = new ChatMessage();
-        chatMessage.setSubjectId(threadId);
-        chatMessage.setToken(getToken());
-        chatMessage.setTokenIssuer("1");
-        chatMessage.setUniqueId(uniqueId);
-        chatMessage.setType(Constants.REMOVE_PARTICIPANT);
+        RemoveParticipant removeParticipant = new RemoveParticipant();
+        removeParticipant.setTokenIssuer("1");
+        removeParticipant.setType(Constants.REMOVE_PARTICIPANT);
+        removeParticipant.setSubjectId(threadId);
+        removeParticipant.setToken(getToken());
+        removeParticipant.setUniqueId(uniqueId);
 
+        JsonArray contacts = new JsonArray();
+        for (Long p : participantIds) {
+            contacts.add(p);
+        }
+        removeParticipant.setContent(contacts.toString());
+
+        String asyncContent = JsonUtil.getJson(removeParticipant);
+        sendAsyncMessage(asyncContent, 4);
         setCallBacks(null, null, null, true, Constants.REMOVE_PARTICIPANT, null, uniqueId);
+        if (BuildConfig.DEBUG) Logger.json(asyncContent);
+        if (BuildConfig.DEBUG) Logger.d("SEND_REMOVE_PARTICIPANT");
 
     }
 
     //TODO  leaveThread
     public void leaveThread(long threadId) {
         String uniqueId = getUniqueId();
-        ChatMessage chatMessage = new ChatMessage();
-        chatMessage.setSubjectId(threadId);
-        chatMessage.setToken(getToken());
-        chatMessage.setTokenIssuer("1");
-        chatMessage.setUniqueId(uniqueId);
-        chatMessage.setType(Constants.LEAVE_THREAD);
+        RemoveParticipant removeParticipant = new RemoveParticipant();
+
+        removeParticipant.setSubjectId(threadId);
+        removeParticipant.setToken(getToken());
+        removeParticipant.setTokenIssuer("1");
+        removeParticipant.setUniqueId(uniqueId);
+        removeParticipant.setType(Constants.LEAVE_THREAD);
 
         setCallBacks(null, null, null, true, Constants.LEAVE_THREAD, null, uniqueId);
-
-        String json = JsonUtil.getJson(chatMessage);
+        String json = JsonUtil.getJson(removeParticipant);
         sendAsyncMessage(json, 4);
+        if (BuildConfig.DEBUG) Logger.i("SEND_LEAVE_THREAD");
+        if (BuildConfig.DEBUG) Logger.json(json);
     }
 
     /**

@@ -6,8 +6,10 @@ import android.content.Context;
 import android.net.Uri;
 
 import com.fanap.podchat.mainmodel.Invitee;
+import com.fanap.podchat.mainmodel.ParticipantContent;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public interface ChatContract {
     interface view {
@@ -84,7 +86,7 @@ public interface ChatContract {
 
         void removeContact(long id);
 
-        void sendFile(Context context, Activity activity, String description, long threadId, Uri fileUri);
+        void sendFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri);
 
         void syncContact(Activity activity);
 
@@ -99,5 +101,10 @@ public interface ChatContract {
         void seenMessage(int messageId);
 
         void logOut();
+
+        void removeParticipants(long threadId, List<Long> participantIds);
+
+        void addParticipants(long threadId, List<Long> contactIds);
+        void leaveThread(long threadId);
     }
 }
