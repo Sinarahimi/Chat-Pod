@@ -19,7 +19,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 public class ChatTest {
@@ -34,9 +36,9 @@ public class ChatTest {
     //    @Rule
 //    public ActivityTestRule<ChatActivity> mActivityRule = new ActivityTestRule<>(ChatActivity.class);
     //TOKEN = ALEXI
-    private static String TOKEN = "1fcecc269a8949d6b58312cab66a4926";
+//    private static String TOKEN = "1fcecc269a8949d6b58312cab66a4926";
 
-    //    private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
+    private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
     private static String NAME = "ALEXI";
 
     @Before
@@ -337,7 +339,7 @@ public class ChatTest {
 
     @Test
     @MediumTest
-    public void removeContact(){
+    public void removeContact() {
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
@@ -373,14 +375,14 @@ public class ChatTest {
 
     @Test
     @MediumTest
-    public void UploadImageFile(){
+    public void UploadImageFile() {
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
         Uri uri = Uri.parse("content://media/external/images/media/781");
-        presenter.uploadImage(appContext,activity,uri);
+        presenter.uploadImage(appContext, activity, uri);
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
@@ -391,7 +393,7 @@ public class ChatTest {
 
     @Test
     @MediumTest
-    public void syncContact(){
+    public void syncContact() {
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
@@ -403,6 +405,63 @@ public class ChatTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        Mockito.verify(view,Mockito.times(1)).onAddContact();
+        Mockito.verify(view, Mockito.times(1)).onAddContact();
+    }
+
+    @Test
+    @MediumTest
+    public void AddParticipant() {
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        List<Long> participantIds = new ArrayList<>();
+        participantIds.add(824L);
+        participantIds.add(577L);
+        presenter.addParticipants(691, participantIds);
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Mockito.verify(view, Mockito.times(1)).onAddParticipant();
+    }
+
+    @Test
+    @MediumTest
+    public void removeParticipant() {
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        List<Long> contactIds = new ArrayList<>();
+        contactIds.add(123L);
+        contactIds.add(121L);
+        presenter.removeParticipants(691, contactIds);
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Mockito.verify(view, Mockito.times(1)).onRemoveParticipant();
+    }
+
+    @Test
+    @MediumTest
+    public void leaveThread(){
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        presenter.leaveThread(585);
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Mockito.verify(view,Mockito.times(1)).onLeaveThread();
     }
 }

@@ -49,6 +49,12 @@ public interface ChatContract {
         void onUploadImageFile();
 
         void onRemoveContact();
+
+        void onAddParticipant();
+
+        void onRemoveParticipant();
+
+        void onLeaveThread();
     }
 
     interface presenter {
@@ -105,6 +111,7 @@ public interface ChatContract {
         void removeParticipants(long threadId, List<Long> participantIds);
 
         void addParticipants(long threadId, List<Long> contactIds);
+
         void leaveThread(long threadId);
     }
 }

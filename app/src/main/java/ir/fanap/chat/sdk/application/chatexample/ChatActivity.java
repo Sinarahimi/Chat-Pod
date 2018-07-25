@@ -180,6 +180,21 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
             public void onRemoveContact() {
 
             }
+
+            @Override
+            public void onAddParticipant() {
+
+            }
+
+            @Override
+            public void onRemoveParticipant() {
+
+            }
+
+            @Override
+            public void onLeaveThread() {
+
+            }
         };
         presenter = new ChatPresenter(this, view);
         presenter.getLiveState().observe(this, textViewState::setText);
@@ -212,16 +227,18 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                         break;
                     case 5:
                         List<Long> contactIds = new ArrayList<>();
-                        contactIds.add(82L);
+                        contactIds.add(123L);
+//                       contactIds.add(121L);
                         presenter.removeParticipants(691, contactIds);
                         break;
                     case 6:
                         List<Long> participantIds = new ArrayList<>();
+                        participantIds.add(824L);
                         participantIds.add(577L);
                         presenter.addParticipants(691, participantIds);
                         break;
                     case 7:
-                        presenter.leaveThread(658);
+                        presenter.leaveThread(691);
                 }
             }
 
@@ -306,7 +323,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
             case 7:
                 //"get thread participant",
-                presenter.getThreadParticipant(10, 0, 381);
+                presenter.getThreadParticipant(10, 0, 691);
                 break;
             case 8:
                 /**

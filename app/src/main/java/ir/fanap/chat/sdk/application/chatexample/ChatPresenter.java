@@ -274,4 +274,22 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         super.onRemoveContact(content);
         view.onRemoveContact();
     }
+
+    @Override
+    public void onThreadAddPartcipant(String content) {
+        super.onThreadAddPartcipant(content);
+        view.onAddParticipant();
+    }
+
+    @Override
+    public void onThreadRemovePartcipant(String content) {
+        super.onThreadRemovePartcipant(content);
+        view.onRemoveParticipant();
+    }
+
+    @Override
+    public void onLeaveThread() {
+        super.onLeaveThread();
+        view.onLeaveThread();
+    }
 }
