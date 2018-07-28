@@ -52,6 +52,10 @@ And now it's ready for chat .
 | `syncContact(Context context, Activity activity)`         | Sync Contact      |
 | `uploadFile(Context context, Activity activity, String fileUri, Uri uri)`         | Upload file      |
 | `uploadImage(Context context, Activity activity, Uri fileUri)`         | Upload image      |
+| `deleteMessage(long messageId, Boolean deleteForAll)`         |      |
+| `addParticipants(long threadId, List<Long> contactIds)`         |      |
+| `removeParticipants(long threadId, List<Long> participantIds)`         |      |
+| `leaveThread(long threadId)`         |      |
 
 ### replyMessage
 ```java
@@ -167,7 +171,7 @@ After creating a Chat instance, you should call addListener method to register a
 ChatAdapter is an empty implementation of ChatListener interface.
 For getting call back you should extend your class from `ChatAdapter`. 
 
-#### The following callack methods of ChatListener are called
+#### The following callback methods of ChatListener are called
 | Method                        | Description                                                                            |
 |:------------------------------|:---------------------------------------------------------------------------------------|
 | `onDeliver()`   | Called when message is delivered.       |
@@ -186,6 +190,10 @@ For getting call back you should extend your class from `ChatAdapter`.
 | `onRemoveContact()`         |Called when you want to remove contact       |
 | `onRenameThread()`         |Called when you rename of the thread that you are admin of that       |
 | `onSyncContact()`         |Called your phone contact sync to the server contact       |
+| `onThreadAddParticipant()`         |       |
+| `onThreadRemoveParticipant()`         |       |
+| `onThreadLeaveParticipant()`         |       |
+| `onDeleteMessage()`         |       |
 
 ## Built With :heart:
 

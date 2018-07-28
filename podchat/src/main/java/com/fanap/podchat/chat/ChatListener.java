@@ -16,6 +16,8 @@ public interface ChatListener {
 
     void onGetThread(String content);
 
+    void onThreadInfoUpdated(String content);
+
     void onInvitation(String content);
 
     void onLeaveThread();
@@ -52,6 +54,8 @@ public interface ChatListener {
 
     void onNewMessage(String content);
 
+    void onDeleteMessage(String content);
+
     void onUpdateContact(String content);
 
     void onUploadFile(String content);
@@ -60,9 +64,9 @@ public interface ChatListener {
 
     void onSyncContact(String content);
 
-    void onThreadAddPartcipant(String content);
+    void onThreadAddParticipant(String content);
 
-    void onThreadRemovePartcipant(String content);
+    void onThreadRemoveParticipant(String content);
 
-    void onThreadLeavePartcipant(String content);
+    void onThreadLeaveParticipant(String content);
 }

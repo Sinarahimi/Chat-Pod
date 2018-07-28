@@ -450,18 +450,35 @@ public class ChatTest {
 
     @Test
     @MediumTest
-    public void leaveThread(){
+    public void leaveThread() {
         try {
             Thread.sleep(5000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        presenter.leaveThread(585);
+        presenter.leaveThread(657);
         try {
             Thread.sleep(5000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        Mockito.verify(view,Mockito.times(1)).onLeaveThread();
+        Mockito.verify(view, Mockito.times(1)).onLeaveThread();
+    }
+
+    @Test
+    @MediumTest
+    public void deleteMessage() {
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        presenter.deleteMessage(14032, true);
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Mockito.verify(view, Mockito.times(1)).onDeleteMessage();
     }
 }

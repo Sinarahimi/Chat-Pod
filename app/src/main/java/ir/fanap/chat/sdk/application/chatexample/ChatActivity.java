@@ -61,14 +61,15 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
             , "Remove Thread Participant"
             , "Add Thread Participant"
             , "Leave Thread"
+            , "Delete Message"
     };
     private Uri uri;
 
     //    fel token
-//    private static String TOKEN = "a11768091eac48f2a7b84ed6a241f9c3";
+//    private static String TOKEN = "e4f1d5da7b254d9381d0487387eabb0a";
     //Fifi
 //    private String name = "Fifi";
-//    private static String TOKEN = "1fcecc269a8949d6b58312cab66a4926";
+//    private static String TOKEN = "5fb88da4c6914d07a501a76d68a62363";
     //Token Alexi
     private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
     private static String name = "Alexi";
@@ -133,6 +134,11 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 
             @Override
             public void onEditMessage() {
+
+            }
+
+            @Override
+            public void onDeleteMessage() {
 
             }
 
@@ -239,6 +245,9 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                         break;
                     case 7:
                         presenter.leaveThread(691);
+                        break;
+                    case 8:
+                        presenter.deleteMessage(14029, true);
                 }
             }
 

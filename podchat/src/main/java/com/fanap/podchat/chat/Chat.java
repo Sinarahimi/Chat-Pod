@@ -20,6 +20,7 @@ import com.fanap.podasync.model.DeviceResult;
 import com.fanap.podasync.util.JsonUtil;
 import com.fanap.podchat.BuildConfig;
 import com.fanap.podchat.mainmodel.AddParticipant;
+import com.fanap.podchat.mainmodel.BaseMessage;
 import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.mainmodel.ChatMessageContent;
 import com.fanap.podchat.mainmodel.ChatThread;
@@ -29,6 +30,7 @@ import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.RemoveParticipant;
+import com.fanap.podchat.mainmodel.ResultDeleteMessage;
 import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.mainmodel.UpdateContact;
 import com.fanap.podchat.mainmodel.UserInfo;
@@ -36,6 +38,7 @@ import com.fanap.podchat.model.AddContacts;
 import com.fanap.podchat.model.ChatMessageForward;
 import com.fanap.podchat.model.ContactRemove;
 import com.fanap.podchat.model.Contacts;
+import com.fanap.podchat.model.DeleteMessageContent;
 import com.fanap.podchat.model.Error;
 import com.fanap.podchat.model.FileImageMetaData;
 import com.fanap.podchat.model.FileImageUpload;
@@ -47,6 +50,8 @@ import com.fanap.podchat.model.OutPut;
 import com.fanap.podchat.model.OutPutAddContact;
 import com.fanap.podchat.model.OutPutAddParticipant;
 import com.fanap.podchat.model.OutPutContact;
+import com.fanap.podchat.model.OutPutDeleteMessage;
+import com.fanap.podchat.model.OutPutInfoThread;
 import com.fanap.podchat.model.OutPutLeaveThread;
 import com.fanap.podchat.model.OutPutParticipant;
 import com.fanap.podchat.model.OutPutThread;
@@ -132,7 +137,7 @@ public class Chat extends AsyncAdapter {
     private boolean currentDeviceExist;
     private Activity activity;
     private String fileServer;
-    private boolean addContacts = false;
+    private boolean syncContacts = false;
 
     /**
      * Initialize the Chat
@@ -190,8 +195,8 @@ public class Chat extends AsyncAdapter {
 //                ping();
                 break;
             case CHAT_READY:
-                getUserInfo();
                 chatReady = true;
+                getUserInfo();
                 break;
             case CONNECTING:
             case CLOSING:
@@ -298,9 +303,22 @@ public class Chat extends AsyncAdapter {
             case Constants.USER_S_STATUS:
                 break;
             case Constants.DELETE_MESSAGE:
+                handleResponseMessage(callback, false, "", chatMessage, messageUniqueId);
                 break;
             case Constants.EDIT_MESSAGE:
                 handleResponseMessage(callback, false, "", chatMessage, messageUniqueId);
+                break;
+            case Constants.THREAD_INFO_UPDATED:
+                OutPutInfoThread outPutInfoThread = new OutPutInfoThread();
+                ResultThread resultThread = new ResultThread();
+                Thread thread = JsonUtil.fromJSON(chatMessage.getContent(), Thread.class);
+                resultThread.setThread(thread);
+                outPutInfoThread.setResult(resultThread);
+                listenerManager.callOnThreadInfoUpdated(chatMessage.getContent());
+                Logger.i("THREAD_INFO_UPDATED");
+                Logger.json(chatMessage.getContent());
+                break;
+            case Constants.LAST_SEEN_UPDATED:
                 break;
         }
     }
@@ -315,6 +333,8 @@ public class Chat extends AsyncAdapter {
         if (BuildConfig.DEBUG) Logger.e("ErrorMessage:" + error.getMessage());
         if (BuildConfig.DEBUG) Logger.e("ErrorCode:" + " " + String.valueOf(error.getCode()));
     }
+
+    //TODO json output for new message
 
     /**
      * When the new message arrived we send the deliver message to the sender user.
@@ -471,7 +491,7 @@ public class Chat extends AsyncAdapter {
         }
         if (!firstNames.isEmpty() || !cellphoneNumbers.isEmpty()) {
             addContacts(firstNames, cellphoneNumbers);
-            addContacts = true;
+            syncContacts = true;
         }
         syncContact = false;
     }
@@ -503,9 +523,6 @@ public class Chat extends AsyncAdapter {
                     if (BuildConfig.DEBUG) Logger.i("RECEIVE_GET_HISTORY");
                     if (BuildConfig.DEBUG) Logger.json(chatMessage.getContent());
                 }
-                break;
-            case Constants.ERROR:
-
                 break;
             case Constants.GET_CONTACTS:
                 if (syncContact) {
@@ -635,7 +652,7 @@ public class Chat extends AsyncAdapter {
                     outPutAddParticipant.setHasError(false);
                     outPutAddParticipant.setAddParticipant(resultAddParticipant);
                     String json = JsonUtil.getJson(outPutAddParticipant);
-                    listenerManager.callonThreadAddPartcipant(json);
+                    listenerManager.callOnThreadAddParticipant(json);
                     messageCallbacks.remove(messageUniqueId);
                     if (BuildConfig.DEBUG) Logger.i("RECEIVE_PARTICIPANT");
                     if (BuildConfig.DEBUG) Logger.json(chatMessage.getContent());
@@ -664,7 +681,7 @@ public class Chat extends AsyncAdapter {
                     outPutParticipant.setResult(resultParticipant);
                     String json = JsonUtil.getJson(outPutParticipant);
 
-                    listenerManager.callonThreadRemovePartcipant(json);
+                    listenerManager.callOnThreadRemoveParticipant(json);
                     messageCallbacks.remove(messageUniqueId);
                     if (BuildConfig.DEBUG) Logger.i("RECEIVE_REMOVE_PARTICIPANT");
                     if (BuildConfig.DEBUG) Logger.json(json);
@@ -681,7 +698,7 @@ public class Chat extends AsyncAdapter {
 
                     outPutLeaveThread.setResult(leaveThread);
                     String json = JsonUtil.getJson(outPutLeaveThread);
-                    listenerManager.callonThreadLeavePartcipant(json);
+                    listenerManager.callOnThreadLeaveParticipant(json);
                     messageCallbacks.remove(messageUniqueId);
                     if (BuildConfig.DEBUG) Logger.i("RECEIVE_LEAVE_THREAD");
                     if (BuildConfig.DEBUG) Logger.json(json);
@@ -703,6 +720,22 @@ public class Chat extends AsyncAdapter {
                         if (BuildConfig.DEBUG) Logger.json(chatMessage.getContent());
                     }
                 }
+                break;
+            case Constants.DELETE_MESSAGE:
+                OutPutDeleteMessage outPutDeleteMessage = new OutPutDeleteMessage();
+                outPutDeleteMessage.setErrorCode(0);
+                outPutDeleteMessage.setErrorMessage("");
+                outPutDeleteMessage.setHasError(false);
+                ResultDeleteMessage resultDeleteMessage = new ResultDeleteMessage();
+                DeleteMessageContent deleteMessage = new DeleteMessageContent();
+                deleteMessage.setId(Long.valueOf(chatMessage.getContent()));
+                resultDeleteMessage.setDeleteMessageContent(deleteMessage);
+                outPutDeleteMessage.setResult(resultDeleteMessage);
+                String json = JsonUtil.getJson(outPutDeleteMessage);
+                listenerManager.callOnDeleteMessage(json);
+                if (BuildConfig.DEBUG) Logger.i("RECEIVE_DELETE_MESSAGE");
+                if (BuildConfig.DEBUG) Logger.json(json);
+                break;
         }
     }
 
@@ -767,6 +800,7 @@ public class Chat extends AsyncAdapter {
      * @param metaData    if you don't have metaData you can set it to "null"
      */
     public void sendTextMessage(String textMessage, long threadId, String metaData) {
+
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setContent(textMessage);
         chatMessage.setType(Constants.MESSAGE);
@@ -786,7 +820,7 @@ public class Chat extends AsyncAdapter {
         String asyncContent = chatMessageJsonAdapter.toJson(chatMessage);
 
         setThreadCallbacks(threadId, uniqueId);
-        if (BuildConfig.DEBUG) Logger.d("SEND TEXT MESSAGE");
+        if (BuildConfig.DEBUG) Logger.d("SEND_TEXT_MESSAGE");
         if (BuildConfig.DEBUG) Logger.json(asyncContent);
         sendAsyncMessage(asyncContent, 4);
     }
@@ -814,16 +848,16 @@ public class Chat extends AsyncAdapter {
     }
 
     private void setThreadCallbacks(long threadId, String uniqueId) {
-        Callback callback = new Callback();
-        callback.setDelivery(true);
-        callback.setSeen(true);
-        callback.setSent(true);
-        callback.setUniqueId(uniqueId);
-        ArrayList<Callback> callbacks = new ArrayList<>();
-        callbacks.add(callback);
-        threadCallbacks.put(threadId, callbacks);
-//        ThreadCallbacks threadCallbacks = new ThreadCallbacks(threadId, callbacks);
-//        threadCallbackList.add(threadCallbacks);
+        if (chatReady) {
+            Callback callback = new Callback();
+            callback.setDelivery(true);
+            callback.setSeen(true);
+            callback.setSent(true);
+            callback.setUniqueId(uniqueId);
+            ArrayList<Callback> callbacks = new ArrayList<>();
+            callbacks.add(callback);
+            threadCallbacks.put(threadId, callbacks);
+        }
     }
 
     private void sendAsyncMessage(String asyncContent, int asyncMsgType) {
@@ -1172,6 +1206,8 @@ public class Chat extends AsyncAdapter {
         String asyncContent = JsonUtil.getJson(addParticipant);
         setCallBacks(null, null, null, true, Constants.ADD_PARTICIPANT, null, uniqueId);
         sendAsyncMessage(asyncContent, 4);
+        if (BuildConfig.DEBUG) Logger.i("SEND_APP_PARTICIPANTS");
+        if (BuildConfig.DEBUG) Logger.json(asyncContent);
     }
 
     /**
@@ -1284,6 +1320,48 @@ public class Chat extends AsyncAdapter {
         if (BuildConfig.DEBUG) Logger.d("SEND_REPLY_MESSAGE");
         if (BuildConfig.DEBUG) Logger.json(asyncContent);
         sendAsyncMessage(asyncContent, 4);
+    }
+
+    /**
+     * DELETE MESSAGE IN THREAD
+     *
+     * @param messageId    Id of the message that you want to be removed.
+     * @param deleteForAll If you want to delete message for everyone you can set it true if u dont want
+     *                     you can set it false or even null.
+     */
+    public void deleteMessage(long messageId, Boolean deleteForAll) {
+        deleteForAll = deleteForAll != null ? deleteForAll : false;
+        String uniqueId = getUniqueId();
+        BaseMessage baseMessage = new BaseMessage();
+        DeleteMessage deleteMessage = new DeleteMessage();
+        deleteMessage.setDeleteForAll(deleteForAll);
+        String content = JsonUtil.getJson(deleteMessage);
+        baseMessage.setContent(content);
+        baseMessage.setSubjectId(messageId);
+        baseMessage.setToken(getToken());
+        baseMessage.setTokenIssuer("1");
+        baseMessage.setType(Constants.DELETE_MESSAGE);
+        baseMessage.setUniqueId(uniqueId);
+
+        String asyncContent = JsonUtil.getJson(baseMessage);
+        sendAsyncMessage(asyncContent, 4);
+        setCallBacks(null, null, null, true, Constants.DELETE_MESSAGE, null, uniqueId);
+
+
+        if (BuildConfig.DEBUG) Logger.d("SEND_DELETE_MESSAGE", asyncContent);
+        if (BuildConfig.DEBUG) Logger.json(asyncContent);
+    }
+
+    private class DeleteMessage {
+        private boolean deleteForAll;
+
+        public boolean isDeleteForAll() {
+            return deleteForAll;
+        }
+
+        public void setDeleteForAll(boolean deleteForAll) {
+            this.deleteForAll = deleteForAll;
+        }
     }
 
     /**
@@ -1433,9 +1511,10 @@ public class Chat extends AsyncAdapter {
                         } else {
                             AddContacts contacts = contactsResponse.body();
                             String contactsJson = JsonUtil.getJson(contacts);
-                            if (addContacts) {
+                            if (syncContacts) {
                                 listenerManager.callOnSyncContact(contactsJson);
                                 if (BuildConfig.DEBUG) Logger.i("SYNC_CONTACT");
+                                syncContacts = false;
                             } else {
                                 listenerManager.callOnAddContact(contactsJson);
                                 if (BuildConfig.DEBUG) Logger.i("ADD_CONTACTS");
@@ -1762,6 +1841,7 @@ public class Chat extends AsyncAdapter {
     }
 
     private void deviceIdRequest(String ssoHost, String serverAddress, String appId, String severName) {
+        if(BuildConfig.DEBUG)Logger.i("GET_DEVICE_ID");
         currentDeviceExist = false;
         RetrofitHelperSsoHost retrofitHelperSsoHost = new RetrofitHelperSsoHost(ssoHost);
         TokenApi tokenApi = retrofitHelperSsoHost.getService(TokenApi.class);
@@ -1778,7 +1858,7 @@ public class Chat extends AsyncAdapter {
                     }
                 }
                 if (!currentDeviceExist) {
-                    if (BuildConfig.DEBUG) Logger.e("No Current Device");
+                    if (BuildConfig.DEBUG) Logger.e("There Is No Current Device");
                 }
             } else {
                 if (BuildConfig.DEBUG) Logger.e("Error on get devices");
@@ -1870,19 +1950,21 @@ public class Chat extends AsyncAdapter {
     }
 
     private void setCallBacks(Boolean delivery, Boolean sent, Boolean seen, Boolean result, int requestType, Integer offset, String uniqueId) {
-        delivery = delivery != null ? delivery : false;
-        sent = sent != null ? sent : false;
-        seen = seen != null ? seen : false;
-        result = result != null ? result : false;
-        offset = offset != null ? offset : 0;
-        Callback callback = new Callback();
-        callback.setDelivery(delivery);
-        callback.setOffset(offset);
-        callback.setSeen(seen);
-        callback.setSent(sent);
-        callback.setRequestType(requestType);
-        callback.setResult(result);
-        messageCallbacks.put(uniqueId, callback);
+        if (chatReady) {
+            delivery = delivery != null ? delivery : false;
+            sent = sent != null ? sent : false;
+            seen = seen != null ? seen : false;
+            result = result != null ? result : false;
+            offset = offset != null ? offset : 0;
+            Callback callback = new Callback();
+            callback.setDelivery(delivery);
+            callback.setOffset(offset);
+            callback.setSeen(seen);
+            callback.setSent(sent);
+            callback.setRequestType(requestType);
+            callback.setResult(result);
+            messageCallbacks.put(uniqueId, callback);
+        }
     }
 
     private void setPlatformHost(String platformHost) {

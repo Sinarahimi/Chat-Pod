@@ -8,7 +8,6 @@ import android.net.Uri;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.mainmodel.Invitee;
-import com.fanap.podchat.mainmodel.ParticipantContent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -163,6 +162,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void deleteMessage(long messageId, Boolean deleteForAll) {
+        chat.deleteMessage(messageId, deleteForAll);
+    }
+
+    @Override
     public void onDeliver(String content) {
         super.onDeliver(content);
         view.onGetDeliverMessage();
@@ -173,6 +177,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void onGetThread(String content) {
         super.onGetThread(content);
         view.onGetThreadList();
+    }
+
+    @Override
+    public void onThreadInfoUpdated(String content) {
+
     }
 
     @Override
@@ -276,14 +285,14 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void onThreadAddPartcipant(String content) {
-        super.onThreadAddPartcipant(content);
+    public void onThreadAddParticipant(String content) {
+        super.onThreadAddParticipant(content);
         view.onAddParticipant();
     }
 
     @Override
-    public void onThreadRemovePartcipant(String content) {
-        super.onThreadRemovePartcipant(content);
+    public void onThreadRemoveParticipant(String content) {
+        super.onThreadRemoveParticipant(content);
         view.onRemoveParticipant();
     }
 
@@ -291,5 +300,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void onLeaveThread() {
         super.onLeaveThread();
         view.onLeaveThread();
+    }
+
+    @Override
+    public void onDeleteMessage(String content) {
+        super.onDeleteMessage(content);
+        view.onDeleteMessage();
     }
 }

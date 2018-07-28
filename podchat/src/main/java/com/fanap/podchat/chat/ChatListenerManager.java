@@ -324,30 +324,50 @@ public class ChatListenerManager {
         }
     }
 
-    public void callonThreadAddPartcipant(String content) {
+    public void callOnThreadAddParticipant(String content) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onThreadAddPartcipant(content);
+                listener.onThreadAddParticipant(content);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
         }
     }
 
-    public void callonThreadRemovePartcipant(String content) {
+    public void callOnThreadRemoveParticipant(String content) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onThreadRemovePartcipant(content);
+                listener.onThreadRemoveParticipant(content);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
         }
     }
 
-    public void callonThreadLeavePartcipant(String content) {
+    public void callOnThreadLeaveParticipant(String content) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onThreadLeavePartcipant(content);
+                listener.onThreadLeaveParticipant(content);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnDeleteMessage(String content) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onDeleteMessage(content);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnThreadInfoUpdated(String content) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onThreadInfoUpdated(content);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }

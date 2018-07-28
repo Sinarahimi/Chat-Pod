@@ -38,6 +38,11 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
+    public void onThreadInfoUpdated(String content) {
+
+    }
+
+    @Override
     public void onInvitation(String content) {
 
     }
@@ -128,6 +133,11 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
+    public void onDeleteMessage(String content) {
+
+    }
+
+    @Override
     public void onUpdateContact(String content) {
 
     }
@@ -148,17 +158,17 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onThreadAddPartcipant(String content) {
+    public void onThreadAddParticipant(String content) {
 
     }
 
     @Override
-    public void onThreadRemovePartcipant(String content) {
+    public void onThreadRemoveParticipant(String content) {
 
     }
 
     @Override
-    public void onThreadLeavePartcipant(String content) {
+    public void onThreadLeaveParticipant(String content) {
 
     }
 }

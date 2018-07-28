@@ -32,6 +32,8 @@ public interface ChatContract {
 
         void onEditMessage();
 
+        void onDeleteMessage();
+
         void onCreateThread();
 
         void onMuteThread();
@@ -113,5 +115,7 @@ public interface ChatContract {
         void addParticipants(long threadId, List<Long> contactIds);
 
         void leaveThread(long threadId);
+
+        void deleteMessage(long messageId, Boolean deleteForAll);
     }
 }
