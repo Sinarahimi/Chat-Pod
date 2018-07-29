@@ -33,11 +33,6 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onLeaveThread() {
-
-    }
-
-    @Override
     public void onSeen(String content) {
 
     }
@@ -98,16 +93,6 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onGetFile(String url) {
-
-    }
-
-    @Override
-    public void onGetImageFile(String url) {
-
-    }
-
-    @Override
     public void onNewMessage(String content) {
 
     }
@@ -149,6 +134,11 @@ public class ChatAdapter implements ChatListener {
 
     @Override
     public void onThreadLeaveParticipant(String content) {
+
+    }
+
+    @Override
+    public void onLastSeenUpdated(String content) {
 
     }
 }

@@ -353,4 +353,14 @@ public class ChatListenerManager {
             }
         }
     }
+
+    public void callOnLastSeenUpdated(String content) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onLastSeenUpdated(content);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
 }

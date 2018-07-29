@@ -15,6 +15,7 @@ public class MessageVO {
     private Participant participant;
     private long time;
     private String metadata;
+    private String systemMetadata;
     private Thread conversation;
     private ReplyInfoVO replyInfoVO;
     private ForwardInfo forwardInfo;
@@ -129,5 +130,13 @@ public class MessageVO {
 
     public void setForwardInfo(ForwardInfo forwardInfo) {
         this.forwardInfo = forwardInfo;
+    }
+
+    public String getSystemMetadata() {
+        return systemMetadata;
+    }
+
+    public void setSystemMetadata(String systemMetadata) {
+        this.systemMetadata = systemMetadata;
     }
 }

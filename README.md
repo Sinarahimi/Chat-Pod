@@ -26,36 +26,36 @@ chat.connect("ws://172.16.106.26:8003/ws",
 ```
 And now it's ready for chat .
 
-| Method                        | Description                                                                            |
-|:------------------------------|:---------------------------------------------------------------------------------------|
-| `connect(socketServerAddress, appId, serverName, token`   | connect to async.       |
-| `String ssoHost, String platformHost, String fileServer)`
-| `logOutSocket()`                                           | log out of socket.      |
-| `sendTextMessage(String textMessage, long threadId)`       | Send text message to thread.           |
-| `renameThread(long threadId, String title)`                |  Rename the owner thread.                |
-| `createThread(int threadType, Invitee[] invitee, String threadTitle)`                |  Create the thread.                |
-| `forwardMessage(long threadId, ArrayList<Long> messageIds)`                 | Forward the message or messages.        |
-| `replyMessage(String messageContent, long threadId, long messageId)`         | Reply the message in the thread       |
-| `editMessage(int messageId, String messageContent)`         | Edit the message      |
-| `getThreads(int count, int offset, ArrayList<Integer> threadIds)`         | gets the list of thread       |
-| `getHistory(int count, int offset, String order, long threadId)`         | get the history of the specific thread       |
-| `getContacts(int count, int offset)`         | get contact list      |
-| `removeContact(long userId)`         | remove user in contact list      |
-| `updateContact(String userId,String firstName, String lastName, String cellphoneNumber, String email)`| update user info in contact list      |
-| `removeContact(long userId)`         | remove user in contact list      |
-| `addContact(String firstName, String lastName, String cellphoneNumber, String email)`         | Add contact      |
-| `getThreadParticipants(int count, int offset, long threadId)`         | Get the participant list      |
-| `getUserInfo()`         | Get the information of the current user      |
-| `muteThread(int threadId)`         | Mute the thread      |
-| `unmuteThread(int threadId)`         | Un Mute the thread      |
-| `sendFile(Context context, String description, long threadId, Uri fileUri)`         | Send file      |
-| `syncContact(Context context, Activity activity)`         | Sync Contact      |
-| `uploadFile(Context context, Activity activity, String fileUri, Uri uri)`         | Upload file      |
-| `uploadImage(Context context, Activity activity, Uri fileUri)`         | Upload image      |
-| `deleteMessage(long messageId, Boolean deleteForAll)`         |      |
-| `addParticipants(long threadId, List<Long> contactIds)`         |      |
-| `removeParticipants(long threadId, List<Long> participantIds)`         |      |
-| `leaveThread(long threadId)`         |      |
+|Num|Method                        | Description                                                                            |
+|:--|:------------------------------|:---------------------------------------------------------------------------------------|
+|1|`connect(socketServerAddress, appId, serverName, token`   | connect to async.       |
+|2|`String ssoHost, String platformHost, String fileServer)`
+|3|`logOutSocket()`                                           | log out of socket.      |
+|4|`sendTextMessage(String textMessage, long threadId)`       | Send text message to thread.           |
+|5|`renameThread(long threadId, String title)`                |  Rename the owner thread.                |
+|6|`createThread(int threadType, Invitee[] invitee, String threadTitle)`                |  Create the thread.                |
+|7|`forwardMessage(long threadId, ArrayList<Long> messageIds)`                 | Forward the message or messages.        |
+|8|`replyMessage(String messageContent, long threadId, long messageId)`         | Reply the message in the thread       |
+|9|`editMessage(int messageId, String messageContent)`         | Edit the message      |
+|10|`getThreads(int count, int offset, ArrayList<Integer> threadIds, String threadName)`         | gets the list of thread       |
+|11|`getHistory(int count, int offset, String order, long threadId)`         | get the history of the specific thread       |
+|12|`getContacts(int count, int offset)`         | get contact list      |
+|13|`removeContact(long userId)`         | remove user in contact list      |
+|14|`updateContact(String userId,String firstName, String lastName, String cellphoneNumber, String email)`| update user info in contact list      |
+|15|`removeContact(long userId)`         | remove user in contact list      |
+|16|`addContact(String firstName, String lastName, String cellphoneNumber, String email)`         | Add contact      |
+|17|`getThreadParticipants(int count, int offset, long threadId)`         | Get the participant list      |
+|18|`getUserInfo()`         | Get the information of the current user      |
+|19|`muteThread(int threadId)`         | Mute the thread      |
+|20|`unmuteThread(int threadId)`         | Un Mute the thread      |
+|21|`sendFile(Context context, String description, long threadId, Uri fileUri)`         | Send file      |
+|22|`syncContact(Context context, Activity activity)`         | Sync Contact      |
+|23|`uploadFile(Context context, Activity activity, String fileUri, Uri uri)`         | Upload file      |
+|24|`uploadImage(Context context, Activity activity, Uri fileUri)`         | Upload image      |
+|25|`deleteMessage(long messageId, Boolean deleteForAll)`         |      |
+|26|`addParticipants(long threadId, List<Long> contactIds)`         |      |
+|27|`removeParticipants(long threadId, List<Long> participantIds)`         |      |
+|28|`leaveThread(long threadId)`         |      |
 
 ### replyMessage
 ```java
@@ -172,7 +172,7 @@ ChatAdapter is an empty implementation of ChatListener interface.
 For getting call back you should extend your class from `ChatAdapter`. 
 
 #### The following callback methods of ChatListener are called
-|Number|Method                        | Description                                                                            |
+|Num|Method                        | Description                                                                            |
 |:--|:------------------------------|:---------------------------------------------------------------------------------------|
 |1| `onDeliver()`   | Called when message is delivered.       |
 |2| `onGetContacts()`| Called when get contacts is return.      |
@@ -212,8 +212,3 @@ For getting call back you should extend your class from `ChatAdapter`.
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
-
-## Versioning
-
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
-

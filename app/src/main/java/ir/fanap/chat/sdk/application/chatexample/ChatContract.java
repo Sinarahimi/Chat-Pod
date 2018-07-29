@@ -64,7 +64,7 @@ public interface ChatContract {
         void connect(String serverAddress, String appId, String severName, String token, String ssoHost
                 , String platformHost, String fileServer);
 
-        void getThread(int count, int offset, ArrayList<Integer> threadIds);
+        void getThread(int count, int offset, ArrayList<Integer> threadIds, String threadName);
 
         void getUserInfo();
 

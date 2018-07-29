@@ -55,4 +55,6 @@ public interface ChatListener {
     void onThreadRemoveParticipant(String content);
 
     void onThreadLeaveParticipant(String content);
+
+    void onLastSeenUpdated(String content);
 }

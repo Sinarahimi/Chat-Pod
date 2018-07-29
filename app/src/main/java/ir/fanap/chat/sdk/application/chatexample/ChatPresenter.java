@@ -5,9 +5,13 @@ import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.net.Uri;
 
+import com.fanap.podasync.util.JsonUtil;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
+import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.mainmodel.Invitee;
+import com.fanap.podchat.model.MessageVO;
+import com.squareup.moshi.JsonAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,8 +36,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void getThread(int count, int offset, ArrayList<Integer> threadIds) {
-        chat.getThreads(count, offset, threadIds);
+    public void getThread(int count, int offset, ArrayList<Integer> threadIds, String threadName) {
+        chat.getThreads(count, offset, threadIds, threadName);
     }
 
     @Override
@@ -190,7 +194,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         view.onGetContacts();
     }
 
-
     @Override
     public void onSeen(String content) {
         super.onSeen(content);
@@ -293,14 +296,22 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void onLeaveThread() {
-        super.onLeaveThread();
+    public void onDeleteMessage(String content) {
+        super.onDeleteMessage(content);
+        view.onDeleteMessage();
+    }
+
+    @Override
+    public void onThreadLeaveParticipant(String content) {
+        super.onThreadLeaveParticipant(content);
         view.onLeaveThread();
     }
 
     @Override
-    public void onDeleteMessage(String content) {
-        super.onDeleteMessage(content);
-        view.onDeleteMessage();
+    public void onNewMessage(String content) {
+        super.onNewMessage(content);
+        MessageVO jsonMessage = JsonUtil.fromJSON(content, MessageVO.class);
+        long id = jsonMessage.getId();
+        chat.seenMessage(id);
     }
 }

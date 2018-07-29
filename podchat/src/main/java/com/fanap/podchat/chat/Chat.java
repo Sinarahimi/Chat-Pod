@@ -132,10 +132,8 @@ public class Chat extends AsyncAdapter {
     private static final String CHAT_READY = "CHAT_READY";
     private static final int TOKEN_ISSUER = 1;
     private Handler pingHandler;
-    private String contact;
     private Context context;
     private boolean currentDeviceExist;
-    private Activity activity;
     private String fileServer;
     private boolean syncContacts = false;
 
@@ -182,7 +180,6 @@ public class Chat extends AsyncAdapter {
             Logger.e("baseUrl must end in /:" + " " + platformHost);
         }
     }
-
     /**
      * When state of the Async changed then the chat ping is stopped buy (chatState)flag
      */
@@ -315,13 +312,717 @@ public class Chat extends AsyncAdapter {
                 resultThread.setThread(thread);
                 outPutInfoThread.setResult(resultThread);
                 listenerManager.callOnThreadInfoUpdated(chatMessage.getContent());
-                Logger.i("THREAD_INFO_UPDATED");
-                Logger.json(chatMessage.getContent());
+                if (BuildConfig.DEBUG) Logger.i("THREAD_INFO_UPDATED");
+                if (BuildConfig.DEBUG) Logger.json(chatMessage.getContent());
                 break;
             case Constants.LAST_SEEN_UPDATED:
-
+                if (BuildConfig.DEBUG) Logger.i("LAST_SEEN_UPDATED");
+                if (BuildConfig.DEBUG) Logger.i(chatMessage.getContent());
+                listenerManager.callOnLastSeenUpdated(chatMessage.getContent());
                 break;
         }
+    }
+
+    /**
+     * Send text message with
+     *
+     * @param textMessage String that we want to sent to the thread
+     * @param threadId    Id of the destination thread
+     * @param metaData    if you don't have metaData you can set it to "null"
+     */
+    public void sendTextMessage(String textMessage, long threadId, String metaData) {
+
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setContent(textMessage);
+        chatMessage.setType(Constants.MESSAGE);
+        chatMessage.setTokenIssuer("1");
+        chatMessage.setToken(getToken());
+
+        if (metaData != null) {
+            chatMessage.setSystemMetadata(metaData);
+        }
+
+        String uniqueId = getUniqueId();
+        chatMessage.setUniqueId(uniqueId);
+        chatMessage.setTime(1000);
+        chatMessage.setSubjectId(threadId);
+
+        JsonAdapter<ChatMessage> chatMessageJsonAdapter = moshi.adapter(ChatMessage.class);
+        String asyncContent = chatMessageJsonAdapter.toJson(chatMessage);
+
+        setThreadCallbacks(threadId, uniqueId);
+        if (BuildConfig.DEBUG) Logger.d("SEND_TEXT_MESSAGE");
+        if (BuildConfig.DEBUG) Logger.json(asyncContent);
+        sendAsyncMessage(asyncContent, 4);
+    }
+
+    /**
+     * First we get the contact from server then at the respond of that
+     * {@link #handleSyncContact(ChatMessage)} we add all of the PhoneContact that get from
+     * {@link #getPhoneContact(Context)} that's not in the list of serverContact.
+     */
+    public void syncContact(Context context, Activity activity) {
+        if (Permission.Check_READ_CONTACTS(activity)) {
+            syncContact = true;
+            getContacts(50, 0);
+            setContext(context);
+        } else {
+            if (BuildConfig.DEBUG) Logger.e("READ_CONTACTS Permission Needed!");
+        }
+    }
+
+    /**
+     * This method first check the type of the file and then choose the right
+     * server and send that
+     *
+     * @param description Its the description that you want to send with file in the thread
+     * @param fileUri     Uri of the file that you want to send to thread
+     * @param threadId    Id of the thread that you want to send file
+     */
+    public void sendFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri) {
+        String mimeType = context.getContentResolver().getType(fileUri);
+        if (mimeType.equals("image/png") || mimeType.equals("image/jpeg")) {
+            sendImageFileMessage(context, activity, description, threadId, fileUri, mimeType);
+        } else {
+            String path = FilePick.getSmartFilePath(context, fileUri);
+            uploadFileMessage(activity, description, threadId, mimeType, path);
+        }
+    }
+
+    public void uploadImage(Context context, Activity activity, Uri fileUri) {
+        if (fileServer != null) {
+            if (Permission.Check_READ_STORAGE(activity)) {
+                String mimeType = context.getContentResolver().getType(fileUri);
+                RetrofitHelperFileServer retrofitHelperFileServer = new RetrofitHelperFileServer(getFileServer());
+                FileApi fileApi = retrofitHelperFileServer.getService(FileApi.class);
+                File file = new File(getRealPathFromURI(context, fileUri));
+                if (mimeType.equals("image/png") || mimeType.equals("image/jpeg")) {
+
+                    RequestBody requestFile = RequestBody.create(MediaType.parse("image/*"), file);
+                    MultipartBody.Part body = MultipartBody.Part.createFormData("image", file.getName(), requestFile);
+                    RequestBody name = RequestBody.create(MediaType.parse("text/plain"), file.getName());
+
+                    Observable<Response<FileImageUpload>> uploadObservable = fileApi.sendImageFile(body, getToken(), TOKEN_ISSUER, name);
+                    uploadObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Response<FileImageUpload>>() {
+                        @Override
+                        public void call(Response<FileImageUpload> fileUploadResponse) {
+                            if (fileUploadResponse.isSuccessful()) {
+                                boolean error = fileUploadResponse.body().isHasError();
+                                if (error) {
+                                    String errorMessage = fileUploadResponse.body().getMessage();
+                                    Logger.e(errorMessage);
+                                } else {
+                                    FileImageUpload fileImageUpload = fileUploadResponse.body();
+                                    String imageJson = JsonUtil.getJson(fileImageUpload);
+                                    listenerManager.callOnUploadImageFile(imageJson);
+                                    if (BuildConfig.DEBUG) Logger.json(imageJson);
+                                }
+                            }
+                        }
+                    }, throwable -> Logger.e(throwable.getMessage()));
+                } else {
+                    Logger.e(file + " " + "Is Not An Image");
+                }
+            } else {
+                if (BuildConfig.DEBUG) Logger.e("READ_EXTERNAL_STORAGE Permission Needed!");
+            }
+        } else {
+            if (BuildConfig.DEBUG) Logger.e("FileServer url Is null");
+        }
+
+    }
+
+    public void uploadFile(Context context, Activity activity, String fileUri, Uri uri) {
+        if (Permission.Check_READ_STORAGE(activity)) {
+            if (getFileServer() != null) {
+                String mimeType = context.getContentResolver().getType(uri);
+                File file = new File(fileUri);
+                RetrofitHelperFileServer retrofitHelperFileServer = new RetrofitHelperFileServer(getFileServer());
+                FileApi fileApi = retrofitHelperFileServer.getService(FileApi.class);
+                RequestBody name = RequestBody.create(MediaType.parse("text/plain"), file.getName());
+                RequestBody requestFile = RequestBody.create(MediaType.parse(mimeType), file);
+                MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), requestFile);
+                Observable<Response<FileUpload>> uploadObservable = fileApi.sendFile(body, getToken(), TOKEN_ISSUER, name);
+                uploadObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Response<FileUpload>>() {
+                    @Override
+                    public void call(Response<FileUpload> fileUploadResponse) {
+                        if (fileUploadResponse.isSuccessful()) {
+                            boolean error = fileUploadResponse.body().isHasError();
+                            if (error) {
+                                String errorMessage = fileUploadResponse.body().getMessage();
+                                if (BuildConfig.DEBUG) Logger.e(errorMessage);
+                            } else {
+                                FileUpload result = fileUploadResponse.body();
+                                String json = JsonUtil.getJson(result);
+                                listenerManager.callOnUploadFile(json);
+                                if (BuildConfig.DEBUG) Logger.json(json);
+                            }
+                        }
+                    }
+                }, throwable -> {
+                    if (BuildConfig.DEBUG) Logger.e(throwable.getMessage());
+                });
+            } else {
+                if (BuildConfig.DEBUG) Logger.e("FileServer url Is null");
+            }
+
+        } else {
+            if (BuildConfig.DEBUG) Logger.e("READ_EXTERNAL_STORAGE Permission Is Needed!");
+        }
+    }
+
+    /**
+     * Remove the peerId and send ping again but this time
+     * peerId that was set in the server was removed
+     */
+    public void logOutSocket() {
+        async.logOutSocket();
+    }
+
+    /**
+     * Notice : You should consider that this method is for rename group and you have to be the admin
+     * to change the thread name if not you don't have the Permission
+     */
+    public void renameThread(long threadId, String title) {
+        String uniqueId = getUniqueId();
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setType(Constants.RENAME);
+        chatMessage.setSubjectId(threadId);
+        chatMessage.setContent(title);
+        chatMessage.setToken(getToken());
+        chatMessage.setTokenIssuer("1");
+        chatMessage.setUniqueId(uniqueId);
+        setCallBacks(null, null, null, true, Constants.RENAME, null, uniqueId);
+        String asyncContent = JsonUtil.getJson(chatMessage);
+        sendAsyncMessage(asyncContent, 4);
+        if (BuildConfig.DEBUG) Logger.i("SEND_RENAME_THREAD");
+        if (BuildConfig.DEBUG) Logger.json(asyncContent);
+    }
+
+    /**
+     * @param contactIds List of CONTACT IDs
+     * @param threadId   Id of the thread that you are {*NOTICE*}admin of that and you want to
+     *                   add someone as a participant.
+     */
+    public void addParticipants(long threadId, List<Long> contactIds) {
+
+        AddParticipant addParticipant = new AddParticipant();
+        String uniqueId = getUniqueId();
+        addParticipant.setSubjectId(threadId);
+        addParticipant.setUniqueId(uniqueId);
+        JsonArray contacts = new JsonArray();
+        for (Long p : contactIds) {
+            contacts.add(p);
+        }
+        addParticipant.setContent(contacts.toString());
+        addParticipant.setSubjectId(threadId);
+        addParticipant.setToken(getToken());
+        addParticipant.setTokenIssuer("1");
+        addParticipant.setUniqueId(uniqueId);
+        addParticipant.setType(Constants.ADD_PARTICIPANT);
+        String asyncContent = JsonUtil.getJson(addParticipant);
+        setCallBacks(null, null, null, true, Constants.ADD_PARTICIPANT, null, uniqueId);
+        sendAsyncMessage(asyncContent, 4);
+        if (BuildConfig.DEBUG) Logger.i("SEND_APP_PARTICIPANTS");
+        if (BuildConfig.DEBUG) Logger.json(asyncContent);
+    }
+
+    /**
+     * @param participantIds List of PARTICIPANT IDs from Thread's Participants object
+     * @param threadId       Id of the thread that we wants to remove their participant
+     */
+    public void removeParticipants(long threadId, List<Long> participantIds) {
+
+        String uniqueId = getUniqueId();
+        RemoveParticipant removeParticipant = new RemoveParticipant();
+        removeParticipant.setTokenIssuer("1");
+        removeParticipant.setType(Constants.REMOVE_PARTICIPANT);
+        removeParticipant.setSubjectId(threadId);
+        removeParticipant.setToken(getToken());
+        removeParticipant.setUniqueId(uniqueId);
+
+        JsonArray contacts = new JsonArray();
+        for (Long p : participantIds) {
+            contacts.add(p);
+        }
+        removeParticipant.setContent(contacts.toString());
+
+        String asyncContent = JsonUtil.getJson(removeParticipant);
+        sendAsyncMessage(asyncContent, 4);
+        setCallBacks(null, null, null, true, Constants.REMOVE_PARTICIPANT, null, uniqueId);
+        if (BuildConfig.DEBUG) Logger.json(asyncContent);
+        if (BuildConfig.DEBUG) Logger.d("SEND_REMOVE_PARTICIPANT");
+    }
+
+    public void leaveThread(long threadId) {
+        String uniqueId = getUniqueId();
+        RemoveParticipant removeParticipant = new RemoveParticipant();
+
+        removeParticipant.setSubjectId(threadId);
+        removeParticipant.setToken(getToken());
+        removeParticipant.setTokenIssuer("1");
+        removeParticipant.setUniqueId(uniqueId);
+        removeParticipant.setType(Constants.LEAVE_THREAD);
+
+        setCallBacks(null, null, null, true, Constants.LEAVE_THREAD, null, uniqueId);
+        String json = JsonUtil.getJson(removeParticipant);
+        sendAsyncMessage(json, 4);
+        if (BuildConfig.DEBUG) Logger.i("SEND_LEAVE_THREAD");
+        if (BuildConfig.DEBUG) Logger.json(json);
+    }
+
+    /**
+     * forward message
+     *
+     * @param threadId   destination thread id
+     * @param messageIds Array of message ids that we want to forward them
+     */
+    public void forwardMessage(long threadId, ArrayList<Long> messageIds) {
+        ChatMessageForward chatMessageForward = new ChatMessageForward();
+        ObjectMapper mapper = new ObjectMapper();
+        ArrayList<String> uniqueIds = new ArrayList<>();
+        chatMessageForward.setSubjectId(threadId);
+        ArrayList<Callback> callbacks = new ArrayList<>();
+
+        for (int i = 0; i < messageIds.size(); i++) {
+            String uniqueId = getUniqueId();
+            uniqueIds.add(uniqueId);
+            Callback callback = new Callback();
+            callback.setDelivery(true);
+            callback.setSeen(true);
+            callback.setSent(true);
+            callback.setUniqueId(uniqueId);
+            callbacks.add(callback);
+        }
+        threadCallbacks.put(threadId, callbacks);
+        try {
+            chatMessageForward.setUniqueId(mapper.writeValueAsString(uniqueIds));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        chatMessageForward.setContent(messageIds.toString());
+        chatMessageForward.setToken(getToken());
+        chatMessageForward.setTokenIssuer("1");
+        chatMessageForward.setType(Constants.FORWARD_MESSAGE);
+
+        String asyncContent = JsonUtil.getJson(chatMessageForward);
+        if (BuildConfig.DEBUG) Logger.i("SEND_FORWARD_MESSAGE");
+        if (BuildConfig.DEBUG) Logger.json(asyncContent);
+        sendAsyncMessage(asyncContent, 4);
+    }
+
+    /**
+     * Reply the message in the current thread and send az message and receive at the
+     *
+     * @param messageContent content of the reply message
+     * @param threadId       id of the thread
+     * @param messageId      of that message we want to reply
+     */
+    public void replyMessage(String messageContent, long threadId, long messageId) {
+        String uniqueId = getUniqueId();
+
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setUniqueId(uniqueId);
+        chatMessage.setRepliedTo(messageId);
+        chatMessage.setSubjectId(threadId);
+        chatMessage.setTokenIssuer("1");
+        chatMessage.setToken(getToken());
+        chatMessage.setContent(messageContent);
+        chatMessage.setTime(1000);
+        chatMessage.setType(Constants.MESSAGE);
+        JsonAdapter<ChatMessage> chatMessageJsonAdapter = moshi.adapter(ChatMessage.class);
+        String asyncContent = chatMessageJsonAdapter.toJson(chatMessage);
+
+        setThreadCallbacks(threadId, uniqueId);
+        if (BuildConfig.DEBUG) Logger.d("SEND_REPLY_MESSAGE");
+        if (BuildConfig.DEBUG) Logger.json(asyncContent);
+        sendAsyncMessage(asyncContent, 4);
+    }
+
+    /**
+     * DELETE MESSAGE IN THREAD
+     *
+     * @param messageId    Id of the message that you want to be removed.
+     * @param deleteForAll If you want to delete message for everyone you can set it true if u dont want
+     *                     you can set it false or even null.
+     */
+    public void deleteMessage(long messageId, Boolean deleteForAll) {
+        deleteForAll = deleteForAll != null ? deleteForAll : false;
+        String uniqueId = getUniqueId();
+        BaseMessage baseMessage = new BaseMessage();
+        DeleteMessage deleteMessage = new DeleteMessage();
+        deleteMessage.setDeleteForAll(deleteForAll);
+        String content = JsonUtil.getJson(deleteMessage);
+        baseMessage.setContent(content);
+        baseMessage.setSubjectId(messageId);
+        baseMessage.setToken(getToken());
+        baseMessage.setTokenIssuer("1");
+        baseMessage.setType(Constants.DELETE_MESSAGE);
+        baseMessage.setUniqueId(uniqueId);
+
+        String asyncContent = JsonUtil.getJson(baseMessage);
+        sendAsyncMessage(asyncContent, 4);
+        setCallBacks(null, null, null, true, Constants.DELETE_MESSAGE, null, uniqueId);
+
+
+        if (BuildConfig.DEBUG) Logger.d("SEND_DELETE_MESSAGE", asyncContent);
+        if (BuildConfig.DEBUG) Logger.json(asyncContent);
+    }
+
+    /**
+     * Get the list of threads or you can just pass the thread id that you want
+     *
+     * @param count  number of thread
+     * @param offset specified offset you want
+     */
+    public void getThreads(int count, int offset, ArrayList<Integer> threadIds, String threadName) {
+        ChatMessageContent chatMessageContent = new ChatMessageContent();
+        chatMessageContent.setCount(count);
+        chatMessageContent.setOffset(offset);
+        if (threadName != null) {
+            chatMessageContent.setName(threadName);
+        }
+        if (threadIds != null) {
+            chatMessageContent.setThreadIds(threadIds);
+        }
+        JsonAdapter<ChatMessageContent> messageContentJsonAdapter = moshi.adapter(ChatMessageContent.class);
+        String content = messageContentJsonAdapter.toJson(chatMessageContent);
+
+        String uniqueId = getUniqueId();
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setContent(content);
+        chatMessage.setType(Constants.GET_THREADS);
+        chatMessage.setTokenIssuer("1");
+        chatMessage.setToken(getToken());
+        chatMessage.setUniqueId(uniqueId);
+
+        JsonAdapter<ChatMessage> chatMessageJsonAdapter = moshi.adapter(ChatMessage.class);
+        String asyncContent = chatMessageJsonAdapter.toJson(chatMessage);
+        if (BuildConfig.DEBUG) Logger.d("Get thread send", asyncContent);
+        if (BuildConfig.DEBUG) Logger.json(asyncContent);
+        setCallBacks(null, null, null, true, Constants.GET_THREADS, offset, uniqueId);
+        sendAsyncMessage(asyncContent, 3);
+    }
+
+    /**
+     * Get history of the thread
+     *
+     * @param count    count of the messages
+     * @param order    If order is empty [default = desc] and also you have two option [ asc | desc ]
+     * @param threadId Id of the thread that we want to get the history
+     */
+    public void getHistory(int count, int offset, String order, long threadId) {
+        History history = new History();
+        if (order != null) {
+            history.setOrder(order);
+        }
+        history.setCount(count);
+        history.setOffset(offset);
+        JsonAdapter<History> messageContentJsonAdapter = moshi.adapter(History.class);
+        String content = messageContentJsonAdapter.toJson(history);
+
+        String uniqueId = getUniqueId();
+
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setContent(content);
+        chatMessage.setType(Constants.GET_HISTORY);
+        chatMessage.setToken(getToken());
+        chatMessage.setTokenIssuer("1");
+        chatMessage.setUniqueId(uniqueId);
+        chatMessage.setSubjectId(threadId);
+        JsonAdapter<ChatMessage> chatMessageJsonAdapter = moshi.adapter(ChatMessage.class);
+        String asyncContent = chatMessageJsonAdapter.toJson(chatMessage);
+        if (BuildConfig.DEBUG) Logger.d("SEND GET THREAD HISTORY");
+        if (BuildConfig.DEBUG) Logger.json(asyncContent);
+        setCallBacks(null, null, null, true, Constants.GET_HISTORY, offset, uniqueId);
+        sendAsyncMessage(asyncContent, 3);
+    }
+
+    /**
+     * Get all of the contacts of the user
+     */
+    public void getContacts(int count, int offset) {
+        ChatMessageContent chatMessageContent = new ChatMessageContent();
+        chatMessageContent.setCount(count);
+        chatMessageContent.setOffset(offset);
+
+        JsonAdapter<ChatMessageContent> messageContentJsonAdapter = moshi.adapter(ChatMessageContent.class);
+        String content = messageContentJsonAdapter.toJson(chatMessageContent);
+        String uniqueId = getUniqueId();
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setContent(content);
+        chatMessage.setType(Constants.GET_CONTACTS);
+        chatMessage.setToken(getToken());
+        chatMessage.setUniqueId(uniqueId);
+
+        JsonAdapter<ChatMessage> chatMessageJsonAdapter = moshi.adapter(ChatMessage.class);
+        String asyncContent = chatMessageJsonAdapter.toJson(chatMessage);
+        setCallBacks(null, null, null, true, Constants.GET_CONTACTS, offset, uniqueId);
+        if (BuildConfig.DEBUG) Logger.d("GET_CONTACT_SEND", asyncContent);
+        if (BuildConfig.DEBUG) Logger.json(asyncContent);
+        sendAsyncMessage(asyncContent, 3);
+    }
+
+    /**
+     * Add one contact to the contact list
+     *
+     * @param firstName       Notice: if just put fistName without lastName its ok.
+     * @param lastName        last name of the contact
+     * @param cellphoneNumber Notice: If you just  put the cellPhoneNumber doesn't necessary to add email
+     * @param email           email of the contact
+     */
+    public void addContact(String firstName, String lastName, String cellphoneNumber, String email) {
+        String uniqueId = getUniqueId();
+        Observable<Response<Contacts>> addContactObservable;
+        if (getPlatformHost() != null) {
+            addContactObservable = contactApi.addContact(getToken(), 1, firstName, lastName, email, uniqueId, cellphoneNumber);
+            addContactObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(addContactResponse -> {
+                if (addContactResponse.isSuccessful()) {
+                    Contacts contacts = addContactResponse.body();
+                    if (!contacts.getHasError()) {
+                        OutPutAddContact outPutAddContact = Util.getReformatOutPutAddContact(contacts);
+
+                        String contactsJson = JsonUtil.getJson(outPutAddContact);
+                        listenerManager.callOnAddContact(contactsJson);
+                        if (BuildConfig.DEBUG) Logger.json(contactsJson);
+                    } else {
+                        if (BuildConfig.DEBUG) Logger.e(contacts.getMessage());
+                    }
+
+                }
+            }, throwable ->
+                    Logger.e("Error on add contact", throwable.toString()));
+        } else {
+            if (BuildConfig.DEBUG) Logger.e("PlatformHost Address Is Empty!");
+        }
+    }
+
+    /**
+     * Remove contact with the user id
+     *
+     * @param userId id of the user that we want to remove from contact list
+     */
+    public void removeContact(long userId) {
+        if (getPlatformHost() != null) {
+            Observable<Response<ContactRemove>> removeContactObservable = contactApi.removeContact(getToken(), 1, userId);
+            removeContactObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(response -> {
+                if (response.isSuccessful()) {
+                    ContactRemove contactRemove = response.body();
+                    if (!contactRemove.getHasError()) {
+                        String contactRemoveJson = JsonUtil.getJson(contactRemove);
+                        listenerManager.callOnRemoveContact(contactRemoveJson);
+                        if (BuildConfig.DEBUG) Logger.json(contactRemoveJson);
+                    } else {
+                        if (BuildConfig.DEBUG) Logger.e(contactRemove.getErrorMessage());
+                    }
+                }
+            }, throwable -> {
+                if (BuildConfig.DEBUG) Logger.e("Error on remove contact", throwable.getMessage());
+            });
+        } else {
+            if (BuildConfig.DEBUG) Logger.e("PlatformHost address is :Empty");
+        }
+    }
+
+    /**
+     * Update contacts
+     * all of the params all required to update
+     */
+    public void updateContact(long userId, String firstName, String lastName, String cellphoneNumber, String email) {
+        Observable<Response<UpdateContact>> updateContactObservable = contactApi.updateContact(getToken(), 1
+                , userId, firstName, lastName, email, getUniqueId(), cellphoneNumber);
+        updateContactObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(response -> {
+            if (response.isSuccessful()) {
+                UpdateContact updateContact = response.body();
+                if (!response.body().getHasError()) {
+                    OutPutUpdateContact outPut = new OutPutUpdateContact();
+                    outPut.setMessage(updateContact.getMessage());
+                    outPut.setErrorCode(updateContact.getErrorCode());
+                    outPut.setHasError(updateContact.getHasError());
+                    outPut.setOtt(updateContact.getOtt());
+                    outPut.setReferenceNumber(updateContact.getReferenceNumber());
+                    outPut.setCount(updateContact.getCount());
+                    ResultUpdateContact resultUpdateContact = new ResultUpdateContact();
+                    resultUpdateContact.setContacts(updateContact.getResult());
+                    outPut.setResult(resultUpdateContact);
+                    String json = JsonUtil.getJson(outPut);
+                    listenerManager.callOnUpdateContact(json);
+                    Logger.json(json);
+                } else {
+                    if (BuildConfig.DEBUG) Logger.e(response.body().getMessage());
+                }
+            }
+        }, (Throwable throwable) ->
+        {
+            if (throwable != null) {
+                Logger.e("cause" + "" + throwable.getCause());
+            }
+        });
+    }
+
+    /**
+     * Create the thread to p to p/channel/group. The list below is showing all of the thread type
+     * int NORMAL = 0;
+     * int OWNER_GROUP = 1;
+     * int PUBLIC_GROUP = 2;
+     * int CHANNEL_GROUP = 4;
+     * int CHANNEL = 8;
+     */
+    public void createThread(int threadType, Invitee[] invitee, String threadTitle) {
+        List<Invitee> invitees = new ArrayList<>(Arrays.asList(invitee));
+        ChatThread chatThread = new ChatThread();
+        chatThread.setThreadType(threadType);
+        chatThread.setInvitees(invitees);
+        chatThread.setTitle(threadTitle);
+
+        String contentThreadChat = JsonUtil.getJson(chatThread);
+        String uniqueId = getUniqueId();
+        ChatMessage chatMessage = getChatMessage(contentThreadChat, uniqueId);
+
+        setCallBacks(null, null, null, true, Constants.INVITATION, null, uniqueId);
+        String asyncContent = JsonUtil.getJson(chatMessage);
+        sendAsyncMessage(asyncContent, 4);
+    }
+
+    /**
+     * Get the participant list of specific thread
+     *
+     * @param threadId id of the thread we want to ge the participant list
+     */
+    public void getThreadParticipants(int count, int offset, long threadId) {
+        ChatMessageContent chatMessageContent = new ChatMessageContent();
+        chatMessageContent.setCount(count);
+        chatMessageContent.setOffset(offset);
+
+        JsonAdapter<ChatMessageContent> messageContentJsonAdapter = moshi.adapter(ChatMessageContent.class);
+        String content = messageContentJsonAdapter.toJson(chatMessageContent);
+        String uniqueId = getUniqueId();
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setContent(content);
+        chatMessage.setType(Constants.THREAD_PARTICIPANTS);
+        chatMessage.setTokenIssuer("1");
+        chatMessage.setToken(getToken());
+        chatMessage.setUniqueId(uniqueId);
+        chatMessage.setSubjectId(threadId);
+
+        JsonAdapter<ChatMessage> chatMessageJsonAdapter = moshi.adapter(ChatMessage.class);
+        String asyncContent = chatMessageJsonAdapter.toJson(chatMessage);
+        if (BuildConfig.DEBUG) Logger.i("SEND_THREAD_PARTICIPANT");
+        if (BuildConfig.DEBUG) Logger.json(asyncContent);
+        setCallBacks(null, null, null, true, Constants.THREAD_PARTICIPANTS, offset, uniqueId);
+        sendAsyncMessage(asyncContent, 3);
+    }
+
+    public void seenMessage(long messageId) {
+        ChatMessage message = new ChatMessage();
+        message.setType(Constants.SEEN);
+        message.setContent(String.valueOf(messageId));
+        message.setTokenIssuer("1");
+        message.setToken(getToken());
+        message.setUniqueId(getUniqueId());
+        message.setTime(1000);
+
+        JsonAdapter<ChatMessage> chatMessageJsonAdapter = moshi.adapter(ChatMessage.class);
+        String asyncContent = chatMessageJsonAdapter.toJson(message);
+        sendAsyncMessage(asyncContent, 4);
+        if (BuildConfig.DEBUG) Logger.i("SEND_SEEN_MESSAGE");
+        if (BuildConfig.DEBUG) Logger.json(asyncContent);
+    }
+
+    /**
+     * Get the information of the current user
+     */
+    public void getUserInfo() {
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setType(Constants.USER_INFO);
+        String uniqueId = getUniqueId();
+        chatMessage.setUniqueId(uniqueId);
+        chatMessage.setToken(getToken());
+
+        setCallBacks(null, null, null, true, Constants.USER_INFO, null, uniqueId);
+        String asyncContent = JsonUtil.getJson(chatMessage);
+        sendAsyncMessage(asyncContent, 3);
+    }
+
+    /**
+     * Mute the thread so notification is off for that thread
+     */
+    public void muteThread(int threadId) {
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setType(Constants.MUTE_THREAD);
+        chatMessage.setToken(getToken());
+        chatMessage.setTokenIssuer("1");
+        chatMessage.setSubjectId(threadId);
+        String uniqueId = getUniqueId();
+        chatMessage.setUniqueId(uniqueId);
+        setCallBacks(null, null, null, true, Constants.MUTE_THREAD, null, uniqueId);
+
+        String asyncContent = JsonUtil.getJson(chatMessage);
+        sendAsyncMessage(asyncContent, 4);
+    }
+
+    /**
+     * Unmute the thread so notification is on for that thread
+     */
+    public void unmuteThread(int threadId) {
+        String uniqueId = getUniqueId();
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setType(Constants.UN_MUTE_THREAD);
+        chatMessage.setToken(getToken());
+        chatMessage.setTokenIssuer("1");
+        chatMessage.setSubjectId(threadId);
+        chatMessage.setUniqueId(uniqueId);
+
+        setCallBacks(null, null, null, true, Constants.UN_MUTE_THREAD, null, uniqueId);
+        String asyncContent = JsonUtil.getJson(chatMessage);
+        sendAsyncMessage(asyncContent, 4);
+    }
+
+    /**
+     * Message can be edit when you pass the message id and the edited
+     * content to editMessage function
+     */
+    public void editMessage(int messageId, String messageContent) {
+        String uniqueId = getUniqueId();
+
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setType(Constants.EDIT_MESSAGE);
+        chatMessage.setToken(getToken());
+        chatMessage.setUniqueId(uniqueId);
+        chatMessage.setSubjectId(messageId);
+        chatMessage.setContent(messageContent);
+        chatMessage.setTokenIssuer("1");
+
+        String asyncContent = JsonUtil.getJson(chatMessage);
+        setCallBacks(null, null, null, true, Constants.EDIT_MESSAGE, null, uniqueId);
+        if (BuildConfig.DEBUG) Logger.d("SEND_EDIT_MESSAGE");
+        if (BuildConfig.DEBUG) Logger.json(asyncContent);
+        sendAsyncMessage(asyncContent, 4);
+    }
+
+    /**
+     * Add a listener to receive events on this Chat.
+     *
+     * @param listener A listener to add.
+     * @return {@code this} object.
+     */
+    public Chat addListener(ChatListener listener) {
+        listenerManager.addListener(listener);
+        return this;
+    }
+
+    public Chat addListeners(List<ChatListener> listeners) {
+        listenerManager.addListeners(listeners);
+        return this;
+    }
+
+    public Chat removeListener(ChatListener listener) {
+        listenerManager.removeListener(listener);
+        return this;
+    }
+
+    public LiveData<String> getState() {
+        return async.getStateLiveData();
     }
 
     private void handleError(ChatMessage chatMessage) {
@@ -334,8 +1035,6 @@ public class Chat extends AsyncAdapter {
         if (BuildConfig.DEBUG) Logger.e("ErrorMessage:" + error.getMessage());
         if (BuildConfig.DEBUG) Logger.e("ErrorCode:" + " " + String.valueOf(error.getCode()));
     }
-
-    //TODO json output for new message
 
     /**
      * When the new message arrived we send the deliver message to the sender user.
@@ -785,47 +1484,6 @@ public class Chat extends AsyncAdapter {
         return outPutThread;
     }
 
-    /**
-     * Remove the peerId and send ping again but this time
-     * peerId that was set in the server was removed
-     */
-    public void logOutSocket() {
-        async.logOutSocket();
-    }
-
-    /**
-     * Send text message with
-     *
-     * @param textMessage String that we want to sent to the thread
-     * @param threadId    Id of the destination thread
-     * @param metaData    if you don't have metaData you can set it to "null"
-     */
-    public void sendTextMessage(String textMessage, long threadId, String metaData) {
-
-        ChatMessage chatMessage = new ChatMessage();
-        chatMessage.setContent(textMessage);
-        chatMessage.setType(Constants.MESSAGE);
-        chatMessage.setTokenIssuer("1");
-        chatMessage.setToken(getToken());
-
-        if (metaData != null) {
-            chatMessage.setSystemMetadata(metaData);
-        }
-
-        String uniqueId = getUniqueId();
-        chatMessage.setUniqueId(uniqueId);
-        chatMessage.setTime(1000);
-        chatMessage.setSubjectId(threadId);
-
-        JsonAdapter<ChatMessage> chatMessageJsonAdapter = moshi.adapter(ChatMessage.class);
-        String asyncContent = chatMessageJsonAdapter.toJson(chatMessage);
-
-        setThreadCallbacks(threadId, uniqueId);
-        if (BuildConfig.DEBUG) Logger.d("SEND_TEXT_MESSAGE");
-        if (BuildConfig.DEBUG) Logger.json(asyncContent);
-        sendAsyncMessage(asyncContent, 4);
-    }
-
     private void sendTextMessageWithFile(String description, long threadId, String metaData) {
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setContent(description);
@@ -898,21 +1556,6 @@ public class Chat extends AsyncAdapter {
     }
 
     /**
-     * First we get the contact from server then at the respond of that
-     * {@link #handleSyncContact(ChatMessage)} we add all of the PhoneContact that get from
-     * {@link #getPhoneContact(Context)} that's not in the list of serverContact.
-     */
-    public void syncContact(Context context, Activity activity) {
-        if (Permission.Check_READ_CONTACTS(activity)) {
-            syncContact = true;
-            getContacts(50, 0);
-            setContext(context);
-        } else {
-            if (BuildConfig.DEBUG) Logger.e("READ_CONTACTS Permission Needed!");
-        }
-    }
-
-    /**
      * Get the list of the Device Contact
      */
     private List<Contact> getPhoneContact(Context context) {
@@ -941,24 +1584,6 @@ public class Chat extends AsyncAdapter {
         String result = cursor.getString(column_index);
         cursor.close();
         return result;
-    }
-
-    /**
-     * This method first check the type of the file and then choose the right
-     * server and send that
-     *
-     * @param description Its the description that you want to send with file in the thread
-     * @param fileUri     Uri of the file that you want to send to thread
-     * @param threadId    Id of the thread that you want to send file
-     */
-    public void sendFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri) {
-        String mimeType = context.getContentResolver().getType(fileUri);
-        if (mimeType.equals("image/png") || mimeType.equals("image/jpeg")) {
-            sendImageFileMessage(context, activity, description, threadId, fileUri, mimeType);
-        } else {
-            String path = FilePick.getSmartFilePath(context, fileUri);
-            uploadFileMessage(activity, description, threadId, mimeType, path);
-        }
     }
 
     private void uploadFileMessage(Activity activity, String description, long threadId, String mimeType, String path) {
@@ -1068,88 +1693,6 @@ public class Chat extends AsyncAdapter {
         }
     }
 
-    public void uploadImage(Context context, Activity activity, Uri fileUri) {
-        if (fileServer != null) {
-            if (Permission.Check_READ_STORAGE(activity)) {
-                String mimeType = context.getContentResolver().getType(fileUri);
-                RetrofitHelperFileServer retrofitHelperFileServer = new RetrofitHelperFileServer(getFileServer());
-                FileApi fileApi = retrofitHelperFileServer.getService(FileApi.class);
-                File file = new File(getRealPathFromURI(context, fileUri));
-                if (mimeType.equals("image/png") || mimeType.equals("image/jpeg")) {
-
-                    RequestBody requestFile = RequestBody.create(MediaType.parse("image/*"), file);
-                    MultipartBody.Part body = MultipartBody.Part.createFormData("image", file.getName(), requestFile);
-                    RequestBody name = RequestBody.create(MediaType.parse("text/plain"), file.getName());
-
-                    Observable<Response<FileImageUpload>> uploadObservable = fileApi.sendImageFile(body, getToken(), TOKEN_ISSUER, name);
-                    uploadObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Response<FileImageUpload>>() {
-                        @Override
-                        public void call(Response<FileImageUpload> fileUploadResponse) {
-                            if (fileUploadResponse.isSuccessful()) {
-                                boolean error = fileUploadResponse.body().isHasError();
-                                if (error) {
-                                    String errorMessage = fileUploadResponse.body().getMessage();
-                                    Logger.e(errorMessage);
-                                } else {
-                                    FileImageUpload fileImageUpload = fileUploadResponse.body();
-                                    String imageJson = JsonUtil.getJson(fileImageUpload);
-                                    listenerManager.callOnUploadImageFile(imageJson);
-                                    if (BuildConfig.DEBUG) Logger.json(imageJson);
-                                }
-                            }
-                        }
-                    }, throwable -> Logger.e(throwable.getMessage()));
-                } else {
-                    Logger.e(file + " " + "Is Not An Image");
-                }
-            } else {
-                if (BuildConfig.DEBUG) Logger.e("READ_EXTERNAL_STORAGE Permission Needed!");
-            }
-        } else {
-            if (BuildConfig.DEBUG) Logger.e("FileServer url Is null");
-        }
-
-    }
-
-    public void uploadFile(Context context, Activity activity, String fileUri, Uri uri) {
-        if (Permission.Check_READ_STORAGE(activity)) {
-            if (getFileServer() != null) {
-                String mimeType = context.getContentResolver().getType(uri);
-                File file = new File(fileUri);
-                RetrofitHelperFileServer retrofitHelperFileServer = new RetrofitHelperFileServer(getFileServer());
-                FileApi fileApi = retrofitHelperFileServer.getService(FileApi.class);
-                RequestBody name = RequestBody.create(MediaType.parse("text/plain"), file.getName());
-                RequestBody requestFile = RequestBody.create(MediaType.parse(mimeType), file);
-                MultipartBody.Part body = MultipartBody.Part.createFormData("file", file.getName(), requestFile);
-                Observable<Response<FileUpload>> uploadObservable = fileApi.sendFile(body, getToken(), TOKEN_ISSUER, name);
-                uploadObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Response<FileUpload>>() {
-                    @Override
-                    public void call(Response<FileUpload> fileUploadResponse) {
-                        if (fileUploadResponse.isSuccessful()) {
-                            boolean error = fileUploadResponse.body().isHasError();
-                            if (error) {
-                                String errorMessage = fileUploadResponse.body().getMessage();
-                                if (BuildConfig.DEBUG) Logger.e(errorMessage);
-                            } else {
-                                FileUpload result = fileUploadResponse.body();
-                                String json = JsonUtil.getJson(result);
-                                listenerManager.callOnUploadFile(json);
-                                if (BuildConfig.DEBUG) Logger.json(json);
-                            }
-                        }
-                    }
-                }, throwable -> {
-                    if (BuildConfig.DEBUG) Logger.e(throwable.getMessage());
-                });
-            } else {
-                if (BuildConfig.DEBUG) Logger.e("FileServer url Is null");
-            }
-
-        } else {
-            if (BuildConfig.DEBUG) Logger.e("READ_EXTERNAL_STORAGE Permission Is Needed!");
-        }
-    }
-
     private void getFile(String hashCode, FileApi fileApi, int fileId) {
         Observable<Response<ResponseBody>> getFileObservable = fileApi.getFile(fileId, true, hashCode);
         getFileObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Response<ResponseBody>>() {
@@ -1163,196 +1706,6 @@ public class Chat extends AsyncAdapter {
         }, throwable -> Logger.e(throwable.getMessage()));
     }
 
-    /**
-     * Notice : You should consider that this method is for rename group and you have to be the admin
-     * to change the thread name if not you don't have the Permission
-     */
-    public void renameThread(long threadId, String title) {
-        String uniqueId = getUniqueId();
-        ChatMessage chatMessage = new ChatMessage();
-        chatMessage.setType(Constants.RENAME);
-        chatMessage.setSubjectId(threadId);
-        chatMessage.setContent(title);
-        chatMessage.setToken(getToken());
-        chatMessage.setTokenIssuer("1");
-        chatMessage.setUniqueId(uniqueId);
-        setCallBacks(null, null, null, true, Constants.RENAME, null, uniqueId);
-        String asyncContent = JsonUtil.getJson(chatMessage);
-        sendAsyncMessage(asyncContent, 4);
-        if (BuildConfig.DEBUG) Logger.i("SEND_RENAME_THREAD");
-        if (BuildConfig.DEBUG) Logger.json(asyncContent);
-    }
-
-    /**
-     * @param contactIds List of CONTACT IDs
-     * @param threadId   Id of the thread that you are {*NOTICE*}admin of that and you want to
-     *                   add someone as a participant.
-     */
-    public void addParticipants(long threadId, List<Long> contactIds) {
-
-        AddParticipant addParticipant = new AddParticipant();
-        String uniqueId = getUniqueId();
-        addParticipant.setSubjectId(threadId);
-        addParticipant.setUniqueId(uniqueId);
-        JsonArray contacts = new JsonArray();
-        for (Long p : contactIds) {
-            contacts.add(p);
-        }
-        addParticipant.setContent(contacts.toString());
-        addParticipant.setSubjectId(threadId);
-        addParticipant.setToken(getToken());
-        addParticipant.setTokenIssuer("1");
-        addParticipant.setUniqueId(uniqueId);
-        addParticipant.setType(Constants.ADD_PARTICIPANT);
-        String asyncContent = JsonUtil.getJson(addParticipant);
-        setCallBacks(null, null, null, true, Constants.ADD_PARTICIPANT, null, uniqueId);
-        sendAsyncMessage(asyncContent, 4);
-        if (BuildConfig.DEBUG) Logger.i("SEND_APP_PARTICIPANTS");
-        if (BuildConfig.DEBUG) Logger.json(asyncContent);
-    }
-
-    /**
-     * @param participantIds List of PARTICIPANT IDs from Thread's Participants object
-     * @param threadId       Id of the thread that we wants to remove their participant
-     */
-    public void removeParticipants(long threadId, List<Long> participantIds) {
-
-        String uniqueId = getUniqueId();
-        RemoveParticipant removeParticipant = new RemoveParticipant();
-        removeParticipant.setTokenIssuer("1");
-        removeParticipant.setType(Constants.REMOVE_PARTICIPANT);
-        removeParticipant.setSubjectId(threadId);
-        removeParticipant.setToken(getToken());
-        removeParticipant.setUniqueId(uniqueId);
-
-        JsonArray contacts = new JsonArray();
-        for (Long p : participantIds) {
-            contacts.add(p);
-        }
-        removeParticipant.setContent(contacts.toString());
-
-        String asyncContent = JsonUtil.getJson(removeParticipant);
-        sendAsyncMessage(asyncContent, 4);
-        setCallBacks(null, null, null, true, Constants.REMOVE_PARTICIPANT, null, uniqueId);
-        if (BuildConfig.DEBUG) Logger.json(asyncContent);
-        if (BuildConfig.DEBUG) Logger.d("SEND_REMOVE_PARTICIPANT");
-    }
-
-    public void leaveThread(long threadId) {
-        String uniqueId = getUniqueId();
-        RemoveParticipant removeParticipant = new RemoveParticipant();
-
-        removeParticipant.setSubjectId(threadId);
-        removeParticipant.setToken(getToken());
-        removeParticipant.setTokenIssuer("1");
-        removeParticipant.setUniqueId(uniqueId);
-        removeParticipant.setType(Constants.LEAVE_THREAD);
-
-        setCallBacks(null, null, null, true, Constants.LEAVE_THREAD, null, uniqueId);
-        String json = JsonUtil.getJson(removeParticipant);
-        sendAsyncMessage(json, 4);
-        if (BuildConfig.DEBUG) Logger.i("SEND_LEAVE_THREAD");
-        if (BuildConfig.DEBUG) Logger.json(json);
-    }
-
-    /**
-     * forward message
-     *
-     * @param threadId   destination thread id
-     * @param messageIds Array of message ids that we want to forward them
-     */
-    public void forwardMessage(long threadId, ArrayList<Long> messageIds) {
-        ChatMessageForward chatMessageForward = new ChatMessageForward();
-        ObjectMapper mapper = new ObjectMapper();
-        ArrayList<String> uniqueIds = new ArrayList<>();
-        chatMessageForward.setSubjectId(threadId);
-        ArrayList<Callback> callbacks = new ArrayList<>();
-
-        for (int i = 0; i < messageIds.size(); i++) {
-            String uniqueId = getUniqueId();
-            uniqueIds.add(uniqueId);
-            Callback callback = new Callback();
-            callback.setDelivery(true);
-            callback.setSeen(true);
-            callback.setSent(true);
-            callback.setUniqueId(uniqueId);
-            callbacks.add(callback);
-        }
-        threadCallbacks.put(threadId, callbacks);
-        try {
-            chatMessageForward.setUniqueId(mapper.writeValueAsString(uniqueIds));
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-        chatMessageForward.setContent(messageIds.toString());
-        chatMessageForward.setToken(getToken());
-        chatMessageForward.setTokenIssuer("1");
-        chatMessageForward.setType(Constants.FORWARD_MESSAGE);
-
-        String asyncContent = JsonUtil.getJson(chatMessageForward);
-        if (BuildConfig.DEBUG) Logger.i("SEND_FORWARD_MESSAGE");
-        if (BuildConfig.DEBUG) Logger.json(asyncContent);
-        sendAsyncMessage(asyncContent, 4);
-    }
-
-    /**
-     * Reply the message in the current thread and send az message and receive at the
-     *
-     * @param messageContent content of the reply message
-     * @param threadId       id of the thread
-     * @param messageId      of that message we want to reply
-     */
-    public void replyMessage(String messageContent, long threadId, long messageId) {
-        String uniqueId = getUniqueId();
-
-        ChatMessage chatMessage = new ChatMessage();
-        chatMessage.setUniqueId(uniqueId);
-        chatMessage.setRepliedTo(messageId);
-        chatMessage.setSubjectId(threadId);
-        chatMessage.setTokenIssuer("1");
-        chatMessage.setToken(getToken());
-        chatMessage.setContent(messageContent);
-        chatMessage.setTime(1000);
-        chatMessage.setType(Constants.MESSAGE);
-        JsonAdapter<ChatMessage> chatMessageJsonAdapter = moshi.adapter(ChatMessage.class);
-        String asyncContent = chatMessageJsonAdapter.toJson(chatMessage);
-
-        setThreadCallbacks(threadId, uniqueId);
-        if (BuildConfig.DEBUG) Logger.d("SEND_REPLY_MESSAGE");
-        if (BuildConfig.DEBUG) Logger.json(asyncContent);
-        sendAsyncMessage(asyncContent, 4);
-    }
-
-    /**
-     * DELETE MESSAGE IN THREAD
-     *
-     * @param messageId    Id of the message that you want to be removed.
-     * @param deleteForAll If you want to delete message for everyone you can set it true if u dont want
-     *                     you can set it false or even null.
-     */
-    public void deleteMessage(long messageId, Boolean deleteForAll) {
-        deleteForAll = deleteForAll != null ? deleteForAll : false;
-        String uniqueId = getUniqueId();
-        BaseMessage baseMessage = new BaseMessage();
-        DeleteMessage deleteMessage = new DeleteMessage();
-        deleteMessage.setDeleteForAll(deleteForAll);
-        String content = JsonUtil.getJson(deleteMessage);
-        baseMessage.setContent(content);
-        baseMessage.setSubjectId(messageId);
-        baseMessage.setToken(getToken());
-        baseMessage.setTokenIssuer("1");
-        baseMessage.setType(Constants.DELETE_MESSAGE);
-        baseMessage.setUniqueId(uniqueId);
-
-        String asyncContent = JsonUtil.getJson(baseMessage);
-        sendAsyncMessage(asyncContent, 4);
-        setCallBacks(null, null, null, true, Constants.DELETE_MESSAGE, null, uniqueId);
-
-
-        if (BuildConfig.DEBUG) Logger.d("SEND_DELETE_MESSAGE", asyncContent);
-        if (BuildConfig.DEBUG) Logger.json(asyncContent);
-    }
-
     private class DeleteMessage {
         private boolean deleteForAll;
 
@@ -1362,131 +1715,6 @@ public class Chat extends AsyncAdapter {
 
         public void setDeleteForAll(boolean deleteForAll) {
             this.deleteForAll = deleteForAll;
-        }
-    }
-
-    /**
-     * Get the list of threads or you can just pass the thread id that you want
-     *
-     * @param count  number of thread
-     * @param offset specified offset you want
-     */
-    public void getThreads(int count, int offset, ArrayList<Integer> threadIds) {
-        ChatMessageContent chatMessageContent = new ChatMessageContent();
-        chatMessageContent.setCount(count);
-        chatMessageContent.setOffset(offset);
-        if (threadIds != null) {
-            chatMessageContent.setThreadIds(threadIds);
-        }
-        JsonAdapter<ChatMessageContent> messageContentJsonAdapter = moshi.adapter(ChatMessageContent.class);
-        String content = messageContentJsonAdapter.toJson(chatMessageContent);
-
-        String uniqueId = getUniqueId();
-        ChatMessage chatMessage = new ChatMessage();
-        chatMessage.setContent(content);
-        chatMessage.setType(Constants.GET_THREADS);
-        chatMessage.setTokenIssuer("1");
-        chatMessage.setToken(getToken());
-        chatMessage.setUniqueId(uniqueId);
-
-        JsonAdapter<ChatMessage> chatMessageJsonAdapter = moshi.adapter(ChatMessage.class);
-        String asyncContent = chatMessageJsonAdapter.toJson(chatMessage);
-        if (BuildConfig.DEBUG) Logger.d("Get thread send", asyncContent);
-        if (BuildConfig.DEBUG) Logger.json(asyncContent);
-        setCallBacks(null, null, null, true, Constants.GET_THREADS, offset, uniqueId);
-        sendAsyncMessage(asyncContent, 3);
-    }
-
-    /**
-     * Get history of the thread
-     *
-     * @param count    count of the messages
-     * @param order    If order is empty [default = desc] and also you have two option [ asc | desc ]
-     * @param threadId Id of the thread that we want to get the history
-     */
-    public void getHistory(int count, int offset, String order, long threadId) {
-        History history = new History();
-        if (order != null) {
-            history.setOrder(order);
-        }
-        history.setCount(count);
-        history.setOffset(offset);
-        JsonAdapter<History> messageContentJsonAdapter = moshi.adapter(History.class);
-        String content = messageContentJsonAdapter.toJson(history);
-
-        String uniqueId = getUniqueId();
-
-        ChatMessage chatMessage = new ChatMessage();
-        chatMessage.setContent(content);
-        chatMessage.setType(Constants.GET_HISTORY);
-        chatMessage.setToken(getToken());
-        chatMessage.setTokenIssuer("1");
-        chatMessage.setUniqueId(uniqueId);
-        chatMessage.setSubjectId(threadId);
-        JsonAdapter<ChatMessage> chatMessageJsonAdapter = moshi.adapter(ChatMessage.class);
-        String asyncContent = chatMessageJsonAdapter.toJson(chatMessage);
-        if (BuildConfig.DEBUG) Logger.d("SEND GET THREAD HISTORY");
-        if (BuildConfig.DEBUG) Logger.json(asyncContent);
-        setCallBacks(null, null, null, true, Constants.GET_HISTORY, offset, uniqueId);
-        sendAsyncMessage(asyncContent, 3);
-    }
-
-    /**
-     * Get all of the contacts of the user
-     */
-    public void getContacts(int count, int offset) {
-        ChatMessageContent chatMessageContent = new ChatMessageContent();
-        chatMessageContent.setCount(count);
-        chatMessageContent.setOffset(offset);
-
-        JsonAdapter<ChatMessageContent> messageContentJsonAdapter = moshi.adapter(ChatMessageContent.class);
-        String content = messageContentJsonAdapter.toJson(chatMessageContent);
-        String uniqueId = getUniqueId();
-        ChatMessage chatMessage = new ChatMessage();
-        chatMessage.setContent(content);
-        chatMessage.setType(Constants.GET_CONTACTS);
-        chatMessage.setToken(getToken());
-        chatMessage.setUniqueId(uniqueId);
-
-        JsonAdapter<ChatMessage> chatMessageJsonAdapter = moshi.adapter(ChatMessage.class);
-        String asyncContent = chatMessageJsonAdapter.toJson(chatMessage);
-        setCallBacks(null, null, null, true, Constants.GET_CONTACTS, offset, uniqueId);
-        if (BuildConfig.DEBUG) Logger.d("GET_CONTACT_SEND", asyncContent);
-        if (BuildConfig.DEBUG) Logger.json(asyncContent);
-        sendAsyncMessage(asyncContent, 3);
-    }
-
-    /**
-     * Add one contact to the contact list
-     *
-     * @param firstName       Notice: if just put fistName without lastName its ok.
-     * @param lastName        last name of the contact
-     * @param cellphoneNumber Notice: If you just  put the cellPhoneNumber doesn't necessary to add email
-     * @param email           email of the contact
-     */
-    public void addContact(String firstName, String lastName, String cellphoneNumber, String email) {
-        String uniqueId = getUniqueId();
-        Observable<Response<Contacts>> addContactObservable;
-        if (getPlatformHost() != null) {
-            addContactObservable = contactApi.addContact(getToken(), 1, firstName, lastName, email, uniqueId, cellphoneNumber);
-            addContactObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(addContactResponse -> {
-                if (addContactResponse.isSuccessful()) {
-                    Contacts contacts = addContactResponse.body();
-                    if (!contacts.getHasError()) {
-                        OutPutAddContact outPutAddContact = Util.getReformatOutPutAddContact(contacts);
-
-                        String contactsJson = JsonUtil.getJson(outPutAddContact);
-                        listenerManager.callOnAddContact(contactsJson);
-                        if (BuildConfig.DEBUG) Logger.json(contactsJson);
-                    } else {
-                        if (BuildConfig.DEBUG) Logger.e(contacts.getMessage());
-                    }
-
-                }
-            }, throwable ->
-                    Logger.e("Error on add contact", throwable.toString()));
-        } else {
-            if (BuildConfig.DEBUG) Logger.e("PlatformHost Address Is Empty!");
         }
     }
 
@@ -1534,93 +1762,6 @@ public class Chat extends AsyncAdapter {
         }
     }
 
-    /**
-     * Remove contact with the user id
-     *
-     * @param userId id of the user that we want to remove from contact list
-     */
-    public void removeContact(long userId) {
-        if (getPlatformHost() != null) {
-            Observable<Response<ContactRemove>> removeContactObservable = contactApi.removeContact(getToken(), 1, userId);
-            removeContactObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(response -> {
-                if (response.isSuccessful()) {
-                    ContactRemove contactRemove = response.body();
-                    if (!contactRemove.getHasError()) {
-                        String contactRemoveJson = JsonUtil.getJson(contactRemove);
-                        listenerManager.callOnRemoveContact(contactRemoveJson);
-                        if (BuildConfig.DEBUG) Logger.json(contactRemoveJson);
-                    } else {
-                        if (BuildConfig.DEBUG) Logger.e(contactRemove.getErrorMessage());
-                    }
-                }
-            }, throwable -> {
-                if (BuildConfig.DEBUG) Logger.e("Error on remove contact", throwable.getMessage());
-            });
-        } else {
-            if (BuildConfig.DEBUG) Logger.e("PlatformHost address is :Empty");
-        }
-    }
-
-    /**
-     * Update contacts
-     * all of the params all required to update
-     */
-    public void updateContact(long userId, String firstName, String lastName, String cellphoneNumber, String email) {
-        Observable<Response<UpdateContact>> updateContactObservable = contactApi.updateContact(getToken(), 1
-                , userId, firstName, lastName, email, getUniqueId(), cellphoneNumber);
-        updateContactObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(response -> {
-            if (response.isSuccessful()) {
-                UpdateContact updateContact = response.body();
-                if (!response.body().getHasError()) {
-                    OutPutUpdateContact outPut = new OutPutUpdateContact();
-                    outPut.setMessage(updateContact.getMessage());
-                    outPut.setErrorCode(updateContact.getErrorCode());
-                    outPut.setHasError(updateContact.getHasError());
-                    outPut.setOtt(updateContact.getOtt());
-                    outPut.setReferenceNumber(updateContact.getReferenceNumber());
-                    outPut.setCount(updateContact.getCount());
-                    ResultUpdateContact resultUpdateContact = new ResultUpdateContact();
-                    resultUpdateContact.setContacts(updateContact.getResult());
-                    outPut.setResult(resultUpdateContact);
-                    String json = JsonUtil.getJson(outPut);
-                    listenerManager.callOnUpdateContact(json);
-                    Logger.json(json);
-                } else {
-                    if (BuildConfig.DEBUG) Logger.e(response.body().getMessage());
-                }
-            }
-        }, (Throwable throwable) ->
-        {
-            if (throwable != null) {
-                Logger.e("cause" + "" + throwable.getCause());
-            }
-        });
-    }
-
-    /**
-     * Create the thread to p to p/channel/group. The list below is showing all of the thread type
-     * int NORMAL = 0;
-     * int OWNER_GROUP = 1;
-     * int PUBLIC_GROUP = 2;
-     * int CHANNEL_GROUP = 4;
-     * int CHANNEL = 8;
-     */
-    public void createThread(int threadType, Invitee[] invitee, String threadTitle) {
-        List<Invitee> invitees = new ArrayList<>(Arrays.asList(invitee));
-        ChatThread chatThread = new ChatThread();
-        chatThread.setThreadType(threadType);
-        chatThread.setInvitees(invitees);
-        chatThread.setTitle(threadTitle);
-
-        String contentThreadChat = JsonUtil.getJson(chatThread);
-        String uniqueId = getUniqueId();
-        ChatMessage chatMessage = getChatMessage(contentThreadChat, uniqueId);
-
-        setCallBacks(null, null, null, true, Constants.INVITATION, null, uniqueId);
-        String asyncContent = JsonUtil.getJson(chatMessage);
-        sendAsyncMessage(asyncContent, 4);
-    }
-
     @NonNull
     private ChatMessage getChatMessage(String contentThreadChat, String uniqueId) {
         ChatMessage chatMessage = new ChatMessage();
@@ -1632,145 +1773,8 @@ public class Chat extends AsyncAdapter {
         return chatMessage;
     }
 
-    /**
-     * Get the participant list of specific thread
-     *
-     * @param threadId id of the thread we want to ge the participant list
-     */
-    public void getThreadParticipants(int count, int offset, long threadId) {
-        ChatMessageContent chatMessageContent = new ChatMessageContent();
-        chatMessageContent.setCount(count);
-        chatMessageContent.setOffset(offset);
-
-        JsonAdapter<ChatMessageContent> messageContentJsonAdapter = moshi.adapter(ChatMessageContent.class);
-        String content = messageContentJsonAdapter.toJson(chatMessageContent);
-        String uniqueId = getUniqueId();
-        ChatMessage chatMessage = new ChatMessage();
-        chatMessage.setContent(content);
-        chatMessage.setType(Constants.THREAD_PARTICIPANTS);
-        chatMessage.setTokenIssuer("1");
-        chatMessage.setToken(getToken());
-        chatMessage.setUniqueId(uniqueId);
-        chatMessage.setSubjectId(threadId);
-
-        JsonAdapter<ChatMessage> chatMessageJsonAdapter = moshi.adapter(ChatMessage.class);
-        String asyncContent = chatMessageJsonAdapter.toJson(chatMessage);
-        if (BuildConfig.DEBUG) Logger.i("SEND_THREAD_PARTICIPANT");
-        if (BuildConfig.DEBUG) Logger.json(asyncContent);
-        setCallBacks(null, null, null, true, Constants.THREAD_PARTICIPANTS, offset, uniqueId);
-        sendAsyncMessage(asyncContent, 3);
-    }
-
-    public void seenMessage(int messageId) {
-        ChatMessage message = new ChatMessage();
-        message.setType(Constants.SEEN);
-        message.setContent(String.valueOf(messageId));
-        message.setTokenIssuer("1");
-        message.setToken(getToken());
-        message.setUniqueId(getUniqueId());
-        message.setTime(1000);
-
-        JsonAdapter<ChatMessage> chatMessageJsonAdapter = moshi.adapter(ChatMessage.class);
-        String asyncContent = chatMessageJsonAdapter.toJson(message);
-        sendAsyncMessage(asyncContent, 4);
-        if (BuildConfig.DEBUG) Logger.i("SEND_SEEN_MESSAGE");
-        if (BuildConfig.DEBUG) Logger.json(asyncContent);
-    }
-
-    /**
-     * Get the information of the current user
-     */
-    public void getUserInfo() {
-        ChatMessage chatMessage = new ChatMessage();
-        chatMessage.setType(Constants.USER_INFO);
-        String uniqueId = getUniqueId();
-        chatMessage.setUniqueId(uniqueId);
-        chatMessage.setToken(getToken());
-
-        setCallBacks(null, null, null, true, Constants.USER_INFO, null, uniqueId);
-        String asyncContent = JsonUtil.getJson(chatMessage);
-        sendAsyncMessage(asyncContent, 3);
-    }
-
-    /**
-     * Mute the thread so notification is off for that thread
-     */
-    public void muteThread(int threadId) {
-        ChatMessage chatMessage = new ChatMessage();
-        chatMessage.setType(Constants.MUTE_THREAD);
-        chatMessage.setToken(getToken());
-        chatMessage.setTokenIssuer("1");
-        chatMessage.setSubjectId(threadId);
-        String uniqueId = getUniqueId();
-        chatMessage.setUniqueId(uniqueId);
-        setCallBacks(null, null, null, true, Constants.MUTE_THREAD, null, uniqueId);
-
-        String asyncContent = JsonUtil.getJson(chatMessage);
-        sendAsyncMessage(asyncContent, 4);
-    }
-
-    /**
-     * Unmute the thread so notification is on for that thread
-     */
-    public void unmuteThread(int threadId) {
-        String uniqueId = getUniqueId();
-        ChatMessage chatMessage = new ChatMessage();
-        chatMessage.setType(Constants.UN_MUTE_THREAD);
-        chatMessage.setToken(getToken());
-        chatMessage.setTokenIssuer("1");
-        chatMessage.setSubjectId(threadId);
-        chatMessage.setUniqueId(uniqueId);
-
-        setCallBacks(null, null, null, true, Constants.UN_MUTE_THREAD, null, uniqueId);
-        String asyncContent = JsonUtil.getJson(chatMessage);
-        sendAsyncMessage(asyncContent, 4);
-    }
-
-    /**
-     * Message can be edit when you pass the message id and the edited
-     * content to editMessage function
-     */
-    public void editMessage(int messageId, String messageContent) {
-        String uniqueId = getUniqueId();
-
-        ChatMessage chatMessage = new ChatMessage();
-        chatMessage.setType(Constants.EDIT_MESSAGE);
-        chatMessage.setToken(getToken());
-        chatMessage.setUniqueId(uniqueId);
-        chatMessage.setSubjectId(messageId);
-        chatMessage.setContent(messageContent);
-        chatMessage.setTokenIssuer("1");
-
-        String asyncContent = JsonUtil.getJson(chatMessage);
-        setCallBacks(null, null, null, true, Constants.EDIT_MESSAGE, null, uniqueId);
-        if (BuildConfig.DEBUG) Logger.d("SEND_EDIT_MESSAGE");
-        if (BuildConfig.DEBUG) Logger.json(asyncContent);
-        sendAsyncMessage(asyncContent, 4);
-    }
-
     private String onMessage() {
         return async.getMessageLiveData().getValue();
-    }
-
-    /**
-     * Add a listener to receive events on this Chat.
-     *
-     * @param listener A listener to add.
-     * @return {@code this} object.
-     */
-    public Chat addListener(ChatListener listener) {
-        listenerManager.addListener(listener);
-        return this;
-    }
-
-    public Chat addListeners(List<ChatListener> listeners) {
-        listenerManager.addListeners(listeners);
-        return this;
-    }
-
-    public Chat removeListener(ChatListener listener) {
-        listenerManager.removeListener(listener);
-        return this;
     }
 
     /**
@@ -1778,10 +1782,6 @@ public class Chat extends AsyncAdapter {
      */
     ChatListenerManager getListenerManager() {
         return listenerManager;
-    }
-
-    public LiveData<String> getState() {
-        return async.getStateLiveData();
     }
 
     @NonNull
@@ -1842,7 +1842,7 @@ public class Chat extends AsyncAdapter {
     }
 
     private void deviceIdRequest(String ssoHost, String serverAddress, String appId, String severName) {
-        if(BuildConfig.DEBUG)Logger.i("GET_DEVICE_ID");
+        if (BuildConfig.DEBUG) Logger.i("GET_DEVICE_ID");
         currentDeviceExist = false;
         RetrofitHelperSsoHost retrofitHelperSsoHost = new RetrofitHelperSsoHost(ssoHost);
         TokenApi tokenApi = retrofitHelperSsoHost.getService(TokenApi.class);
@@ -1976,28 +1976,12 @@ public class Chat extends AsyncAdapter {
         return platformHost;
     }
 
-    private void setContact(String contact) {
-        this.contact = contact;
-    }
-
-    private String getContact() {
-        return contact;
-    }
-
     private void setContext(Context context) {
         this.context = context;
     }
 
     private Context getContext() {
         return context;
-    }
-
-    private void setActivity(Activity activity) {
-        this.activity = activity;
-    }
-
-    private Activity getActivity() {
-        return activity;
     }
 
     private void setFileServer(String fileServer) {

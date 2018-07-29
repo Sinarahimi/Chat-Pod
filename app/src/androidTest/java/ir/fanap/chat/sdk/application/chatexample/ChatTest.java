@@ -67,7 +67,7 @@ public class ChatTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        presenter.getThread(10, 0, null);
+        presenter.getThread(10, 0, null,null);
         try {
             Thread.sleep(5000);
         } catch (InterruptedException e) {

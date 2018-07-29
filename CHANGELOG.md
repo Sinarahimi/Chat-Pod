@@ -9,7 +9,8 @@ All notable changes to this project will be documented here.
 ## [Unreleased]
 -   Delete Message
 -   Thread info update
--   Search in thread
+-   Search in thread:
+    We sdd a new param to the getThread so you can search through threads by their name. 
 -   Remove participant
 -   Add participant
 -   Add Sync Contact listener
