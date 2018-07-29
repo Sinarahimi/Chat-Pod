@@ -190,10 +190,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         view.onGetContacts();
     }
 
-    @Override
-    public void onInvitation(String content) {
-        super.onInvitation(content);
-    }
 
     @Override
     public void onSeen(String content) {

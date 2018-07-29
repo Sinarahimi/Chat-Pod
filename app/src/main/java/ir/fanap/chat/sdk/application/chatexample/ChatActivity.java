@@ -239,8 +239,9 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                         break;
                     case 6:
                         List<Long> participantIds = new ArrayList<>();
-                        participantIds.add(824L);
+                        participantIds.add(485L);
                         participantIds.add(577L);
+                        participantIds.add(824L);
                         presenter.addParticipants(691, participantIds);
                         break;
                     case 7:

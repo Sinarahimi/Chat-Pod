@@ -172,28 +172,28 @@ ChatAdapter is an empty implementation of ChatListener interface.
 For getting call back you should extend your class from `ChatAdapter`. 
 
 #### The following callback methods of ChatListener are called
-| Method                        | Description                                                                            |
-|:------------------------------|:---------------------------------------------------------------------------------------|
-| `onDeliver()`   | Called when message is delivered.       |
-| `onGetContacts()`| Called when get history of the thread is return.      |
-| `onGetThread()`       |  Called when get threads is return.          |
-| `onInvitation()`                |                 |
-| `onSeen()`                |  Called when message is seen.               |
-| `onMuteThread()`                 |Called when thread is muted.         |
-| `onUnmuteThread()`         | Called when message is un muted.      |
-| `onUserInfo()`         | Called when information of the user is return.     |
-| `onSent()`         | Called when message is sent.       |
-| `onCreateThread()`         |Called when thread is created.         |
-| `onGetThreadParticipant()`         |Called when you want participants of the specific thread.         |
-| `onEditedMessage()`         |Called when message edited       |
-| `onContactAdded()` |Called when contact added to your contact       |
-| `onRemoveContact()`         |Called when you want to remove contact       |
-| `onRenameThread()`         |Called when you rename of the thread that you are admin of that       |
-| `onSyncContact()`         |Called your phone contact sync to the server contact       |
-| `onThreadAddParticipant()`         |       |
-| `onThreadRemoveParticipant()`         |       |
-| `onThreadLeaveParticipant()`         |       |
-| `onDeleteMessage()`         |       |
+| Number|Method                        | Description                                                                            |
+|:----|:------------------------------|:---------------------------------------------------------------------------------------|
+| | `onDeliver()`   | Called when message is delivered.       |
+| | `onGetContacts()`| Called when get contacts is return.      |
+| | `onGetHistory()`| Called when history of the thread is return.      |
+| | `onGetThread()`       |  Called when get threads is return.          |
+| | `onSeen()`                |  Called when message is seen.               |
+| | `onMuteThread()`                 |Called when thread is muted.         |
+| | `onUnmuteThread()`         | Called when message is un muted.      |
+| | `onUserInfo()`         | Called when information of the user is return.     |
+| | `onSent()`         | Called when message is sent.       |
+| | `onCreateThread()`         |Called when thread is created.         |
+| | `onGetThreadParticipant()`         |Called when you want participants of the specific thread.         |
+| | `onEditedMessage()`         |Called when message edited       |
+| | `onContactAdded()` |Called when contact added to your contact       |
+| | `onRemoveContact()`         |Called when you want to remove contact       |
+| | `onRenameThread()`         |Called when you rename of the thread that you are admin of that       |
+| | `onSyncContact()`         |Called your phone contact sync to the server contact       |
+| | `onThreadAddParticipant()`         |       |
+| | `onThreadRemoveParticipant()`         |       |
+| | `onThreadLeaveParticipant()`         |       |
+| | `onDeleteMessage()`         |       |
 
 ## Built With :heart:
 

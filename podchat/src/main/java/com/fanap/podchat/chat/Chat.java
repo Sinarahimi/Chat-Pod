@@ -165,7 +165,7 @@ public class Chat extends AsyncAdapter {
      */
     public void connect(String socketAddress, String appId, String severName, String token,
                         String ssoHost, String platformHost, String fileServer) {
-        Looper.prepare();
+//        Looper.prepare();
         if (platformHost.endsWith("/")) {
             pingHandler = new Handler();
             messageCallbacks = new HashMap<>();
@@ -319,6 +319,7 @@ public class Chat extends AsyncAdapter {
                 Logger.json(chatMessage.getContent());
                 break;
             case Constants.LAST_SEEN_UPDATED:
+
                 break;
         }
     }

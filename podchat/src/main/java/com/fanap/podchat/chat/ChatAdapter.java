@@ -12,11 +12,6 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onForwardMessage() {
-
-    }
-
-    @Override
     public void onGetContacts(String content) {
 
     }
@@ -28,22 +23,12 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onStatus(String content) {
-
-    }
-
-    @Override
     public void onGetThread(String content) {
 
     }
 
     @Override
     public void onThreadInfoUpdated(String content) {
-
-    }
-
-    @Override
-    public void onInvitation(String content) {
 
     }
 
@@ -79,11 +64,6 @@ public class ChatAdapter implements ChatListener {
 
     @Override
     public void onCreateThread(String content) {
-
-    }
-
-    @Override
-    public void onMessage() {
 
     }
 

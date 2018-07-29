@@ -6,19 +6,13 @@ public interface ChatListener {
 
     void onError(String content);
 
-    void onForwardMessage();
-
     void onGetContacts(String content);
 
     void onGetHistory(String content);
 
-    void onStatus(String content);
-
     void onGetThread(String content);
 
     void onThreadInfoUpdated(String content);
-
-    void onInvitation(String content);
 
     void onLeaveThread();
 
@@ -33,8 +27,6 @@ public interface ChatListener {
     void onSent(String content);
 
     void onCreateThread(String content);
-
-    void onMessage();
 
     void onGetThreadParticipant(String content);
 
