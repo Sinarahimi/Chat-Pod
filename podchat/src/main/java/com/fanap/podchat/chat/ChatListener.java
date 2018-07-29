@@ -14,8 +14,6 @@ public interface ChatListener {
 
     void onThreadInfoUpdated(String content);
 
-    void onLeaveThread();
-
     void onSeen(String content);
 
     void onMuteThread(String content);
@@ -39,10 +37,6 @@ public interface ChatListener {
     void onRemoveContact(String content);
 
     void onRenameThread(String content);
-
-    void onGetFile(String url);
-
-    void onGetImageFile(String url);
 
     void onNewMessage(String content);
 

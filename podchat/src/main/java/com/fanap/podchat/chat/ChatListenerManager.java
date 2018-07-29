@@ -264,30 +264,10 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnGetfile(String url) {
-        for (ChatListener listener : getSynchronizedListeners()) {
-            try {
-                listener.onGetFile(url);
-            } catch (Throwable t) {
-                callHandleCallbackError(listener, t);
-            }
-        }
-    }
-
     public void callOnNewMessage(String content) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onNewMessage(content);
-            } catch (Throwable t) {
-                callHandleCallbackError(listener, t);
-            }
-        }
-    }
-
-    public void callOnGetImageFile(String content) {
-        for (ChatListener listener : getSynchronizedListeners()) {
-            try {
-                listener.onGetImageFile(content);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }

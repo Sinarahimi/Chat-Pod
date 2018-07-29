@@ -172,7 +172,7 @@ ChatAdapter is an empty implementation of ChatListener interface.
 For getting call back you should extend your class from `ChatAdapter`. 
 
 #### The following callback methods of ChatListener are called
-| Number|Method                        | Description                                                                            |
+|Number|Method                        | Description                                                                            |
 |:--|:------------------------------|:---------------------------------------------------------------------------------------|
 |1| `onDeliver()`   | Called when message is delivered.       |
 |2| `onGetContacts()`| Called when get contacts is return.      |
@@ -194,6 +194,12 @@ For getting call back you should extend your class from `ChatAdapter`.
 |18| `onThreadRemoveParticipant()`         |       |
 |19| `onThreadLeaveParticipant()`         |       |
 |20| `onDeleteMessage()`         |       |
+|21| `onError()`         |       |
+|22| `onThreadInfoUpdated()`         |       |
+|23| `onNewMessage()`         |       |
+|24| `onUpdateContact()`         |       |
+|25| `onUploadFile()`         |       |
+|26| `onUploadImageFile()`         |       |
 
 ## Built With :heart:
 
