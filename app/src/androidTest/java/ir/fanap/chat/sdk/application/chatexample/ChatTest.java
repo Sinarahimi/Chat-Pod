@@ -274,7 +274,7 @@ public class ChatTest {
         }
 
         presenter.replyMessage("this is reply to all of you at" + new Date().getTime()
-                , 381, 1353);
+                , 381, 14103);
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
@@ -412,7 +412,7 @@ public class ChatTest {
     @MediumTest
     public void AddParticipant() {
         try {
-            Thread.sleep(3000);
+            Thread.sleep(5000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -421,7 +421,7 @@ public class ChatTest {
         participantIds.add(577L);
         presenter.addParticipants(691, participantIds);
         try {
-            Thread.sleep(3000);
+            Thread.sleep(5000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -480,5 +480,22 @@ public class ChatTest {
             e.printStackTrace();
         }
         Mockito.verify(view, Mockito.times(1)).onDeleteMessage();
+    }
+
+    @Test
+    @MediumTest
+    public void searchInThreads(){
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        presenter.getThread(20, 0, null,"FiFi");
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Mockito.verify(view,Mockito.times(1)).onGetThreadList();
     }
 }

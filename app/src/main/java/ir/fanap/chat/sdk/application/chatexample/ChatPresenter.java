@@ -10,7 +10,9 @@ import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.mainmodel.Invitee;
+import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.model.MessageVO;
+import com.fanap.podchat.model.OutPutNewMessage;
 import com.squareup.moshi.JsonAdapter;
 
 import java.util.ArrayList;
@@ -141,8 +143,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void seenMessage(int messageId) {
-        chat.seenMessage(messageId);
+    public void seenMessage(int messageId, long ownerId) {
+        chat.seenMessage(messageId, ownerId);
     }
 
     @Override
@@ -174,7 +176,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void onDeliver(String content) {
         super.onDeliver(content);
         view.onGetDeliverMessage();
-        chat.seenMessage(Integer.valueOf(content));
     }
 
     @Override
@@ -185,7 +186,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
     @Override
     public void onThreadInfoUpdated(String content) {
-
     }
 
     @Override
@@ -308,10 +308,18 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void onChatState(String state) {
+
+    }
+
+    @Override
     public void onNewMessage(String content) {
         super.onNewMessage(content);
-        MessageVO jsonMessage = JsonUtil.fromJSON(content, MessageVO.class);
-        long id = jsonMessage.getId();
-        chat.seenMessage(id);
+        OutPutNewMessage outPutNewMessage = JsonUtil.fromJSON(content, OutPutNewMessage.class);
+        MessageVO messageVO = outPutNewMessage.getResult();
+        Participant participant = messageVO.getParticipant();
+
+        long id = messageVO.getId();
+        chat.seenMessage(id, participant.getId());
     }
 }

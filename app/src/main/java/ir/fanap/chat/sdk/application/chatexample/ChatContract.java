@@ -106,7 +106,7 @@ public interface ChatContract {
 
         void uploadFile(Context context, Activity activity, String fileUri, Uri uri);
 
-        void seenMessage(int messageId);
+        void seenMessage(int messageId, long ownerId);
 
         void logOut();
 

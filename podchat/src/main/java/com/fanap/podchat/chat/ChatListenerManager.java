@@ -363,4 +363,14 @@ public class ChatListenerManager {
             }
         }
     }
+
+    public void callOnChatState(String state) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onChatState(state);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
 }

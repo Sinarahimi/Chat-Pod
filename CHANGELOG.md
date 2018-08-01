@@ -6,14 +6,17 @@
 
 All notable changes to this project will be documented here.
 
-## [Unreleased]
--   Delete Message
--   Thread info update
--   Search in thread:
+## Version [0.0.7.1] -2018-07-30
+
+-   [Add]Delete Message
+-   [Add]onThreadInfoUpdated listener
+-   [Add]onLastSeenUpdated listener
+-   [Add]Search in threads with name:
     We sdd a new param to the getThread so you can search through threads by their name. 
--   Remove participant
--   Add participant
--   Add Sync Contact listener
+-   [Add]Remove participant
+-   [Add]Add participant
+-   [Add]Sync Contact listener
+-   [Add]onChatState listener
 
 ## Version [0.0.7.0] -2018-07-22
 

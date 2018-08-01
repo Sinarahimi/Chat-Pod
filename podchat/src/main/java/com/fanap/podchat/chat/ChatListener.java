@@ -57,4 +57,6 @@ public interface ChatListener {
     void onThreadLeaveParticipant(String content);
 
     void onLastSeenUpdated(String content);
+
+    void onChatState(String state);
 }

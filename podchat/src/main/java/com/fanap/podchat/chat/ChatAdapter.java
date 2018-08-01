@@ -8,14 +8,12 @@ public class ChatAdapter implements ChatListener {
 
     @Override
     public void onError(String content) {
-
     }
 
     @Override
     public void onGetContacts(String content) {
 
     }
-
 
     @Override
     public void onGetHistory(String content) {
@@ -139,6 +137,11 @@ public class ChatAdapter implements ChatListener {
 
     @Override
     public void onLastSeenUpdated(String content) {
+
+    }
+
+    @Override
+    public void onChatState(String state) {
 
     }
 }

@@ -1,18 +1,18 @@
 package com.fanap.podchat.mainmodel;
 
 public class UserInfo {
-    private int id;
+    private long id;
     private boolean sendEnable;
     private boolean receiveEnable;
     private String name;
     private String cellphoneNumber;
     private String image;
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 

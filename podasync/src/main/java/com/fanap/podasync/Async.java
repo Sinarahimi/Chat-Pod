@@ -214,6 +214,7 @@ public class Async extends WebSocketAdapter {
             handlerReconnect.postDelayed(() -> {
                 try {
                     reConnect();
+                    if (BuildConfig.DEBUG) Logger.e("Async: reConnect in " + "retryStep" + "s");
                 } catch (IOException e) {
                     if (BuildConfig.DEBUG) Logger.e("Async: reConnect", e.getMessage());
                 } catch (WebSocketException e) {

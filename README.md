@@ -200,6 +200,7 @@ For getting call back you should extend your class from `ChatAdapter`.
 |24| `onUpdateContact()`         |       |
 |25| `onUploadFile()`         |       |
 |26| `onUploadImageFile()`         |       |
+|26| `onChatState()`         |       |
 
 ## Built With :heart:
 

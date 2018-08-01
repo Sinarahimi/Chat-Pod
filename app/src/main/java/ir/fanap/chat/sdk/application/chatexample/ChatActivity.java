@@ -319,7 +319,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
             case 4:
                 //"reply message",
-                presenter.replyMessage("this is reply from john", 381, 13604);
+                presenter.replyMessage("this is reply from john", 381, 14103);
                 break;
             case 5:
                 /**forward message */
