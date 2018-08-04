@@ -473,7 +473,7 @@ public class ChatTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        presenter.deleteMessage(14032, true);
+        presenter.deleteMessage(14380, true);
         try {
             Thread.sleep(5000);
         } catch (InterruptedException e) {

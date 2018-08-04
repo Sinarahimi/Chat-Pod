@@ -48,7 +48,7 @@ And now it's ready for chat .
 |18|`getUserInfo()`         | Get the information of the current user      |
 |19|`muteThread(int threadId)`         | Mute the thread      |
 |20|`unmuteThread(int threadId)`         | Un Mute the thread      |
-|21|`sendFile(Context context, String description, long threadId, Uri fileUri)`         | Send file      |
+|21|`sendFileMessage(Context context, String description, long threadId, Uri fileUri)`         | Send file      |
 |22|`syncContact(Context context, Activity activity)`         | Sync Contact      |
 |23|`uploadFile(Context context, Activity activity, String fileUri, Uri uri)`         | Upload file      |
 |24|`uploadImage(Context context, Activity activity, Uri fileUri)`         | Upload image      |

@@ -71,7 +71,9 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 //    private String name = "Fifi";
 //    private static String TOKEN = "5fb88da4c6914d07a501a76d68a62363";
     //Token Alexi
-    private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
+//    private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
+    //tokene alaki
+    private static String TOKEN = "bebc36c4ead6458c90b607496dae25c6";
     private static String name = "Alexi";
     private String fileUri;
 //    private static String TOKEN = "11a2fc342a304a1d89dc2c90ade9d588";

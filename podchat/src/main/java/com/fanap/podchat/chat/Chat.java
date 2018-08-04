@@ -42,6 +42,7 @@ import com.fanap.podchat.model.ContactRemove;
 import com.fanap.podchat.model.Contacts;
 import com.fanap.podchat.model.DeleteMessageContent;
 import com.fanap.podchat.model.Error;
+import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.FileImageMetaData;
 import com.fanap.podchat.model.FileImageUpload;
 import com.fanap.podchat.model.FileMetaDataContent;
@@ -79,8 +80,11 @@ import com.fanap.podchat.networking.api.ContactApi;
 import com.fanap.podchat.networking.api.FileApi;
 import com.fanap.podchat.networking.api.TokenApi;
 import com.fanap.podchat.util.Callback;
+import com.fanap.podchat.util.ChatConstant;
 import com.fanap.podchat.util.ChatMessageType;
 import com.fanap.podchat.util.ChatMessageType.Constants;
+import com.fanap.podchat.util.ChatStateType;
+import com.fanap.podchat.util.Constant;
 import com.fanap.podchat.util.FilePick;
 import com.fanap.podchat.util.Permission;
 import com.fanap.podchat.util.Util;
@@ -112,6 +116,12 @@ import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.schedulers.Schedulers;
 
+import static com.fanap.podchat.util.ChatStateType.ChatSateConstant.CHAT_READY;
+import static com.fanap.podchat.util.ChatStateType.ChatSateConstant.CLOSED;
+import static com.fanap.podchat.util.ChatStateType.ChatSateConstant.CLOSING;
+import static com.fanap.podchat.util.ChatStateType.ChatSateConstant.CONNECTING;
+import static com.fanap.podchat.util.ChatStateType.ChatSateConstant.OPEN;
+
 public class Chat extends AsyncAdapter {
     private static Async async;
     private static Moshi moshi;
@@ -128,11 +138,6 @@ public class Chat extends AsyncAdapter {
     private long lastSentMessageTime;
     private boolean chatState = false;
     private boolean chatReady = false;
-    private static final String CONNECTING = "CONNECTING";
-    private static final String CLOSING = "CLOSING";
-    private static final String CLOSED = "CLOSED";
-    private static final String OPEN = "OPEN";
-    private static final String CHAT_READY = "CHAT_READY";
     private static final int TOKEN_ISSUER = 1;
     private Handler pingHandler;
     private Context context;
@@ -180,7 +185,8 @@ public class Chat extends AsyncAdapter {
             deviceIdRequest(ssoHost, socketAddress, appId, severName);
             state = true;
         } else {
-            Logger.e("baseUrl must end in /:" + " " + platformHost);
+            String jsonError = getErrorOutPut("PlatformHost " + ChatConstant.ERROR_CHECK_URL, ChatConstant.ERROR_CODE_CHECK_URL);
+            if (BuildConfig.DEBUG) Logger.e(jsonError);
         }
     }
 
@@ -191,7 +197,8 @@ public class Chat extends AsyncAdapter {
     public void onStateChanged(String state) throws IOException {
         super.onStateChanged(state);
         listenerManager.callOnChatState(state);
-        switch (state) {
+        @ChatStateType.ChatSateConstant String currentChatState = state;
+        switch (currentChatState) {
             case OPEN:
                 chatState = true;
                 //ping();
@@ -277,6 +284,7 @@ public class Chat extends AsyncAdapter {
                 handleResponseMessage(callback, chatMessage, messageUniqueId);
                 break;
             case Constants.PING:
+
                 if (BuildConfig.DEBUG) Logger.i("RECEIVED_CHAT_PING", chatMessage);
                 break;
             case Constants.RELATION_INFO:
@@ -370,7 +378,8 @@ public class Chat extends AsyncAdapter {
             getContacts(50, 0);
             setContext(context);
         } else {
-            if (BuildConfig.DEBUG) Logger.e("READ_CONTACTS Permission Needed!");
+            String jsonError = getErrorOutPut(ChatConstant.ERROR_READ_CONTACT_PERMISSION, ChatConstant.ERROR_CODE_READ_CONTACT_PERMISSION);
+            if (BuildConfig.DEBUG) Logger.e(jsonError);
         }
     }
 
@@ -410,10 +419,12 @@ public class Chat extends AsyncAdapter {
                         @Override
                         public void call(Response<FileImageUpload> fileUploadResponse) {
                             if (fileUploadResponse.isSuccessful()) {
-                                boolean error = fileUploadResponse.body().isHasError();
-                                if (error) {
+                                boolean hasError = fileUploadResponse.body().isHasError();
+                                if (hasError) {
                                     String errorMessage = fileUploadResponse.body().getMessage();
-                                    Logger.e(errorMessage);
+                                    int errorCode = fileUploadResponse.body().getErrorCode();
+                                    String jsonError = getErrorOutPut(errorMessage, errorCode);
+                                    if (BuildConfig.DEBUG) Logger.e(jsonError);
                                 } else {
                                     FileImageUpload fileImageUpload = fileUploadResponse.body();
                                     String imageJson = JsonUtil.getJson(fileImageUpload);
@@ -424,15 +435,25 @@ public class Chat extends AsyncAdapter {
                         }
                     }, throwable -> Logger.e(throwable.getMessage()));
                 } else {
-                    Logger.e(file + " " + "Is Not An Image");
+                    String jsonError = getErrorOutPut(ChatConstant.ERROR_NOT_IMAGE, ChatConstant.ERROR_CODE_NOT_IMAGE);
+                    if (BuildConfig.DEBUG) Logger.e(jsonError);
                 }
             } else {
-                if (BuildConfig.DEBUG) Logger.e("READ_EXTERNAL_STORAGE Permission Needed!");
+                String jsonError = getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE);
+                if (BuildConfig.DEBUG) Logger.e(jsonError);
             }
         } else {
             if (BuildConfig.DEBUG) Logger.e("FileServer url Is null");
         }
 
+    }
+
+    @NonNull
+    private String getErrorOutPut(String errorMessage, int errorCode) {
+        ErrorOutPut error = new ErrorOutPut(true, errorMessage, errorCode);
+        String jsonError = JsonUtil.getJson(error);
+        listenerManager.callOnError(jsonError);
+        return jsonError;
     }
 
     public void uploadFile(Context context, Activity activity, String fileUri, Uri uri) {
@@ -450,10 +471,12 @@ public class Chat extends AsyncAdapter {
                     @Override
                     public void call(Response<FileUpload> fileUploadResponse) {
                         if (fileUploadResponse.isSuccessful()) {
-                            boolean error = fileUploadResponse.body().isHasError();
-                            if (error) {
+                            boolean hasError = fileUploadResponse.body().isHasError();
+                            if (hasError) {
                                 String errorMessage = fileUploadResponse.body().getMessage();
-                                if (BuildConfig.DEBUG) Logger.e(errorMessage);
+                                int errorCode = fileUploadResponse.body().getErrorCode();
+                                String jsonError = getErrorOutPut(errorMessage, errorCode);
+                                if (BuildConfig.DEBUG) Logger.e(jsonError);
                             } else {
                                 FileUpload result = fileUploadResponse.body();
                                 String json = JsonUtil.getJson(result);
@@ -470,7 +493,8 @@ public class Chat extends AsyncAdapter {
             }
 
         } else {
-            if (BuildConfig.DEBUG) Logger.e("READ_EXTERNAL_STORAGE Permission Is Needed!");
+            String jsonError = getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE);
+            if (BuildConfig.DEBUG) Logger.e(jsonError);
         }
     }
 
@@ -767,12 +791,15 @@ public class Chat extends AsyncAdapter {
                         listenerManager.callOnAddContact(contactsJson);
                         if (BuildConfig.DEBUG) Logger.json(contactsJson);
                     } else {
-                        if (BuildConfig.DEBUG) Logger.e(contacts.getMessage());
+                        String jsonError = getErrorOutPut(contacts.getMessage(), contacts.getErrorCode());
+                        if (BuildConfig.DEBUG) Logger.e(jsonError);
                     }
 
                 }
-            }, throwable ->
-                    Logger.e("Error on add contact", throwable.toString()));
+            }, (Throwable throwable) ->
+            {
+                Logger.e("Error on add contact", throwable.toString());
+            });
         } else {
             if (BuildConfig.DEBUG) Logger.e("PlatformHost Address Is Empty!");
         }
@@ -794,11 +821,13 @@ public class Chat extends AsyncAdapter {
                         listenerManager.callOnRemoveContact(contactRemoveJson);
                         if (BuildConfig.DEBUG) Logger.json(contactRemoveJson);
                     } else {
-                        if (BuildConfig.DEBUG) Logger.e(contactRemove.getErrorMessage());
+                        String jsonError = getErrorOutPut(contactRemove.getErrorMessage(), contactRemove.getErrorCode());
+                        if (BuildConfig.DEBUG) Logger.e(jsonError);
                     }
                 }
-            }, throwable -> {
+            }, (Throwable throwable) -> {
                 if (BuildConfig.DEBUG) Logger.e("Error on remove contact", throwable.getMessage());
+                if (BuildConfig.DEBUG) Logger.e(throwable.getMessage());
             });
         } else {
             if (BuildConfig.DEBUG) Logger.e("PlatformHost address is :Empty");
@@ -830,7 +859,8 @@ public class Chat extends AsyncAdapter {
                     listenerManager.callOnUpdateContact(json);
                     Logger.json(json);
                 } else {
-                    if (BuildConfig.DEBUG) Logger.e(response.body().getMessage());
+                    String jsonError = getErrorOutPut(response.body().getMessage(), response.body().getErrorCode());
+                    if (BuildConfig.DEBUG) Logger.e(jsonError);
                 }
             }
         }, (Throwable throwable) ->
@@ -1031,6 +1061,9 @@ public class Chat extends AsyncAdapter {
     private void handleError(ChatMessage chatMessage) {
         OutPut outPut = new OutPut();
         Error error = JsonUtil.fromJSON(chatMessage.getContent(), Error.class);
+        if (error.getCode() == 401) {
+            pingHandler.removeCallbacksAndMessages(null);
+        }
         outPut.setErrorMessage(error.getMessage());
         outPut.setErrorCode(error.getCode());
         String errorJson = JsonUtil.getJson(outPut);
@@ -1109,13 +1142,13 @@ public class Chat extends AsyncAdapter {
                                 callbacks.set(indexUnique, callbackUpdateSent);
                                 threadCallbacks.put(threadId, callbacks);
                                 if (BuildConfig.DEBUG)
-                                    Logger.i("Is Delivered" + " " + callback.getUniqueId());
+                                    Logger.i("Is Delivered" + " " + "Unique Id" + callback.getUniqueId());
                             }
                             listenerManager.callOnSeenMessage(callback.getUniqueId());
                             callbacks.remove(indexUnique);
                             threadCallbacks.put(threadId, callbacks);
                             if (BuildConfig.DEBUG)
-                                Logger.i("Is Seen" + " " + callback.getUniqueId());
+                                Logger.i("Is Seen" + " " + "Unique Id" + callback.getUniqueId());
                         }
                         indexUnique--;
                     }
@@ -1496,10 +1529,13 @@ public class Chat extends AsyncAdapter {
                     }
                 }, 20000);
             } else {
+                Error error = new Error();
+//                error.setCode();
                 Logger.e("Async is Close");
             }
         } else {
-            Logger.e("CHAT_IS_NOT_READY");
+            String jsonError = getErrorOutPut(ChatConstant.ERROR_CHAT_READY, ChatConstant.ERROR_CODE_CHAT_READY);
+            Logger.e(jsonError);
         }
     }
 
@@ -1580,7 +1616,8 @@ public class Chat extends AsyncAdapter {
                 if (BuildConfig.DEBUG) Logger.e("FileServer url Is null");
             }
         } else {
-            if (BuildConfig.DEBUG) Logger.e("READ_EXTERNAL_STORAGE Permission Is Needed!");
+            String jsonError = getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE);
+            if (BuildConfig.DEBUG) Logger.e(jsonError);
         }
     }
 
@@ -1634,7 +1671,8 @@ public class Chat extends AsyncAdapter {
                 }, throwable -> Logger.e(throwable.getMessage()));
 
             } else {
-                if (BuildConfig.DEBUG) Logger.e("READ_EXTERNAL_STORAGE Permission Needed!");
+                String jsonError = getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE);
+                if (BuildConfig.DEBUG) Logger.e(jsonError);
             }
         } else {
             if (BuildConfig.DEBUG) Logger.e("FileServer url Is null");
@@ -1654,6 +1692,7 @@ public class Chat extends AsyncAdapter {
         }, throwable -> Logger.e(throwable.getMessage()));
     }
 
+    //model
     private class DeleteMessage {
         private boolean deleteForAll;
 
@@ -1683,8 +1722,8 @@ public class Chat extends AsyncAdapter {
                     boolean error = contactsResponse.body().getHasError();
                     if (contactsResponse.isSuccessful()) {
                         if (error) {
-                            if (BuildConfig.DEBUG)
-                                Logger.e(contactsResponse.body().getMessage() + "ErrorCode" + contactsResponse.body().getErrorCode());
+                            String jsonError = getErrorOutPut(contactsResponse.body().getMessage(), contactsResponse.body().getErrorCode());
+                            if (BuildConfig.DEBUG) Logger.e(jsonError);
                         } else {
                             AddContacts contacts = contactsResponse.body();
                             String contactsJson = JsonUtil.getJson(contacts);
@@ -1792,6 +1831,7 @@ public class Chat extends AsyncAdapter {
     private void deviceIdRequest(String ssoHost, String serverAddress, String appId, String severName) {
         if (BuildConfig.DEBUG) Logger.i("GET_DEVICE_ID");
         currentDeviceExist = false;
+
         RetrofitHelperSsoHost retrofitHelperSsoHost = new RetrofitHelperSsoHost(ssoHost);
         TokenApi tokenApi = retrofitHelperSsoHost.getService(TokenApi.class);
         rx.Observable<Response<DeviceResult>> listObservable = tokenApi.getDeviceId("Bearer" + " " + getToken());
@@ -1807,13 +1847,16 @@ public class Chat extends AsyncAdapter {
                     }
                 }
                 if (!currentDeviceExist) {
-                    if (BuildConfig.DEBUG) Logger.e("There Is No Current Device");
+                    String jsonError = getErrorOutPut(ChatConstant.ERROR_CURRENT_DEVICE, ChatConstant.ERROR_CODE_CURRENT_DEVICE);
+                    if (BuildConfig.DEBUG) Logger.e(jsonError);
                 }
             } else {
-                if (BuildConfig.DEBUG) Logger.e("Error on get devices");
+                String jsonError = getErrorOutPut(deviceResults.message(), deviceResults.code());
+                if (BuildConfig.DEBUG) Logger.e(jsonError);
             }
-        }, throwable ->
-                Logger.e("Error on get devices"));
+        }, (Throwable throwable) -> {
+            Logger.e("Error on get devices");
+        });
     }
 
     /**

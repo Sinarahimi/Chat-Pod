@@ -1,10 +1,15 @@
 package com.fanap.podchat.model;
 
-public class OutPutThread{
-    private ResultThread result;
+public class ErrorOutPut {
     private boolean hasError;
     private String errorMessage;
     private long errorCode;
+
+    public ErrorOutPut(boolean hasError, String errorMessage, long errorCode) {
+        this.errorCode = errorCode;
+        this.errorMessage = errorMessage;
+        this.hasError = hasError;
+    }
 
     public boolean isHasError() {
         return hasError;
@@ -28,12 +33,5 @@ public class OutPutThread{
 
     public void setErrorCode(long errorCode) {
         this.errorCode = errorCode;
-    }
-    public ResultThread getResult() {
-        return result;
-    }
-
-    public void setResult(ResultThread result) {
-        this.result = result;
     }
 }
