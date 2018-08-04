@@ -31,7 +31,7 @@ And now it's ready for chat .
 |1|`connect(socketServerAddress, appId, serverName, token`   | connect to async.       |
 |2|`String ssoHost, String platformHost, String fileServer)`
 |3|`logOutSocket()`                                           | log out of socket.      |
-|4|`sendTextMessage(String textMessage, long threadId)`       | Send text message to thread.           |
+|4|`sendTextMessage(String textMessage, long threadId, String metaData)`       | Send text message to thread.           |
 |5|`renameThread(long threadId, String title)`                |  Rename the owner thread.                |
 |6|`createThread(int threadType, Invitee[] invitee, String threadTitle)`                |  Create the thread.                |
 |7|`forwardMessage(long threadId, ArrayList<Long> messageIds)`                 | Forward the message or messages.        |
@@ -48,7 +48,7 @@ And now it's ready for chat .
 |18|`getUserInfo()`         | Get the information of the current user      |
 |19|`muteThread(int threadId)`         | Mute the thread      |
 |20|`unmuteThread(int threadId)`         | Un Mute the thread      |
-|21|`sendFileMessage(Context context, String description, long threadId, Uri fileUri)`         | Send file      |
+|21|`sendFileMessage(Context context, String description, long threadId, Uri fileUri, String metadata)`         | Send file      |
 |22|`syncContact(Context context, Activity activity)`         | Sync Contact      |
 |23|`uploadFile(Context context, Activity activity, String fileUri, Uri uri)`         | Upload file      |
 |24|`uploadImage(Context context, Activity activity, Uri fileUri)`         | Upload image      |

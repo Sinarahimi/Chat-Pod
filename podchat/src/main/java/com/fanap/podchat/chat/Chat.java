@@ -390,14 +390,16 @@ public class Chat extends AsyncAdapter {
      * @param description Its the description that you want to send with file in the thread
      * @param fileUri     Uri of the file that you want to send to thread
      * @param threadId    Id of the thread that you want to send file
+     * @param metaData    [optional]
      */
-    public void sendFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri) {
+    public void sendFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri, String metaData) {
+
         String mimeType = context.getContentResolver().getType(fileUri);
         if (mimeType.equals("image/png") || mimeType.equals("image/jpeg")) {
-            sendImageFileMessage(context, activity, description, threadId, fileUri, mimeType);
+            sendImageFileMessage(context, activity, description, threadId, fileUri, mimeType, metaData);
         } else {
             String path = FilePick.getSmartFilePath(context, fileUri);
-            uploadFileMessage(activity, description, threadId, mimeType, path);
+            uploadFileMessage(activity, description, threadId, mimeType, path, metaData);
         }
     }
 
@@ -1481,8 +1483,11 @@ public class Chat extends AsyncAdapter {
         return outPutThread;
     }
 
-    private void sendTextMessageWithFile(String description, long threadId, String metaData) {
+    private void sendTextMessageWithFile(String description, long threadId, String metaData, String systemMetadata) {
         ChatMessage chatMessage = new ChatMessage();
+        if (systemMetadata != null) {
+            chatMessage.setSystemMetadata(systemMetadata);
+        }
         chatMessage.setContent(description);
         chatMessage.setType(Constants.MESSAGE);
         chatMessage.setTokenIssuer("1");
@@ -1570,7 +1575,7 @@ public class Chat extends AsyncAdapter {
         return result;
     }
 
-    private void uploadFileMessage(Activity activity, String description, long threadId, String mimeType, String path) {
+    private void uploadFileMessage(Activity activity, String description, long threadId, String mimeType, String path, String metadata) {
         if (Permission.Check_READ_STORAGE(activity)) {
             if (getFileServer() != null) {
                 File file = new File(path);
@@ -1605,7 +1610,7 @@ public class Chat extends AsyncAdapter {
 
                                 String jsonMeta = JsonUtil.getJson(metaDataFile);
                                 if (BuildConfig.DEBUG) Logger.json(jsonMeta);
-                                sendTextMessageWithFile(description, threadId, jsonMeta);
+                                sendTextMessageWithFile(description, threadId, jsonMeta, metadata);
                             }
                         }
                     }
@@ -1621,7 +1626,7 @@ public class Chat extends AsyncAdapter {
         }
     }
 
-    private void sendImageFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri, String mimeType) {
+    private void sendImageFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri, String mimeType, String metadata) {
         if (fileServer != null) {
             if (Permission.Check_READ_STORAGE(activity)) {
                 RetrofitHelperFileServer retrofitHelperFileServer = new RetrofitHelperFileServer(getFileServer());
@@ -1659,7 +1664,7 @@ public class Chat extends AsyncAdapter {
 
                                 String metaJson = JsonUtil.getJson(metaData);
                                 if (BuildConfig.DEBUG) Logger.json(metaJson);
-                                sendTextMessageWithFile(description, threadId, metaJson);
+                                sendTextMessageWithFile(description, threadId, metaJson, metadata);
 
                                 FileImageUpload fileImageUpload = fileUploadResponse.body();
                                 String imageJson = JsonUtil.getJson(fileImageUpload);
