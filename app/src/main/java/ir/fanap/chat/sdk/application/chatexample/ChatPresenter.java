@@ -11,6 +11,7 @@ import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.Participant;
+import com.fanap.podchat.mainmodel.SearchContact;
 import com.fanap.podchat.model.MessageVO;
 import com.fanap.podchat.model.OutPutNewMessage;
 import com.squareup.moshi.JsonAdapter;
@@ -113,8 +114,13 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void sendFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri) {
-        chat.sendFileMessage(context, activity, description, threadId, fileUri);
+    public void searchContact(SearchContact.Builder searchContact) {
+        chat.searchContact(searchContact);
+    }
+
+    @Override
+    public void sendFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri,String metaData) {
+        chat.sendFileMessage(context, activity, description, threadId, fileUri,metaData);
     }
 
     @Override

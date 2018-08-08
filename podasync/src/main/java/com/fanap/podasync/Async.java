@@ -313,7 +313,7 @@ public class Async extends WebSocketAdapter {
         return messageLiveData;
     }
 
-    public void logOutSocket() {
+    public void logOut() {
         removePeerId(AsyncConstant.Constants.PEER_ID, null);
         isServerRegister = false;
         isDeviceRegister = false;

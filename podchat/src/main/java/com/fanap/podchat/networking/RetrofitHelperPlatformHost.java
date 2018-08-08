@@ -1,8 +1,6 @@
 package com.fanap.podchat.networking;
 
 
-import com.orhanobut.logger.Logger;
-
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Response;
@@ -18,11 +16,11 @@ import rx.schedulers.Schedulers;
  * RetrofitHelperSsoHost
  */
 
-public class RetrofitHelper {
+public class RetrofitHelperPlatformHost {
 
     private Retrofit.Builder retrofit;
 
-    public RetrofitHelper(String platformHost) {
+    public RetrofitHelperPlatformHost(String platformHost) {
         retrofit = new Retrofit.Builder()
                 .baseUrl(platformHost)
                 .client(new OkHttpClient().newBuilder().addNetworkInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)).build())

@@ -8,7 +8,7 @@ android {
         minSdkVersion 17
         targetSdkVersion 27
         versionCode 1
-        versionName "1.0.0.0"
+        versionName "0.0.8.0"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -37,22 +37,22 @@ buildscript {
 
 ext {
     bintrayRepo = 'maven'
-    bintrayName = 'diagonalscrollview'
+    bintrayName = 'Async-pod'
 
-    publishedGroupId = 'ua.org.tenletters.widget'
-    libraryName = 'DiagonalScrollView'
-    artifact = 'diagonalscrollview'
+    publishedGroupId = 'fanap.async'
+    libraryName = 'PodaAsync'
+    artifact = 'Async-pod'
 
-    libraryDescription = 'This view is a container that supports diagonal scroll and fling gesture. It is based on AOSP HorizontalScrollView.'
+    libraryDescription = 'Fanaps POD Async service (DIRANA)'
 
-    siteUrl = 'https://github.com/LissF/DiagonalScrollView'
-    gitUrl = 'https://github.com/LissF/DiagonalScrollView.git'
+    gitUrl = 'https://github.com/devPaw/Async-pod'
+    siteUrl = 'https://fanap.ir'
 
-    libraryVersion = '0.3.3'
+    libraryVersion = '0.0.8.0'
 
-    developerId = 'lissf'
-    developerName = 'Yegor Zatsepin'
-    developerEmail = 'Liss_F@ukr.net'
+    developerId = 'sinara'
+    developerName = 'Sina Rahimi'
+    developerEmail = 'Develop.rahimi95@gmail.com'
 
     licenseName = 'The Apache Software License, Version 2.0'
     licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'

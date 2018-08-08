@@ -7,6 +7,7 @@ import android.net.Uri;
 
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.ParticipantContent;
+import com.fanap.podchat.mainmodel.SearchContact;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -94,7 +95,9 @@ public interface ChatContract {
 
         void removeContact(long id);
 
-        void sendFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri);
+        void searchContact(SearchContact.Builder searchContact);
+
+        void sendFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri, String metaData);
 
         void syncContact(Activity activity);
 

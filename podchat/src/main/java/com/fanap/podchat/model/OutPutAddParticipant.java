@@ -30,11 +30,11 @@ public class OutPutAddParticipant {
         this.errorCode = errorCode;
     }
 
-    public ResultAddParticipant getAddParticipant() {
+    public ResultAddParticipant getResult() {
         return result;
     }
 
-    public void setAddParticipant(ResultAddParticipant addParticipant) {
-        this.result = addParticipant;
+    public void setResult(ResultAddParticipant result) {
+        this.result = result;
     }
 }

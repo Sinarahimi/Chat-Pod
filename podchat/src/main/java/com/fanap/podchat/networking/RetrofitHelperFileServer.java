@@ -18,10 +18,10 @@ public class RetrofitHelperFileServer {
 
     private Retrofit.Builder retrofit;
 
-    public RetrofitHelperFileServer(String ssoHost) {
+    public RetrofitHelperFileServer(String fileServer) {
 
         retrofit = new Retrofit.Builder()
-                .baseUrl(ssoHost)
+                .baseUrl(fileServer)
                 .client(new OkHttpClient().newBuilder().addNetworkInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)).build())
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create());

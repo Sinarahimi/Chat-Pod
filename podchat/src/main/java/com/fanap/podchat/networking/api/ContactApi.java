@@ -1,6 +1,9 @@
 package com.fanap.podchat.networking.api;
 
+import com.fanap.podchat.mainmodel.Contact;
+import com.fanap.podchat.mainmodel.SearchContactVO;
 import com.fanap.podchat.mainmodel.UpdateContact;
+import com.fanap.podchat.model.AddContact;
 import com.fanap.podchat.model.AddContacts;
 import com.fanap.podchat.model.ContactRemove;
 import com.fanap.podchat.model.Contacts;
@@ -10,8 +13,10 @@ import java.util.ArrayList;
 import retrofit2.Response;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
+import retrofit2.http.GET;
 import retrofit2.http.Header;
 import retrofit2.http.POST;
+import retrofit2.http.Query;
 import rx.Observable;
 
 public interface ContactApi {
@@ -52,4 +57,18 @@ public interface ContactApi {
             , @Field("email") String email
             , @Field("uniqueId") String uniqueId
             , @Field("cellphoneNumber") String cellphoneNumber);
+
+    @GET("nzh/listContactById")
+    Observable<Response<SearchContactVO>> searchContact(@Header("_token_") String token
+            , @Header("_token_issuer_") int tokenIssuer
+            , @Query("id") String id
+            , @Query("firstName") String firstName
+            , @Query("lastName") String lastName
+            , @Query("email") String email
+            , @Query("uniqueId") String offset
+            , @Query("offset") String uniqueId
+            , @Query("size") String size
+            , @Query("typeCode") String typeCode
+            , @Query("q") String query
+            , @Query("cellphoneNumber") String cellphoneNumber);
 }

@@ -8,7 +8,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Handler;
-import android.os.Looper;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -33,6 +32,8 @@ import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.RemoveParticipant;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
+import com.fanap.podchat.mainmodel.SearchContact;
+import com.fanap.podchat.mainmodel.SearchContactVO;
 import com.fanap.podchat.mainmodel.Thread;
 import com.fanap.podchat.mainmodel.UpdateContact;
 import com.fanap.podchat.mainmodel.UserInfo;
@@ -73,7 +74,7 @@ import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultUpdateContact;
 import com.fanap.podchat.model.ResultUserInfo;
 import com.fanap.podchat.model.ResultsHistory;
-import com.fanap.podchat.networking.RetrofitHelper;
+import com.fanap.podchat.networking.RetrofitHelperPlatformHost;
 import com.fanap.podchat.networking.RetrofitHelperFileServer;
 import com.fanap.podchat.networking.RetrofitHelperSsoHost;
 import com.fanap.podchat.networking.api.ContactApi;
@@ -84,7 +85,6 @@ import com.fanap.podchat.util.ChatConstant;
 import com.fanap.podchat.util.ChatMessageType;
 import com.fanap.podchat.util.ChatMessageType.Constants;
 import com.fanap.podchat.util.ChatStateType;
-import com.fanap.podchat.util.Constant;
 import com.fanap.podchat.util.FilePick;
 import com.fanap.podchat.util.Permission;
 import com.fanap.podchat.util.Util;
@@ -177,8 +177,8 @@ public class Chat extends AsyncAdapter {
             messageCallbacks = new HashMap<>();
             threadCallbacks = new HashMap<>();
             async.addListener(this);
-            RetrofitHelper retrofitHelper = new RetrofitHelper(platformHost);
-            contactApi = retrofitHelper.getService(ContactApi.class);
+            RetrofitHelperPlatformHost retrofitHelperPlatformHost = new RetrofitHelperPlatformHost(platformHost);
+            contactApi = retrofitHelperPlatformHost.getService(ContactApi.class);
             setPlatformHost(platformHost);
             setToken(token);
             setFileServer(fileServer);
@@ -505,7 +505,7 @@ public class Chat extends AsyncAdapter {
      * peerId that was set in the server was removed
      */
     public void logOutSocket() {
-        async.logOutSocket();
+        async.logOut();
     }
 
     /**
@@ -747,6 +747,10 @@ public class Chat extends AsyncAdapter {
         sendAsyncMessage(asyncContent, 3, "SEND GET THREAD HISTORY");
     }
 
+    public void searchHistory() {
+
+    }
+
     /**
      * Get all of the contacts of the user
      */
@@ -770,6 +774,31 @@ public class Chat extends AsyncAdapter {
         sendAsyncMessage(asyncContent, 3, "GET_CONTACT_SEND");
     }
 
+    public void searchContact(SearchContact.Builder builder) {
+        SearchContact searchContact = new SearchContact(builder);
+        Observable<Response<SearchContactVO>> observable = contactApi.searchContact(getToken(), TOKEN_ISSUER,
+                searchContact.getId()
+                , searchContact.getFirstName()
+                , searchContact.getLastName()
+                , searchContact.getEmail()
+                , searchContact.getOffset()
+                , getUniqueId()
+                , searchContact.getSize()
+                , searchContact.getTypeCode()
+                , searchContact.getQuery()
+                , searchContact.getCellphoneNumber());
+        observable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Response<SearchContactVO>>() {
+            @Override
+            public void call(Response<SearchContactVO> contactResponse) {
+
+                SearchContactVO contact = contactResponse.body();
+                Logger.i("searachContact", contact);
+            }
+        }, (Throwable throwable) -> Logger.e(throwable.getMessage()));
+
+    }
+
+
     /**
      * Add one contact to the contact list
      *
@@ -792,6 +821,7 @@ public class Chat extends AsyncAdapter {
                         String contactsJson = JsonUtil.getJson(outPutAddContact);
                         listenerManager.callOnAddContact(contactsJson);
                         if (BuildConfig.DEBUG) Logger.json(contactsJson);
+                        if (BuildConfig.DEBUG) Logger.i("RECEIVED_ADD_CONTACT");
                     } else {
                         String jsonError = getErrorOutPut(contacts.getMessage(), contacts.getErrorCode());
                         if (BuildConfig.DEBUG) Logger.e(jsonError);
@@ -1349,12 +1379,14 @@ public class Chat extends AsyncAdapter {
                 break;
             case Constants.ADD_PARTICIPANT:
                 if (callback.isResult()) {
-                    ResultAddParticipant resultAddParticipant = JsonUtil.fromJSON(chatMessage.getContent(), ResultAddParticipant.class);
+                    Thread thread = JsonUtil.fromJSON(chatMessage.getContent(), Thread.class);
+                    ResultAddParticipant resultAddParticipant = new ResultAddParticipant();
+                    resultAddParticipant.setThread(thread);
                     OutPutAddParticipant outPutAddParticipant = new OutPutAddParticipant();
                     outPutAddParticipant.setErrorCode(0);
                     outPutAddParticipant.setErrorMessage("");
                     outPutAddParticipant.setHasError(false);
-                    outPutAddParticipant.setAddParticipant(resultAddParticipant);
+                    outPutAddParticipant.setResult(resultAddParticipant);
                     String jsonAddParticipant = JsonUtil.getJson(outPutAddParticipant);
                     listenerManager.callOnThreadAddParticipant(jsonAddParticipant);
                     messageCallbacks.remove(messageUniqueId);

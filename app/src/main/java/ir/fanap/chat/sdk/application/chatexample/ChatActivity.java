@@ -16,6 +16,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.fanap.podchat.mainmodel.Invitee;
+import com.fanap.podchat.mainmodel.SearchContact;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -62,19 +63,18 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
             , "Add Thread Participant"
             , "Leave Thread"
             , "Delete Message"
+            , "Search Contact"
     };
     private Uri uri;
 
     //    fel token
 //    private static String TOKEN = "e4f1d5da7b254d9381d0487387eabb0a";
     //Fifi
-//    private String name = "Fifi";
-//    private static String TOKEN = "5fb88da4c6914d07a501a76d68a62363";
+    private String name = "Fifi";
+    private static String TOKEN = "5fb88da4c6914d07a501a76d68a62363";
     //Token Alexi
 //    private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
-    //tokene alaki
-    private static String TOKEN = "bebc36c4ead6458c90b607496dae25c6";
-    private static String name = "Alexi";
+//    private static String name = "Alexi";
     private String fileUri;
 //    private static String TOKEN = "11a2fc342a304a1d89dc2c90ade9d588";
 
@@ -226,7 +226,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                         presenter.sendFileMessage(ChatActivity.this, ChatActivity.this,
                                 "test file message",
                                 381
-                                , getUri());
+                                , getUri(),null);
                         break;
                     case 3:
                         presenter.uploadImage(ChatActivity.this, ChatActivity.this, getUri());
@@ -251,6 +251,10 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                         break;
                     case 8:
                         presenter.deleteMessage(14029, true);
+                        break;
+                    case 9:
+                        SearchContact.Builder searchContact = new SearchContact.Builder("","").id("1022");
+                        presenter.searchContact(searchContact);
                 }
             }
 
@@ -381,7 +385,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
             case 14:
                 // add contact
-                presenter.addContact("pooria", "", "09387181694", "");
+                presenter.addContact("پوریا", "", "09387181694", "");
                 break;
             case 15:
                 // remove contact
