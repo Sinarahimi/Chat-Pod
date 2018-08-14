@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -11,6 +12,7 @@ import android.os.Handler;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.content.CursorLoader;
 import android.util.Log;
 
@@ -22,6 +24,7 @@ import com.fanap.podasync.util.JsonUtil;
 import com.fanap.podchat.BuildConfig;
 import com.fanap.podchat.mainmodel.AddParticipant;
 import com.fanap.podchat.mainmodel.BaseMessage;
+import com.fanap.podchat.mainmodel.BlockAcount;
 import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.mainmodel.ChatMessageContent;
 import com.fanap.podchat.mainmodel.ChatThread;
@@ -29,6 +32,9 @@ import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.FileUpload;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
+import com.fanap.podchat.mainmodel.MapNeshan;
+import com.fanap.podchat.mainmodel.MapRout;
+import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.RemoveParticipant;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
@@ -57,6 +63,8 @@ import com.fanap.podchat.model.OutPutContact;
 import com.fanap.podchat.model.OutPutDeleteMessage;
 import com.fanap.podchat.model.OutPutInfoThread;
 import com.fanap.podchat.model.OutPutLeaveThread;
+import com.fanap.podchat.model.OutPutMapNeshan;
+import com.fanap.podchat.model.OutPutMapRout;
 import com.fanap.podchat.model.OutPutNewMessage;
 import com.fanap.podchat.model.OutPutParticipant;
 import com.fanap.podchat.model.OutPutThread;
@@ -68,17 +76,20 @@ import com.fanap.podchat.model.ResultContact;
 import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultImageFile;
 import com.fanap.podchat.model.ResultLeaveThread;
+import com.fanap.podchat.model.ResultMap;
 import com.fanap.podchat.model.ResultParticipant;
 import com.fanap.podchat.model.ResultThread;
 import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultUpdateContact;
 import com.fanap.podchat.model.ResultUserInfo;
 import com.fanap.podchat.model.ResultsHistory;
+import com.fanap.podchat.networking.RetrofitHelperMap;
 import com.fanap.podchat.networking.RetrofitHelperPlatformHost;
 import com.fanap.podchat.networking.RetrofitHelperFileServer;
 import com.fanap.podchat.networking.RetrofitHelperSsoHost;
 import com.fanap.podchat.networking.api.ContactApi;
 import com.fanap.podchat.networking.api.FileApi;
+import com.fanap.podchat.networking.api.MapApi;
 import com.fanap.podchat.networking.api.TokenApi;
 import com.fanap.podchat.util.Callback;
 import com.fanap.podchat.util.ChatConstant;
@@ -284,7 +295,6 @@ public class Chat extends AsyncAdapter {
                 handleResponseMessage(callback, chatMessage, messageUniqueId);
                 break;
             case Constants.PING:
-
                 if (BuildConfig.DEBUG) Logger.i("RECEIVED_CHAT_PING", chatMessage);
                 break;
             case Constants.RELATION_INFO:
@@ -747,8 +757,24 @@ public class Chat extends AsyncAdapter {
         sendAsyncMessage(asyncContent, 3, "SEND GET THREAD HISTORY");
     }
 
-    public void searchHistory() {
+    public void searchHistory(NosqlListMessageCriteriaVO messageCriteriaVO) {
 
+        JsonAdapter<NosqlListMessageCriteriaVO> messageContentJsonAdapter = moshi.adapter(NosqlListMessageCriteriaVO.class);
+        String content = messageContentJsonAdapter.toJson(messageCriteriaVO);
+
+        String uniqueId = getUniqueId();
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setContent(content);
+        chatMessage.setType(Constants.GET_HISTORY);
+        chatMessage.setToken(getToken());
+        chatMessage.setTokenIssuer("1");
+        chatMessage.setUniqueId(uniqueId);
+        chatMessage.setSubjectId(messageCriteriaVO.getMessageThreadId());
+        JsonAdapter<ChatMessage> chatMessageJsonAdapter = moshi.adapter(ChatMessage.class);
+
+        String asyncContent = chatMessageJsonAdapter.toJson(chatMessage);
+        setCallBacks(null, null, null, true, Constants.GET_HISTORY, messageCriteriaVO.getOffset(), uniqueId);
+        sendAsyncMessage(asyncContent, 3, "SEND SEARCH0. HISTORY");
     }
 
     /**
@@ -774,28 +800,32 @@ public class Chat extends AsyncAdapter {
         sendAsyncMessage(asyncContent, 3, "GET_CONTACT_SEND");
     }
 
-    public void searchContact(SearchContact.Builder builder) {
-        SearchContact searchContact = new SearchContact(builder);
-        Observable<Response<SearchContactVO>> observable = contactApi.searchContact(getToken(), TOKEN_ISSUER,
-                searchContact.getId()
-                , searchContact.getFirstName()
-                , searchContact.getLastName()
-                , searchContact.getEmail()
-                , searchContact.getOffset()
-                , getUniqueId()
-                , searchContact.getSize()
-                , searchContact.getTypeCode()
-                , searchContact.getQuery()
-                , searchContact.getCellphoneNumber());
-        observable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Response<SearchContactVO>>() {
-            @Override
-            public void call(Response<SearchContactVO> contactResponse) {
+    public void searchContact(SearchContact searchContact) {
+        if (chatReady) {
+            Observable<Response<SearchContactVO>> observable = contactApi.searchContact(getToken(), TOKEN_ISSUER,
+                    searchContact.getId()
+                    , searchContact.getFirstName()
+                    , searchContact.getLastName()
+                    , searchContact.getEmail()
+                    , getUniqueId()
+                    , searchContact.getOffset()
+                    , searchContact.getSize()
+                    , searchContact.getTypeCode()
+                    , searchContact.getQuery()
+                    , searchContact.getCellphoneNumber());
+            observable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Response<SearchContactVO>>() {
+                @Override
+                public void call(Response<SearchContactVO> contactResponse) {
 
-                SearchContactVO contact = contactResponse.body();
-                Logger.i("searachContact", contact);
-            }
-        }, (Throwable throwable) -> Logger.e(throwable.getMessage()));
-
+                    SearchContactVO contact = contactResponse.body();
+                    String json = JsonUtil.getJson(contact);
+                    Logger.json(json);
+                    Logger.i("searachContact", contact);
+                }
+            }, (Throwable throwable) -> Logger.e(throwable.getMessage()));
+        } else {
+            if (BuildConfig.DEBUG) Logger.e("Chat is not ready");
+        }
     }
 
 
@@ -901,6 +931,109 @@ public class Chat extends AsyncAdapter {
                 Logger.e("cause" + "" + throwable.getCause());
             }
         });
+    }
+
+    public void mapSearch(String searchTerm, Double latitude, Double longitude) {
+        RetrofitHelperMap retrofitHelperMap = new RetrofitHelperMap("https://api.neshan.org/");
+        MapApi mapApi = retrofitHelperMap.getService(MapApi.class);
+        Observable<Response<MapNeshan>> observable = mapApi.mapSearch("8b77db18704aa646ee5aaea13e7370f4f88b9e8c"
+                , searchTerm, latitude, longitude);
+        observable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Response<MapNeshan>>() {
+            @Override
+            public void call(Response<MapNeshan> mapNeshanResponse) {
+                if (mapNeshanResponse.isSuccessful()) {
+                    MapNeshan mapNeshan = mapNeshanResponse.body();
+
+                    OutPutMapNeshan outPutMapNeshan = new OutPutMapNeshan();
+                    outPutMapNeshan.setCount(mapNeshan.getCount());
+                    ResultMap resultMap = new ResultMap();
+                    resultMap.setMaps(mapNeshan.getItems());
+                    outPutMapNeshan.setResult(resultMap);
+                    String json = JsonUtil.getJson(outPutMapNeshan);
+                    Logger.i("RECEIVE_MAP_ROUTING");
+                    Logger.json(json);
+                }
+            }
+        }, (Throwable throwable) -> listenerManager.callOnError(throwable.getMessage()));
+    }
+
+    public void mapRouting(String origin, String destination) {
+        RetrofitHelperMap retrofitHelperMap = new RetrofitHelperMap("https://api.neshan.org/");
+        MapApi mapApi = retrofitHelperMap.getService(MapApi.class);
+        Observable<Response<MapRout>> responseObservable = mapApi.mapRouting("8b77db18704aa646ee5aaea13e7370f4f88b9e8c"
+                , origin, destination, true);
+        responseObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Response<MapRout>>() {
+            @Override
+            public void call(Response<MapRout> mapRoutResponse) {
+                if (mapRoutResponse.isSuccessful()) {
+                    MapRout mapRout = mapRoutResponse.body();
+                    OutPutMapRout outPutMapRout = new OutPutMapRout();
+                    outPutMapRout.setResult(mapRout);
+                    String jsonMapRout = JsonUtil.getJson(outPutMapRout);
+                    listenerManager.callOnMapRouting(jsonMapRout);
+                    Logger.i("RECEIVE_MAP_ROUTING");
+                    Logger.json(jsonMapRout);
+                }
+            }
+        }, (Throwable throwable) -> {
+            Logger.e(throwable, "Error on map routing");
+        });
+    }
+
+    public void block(long contactId, long threadId) {
+        BlockAcount blockAcount = new BlockAcount();
+        blockAcount.setContactId(contactId);
+        blockAcount.setThreadId(threadId);
+
+        String uniqueId = getUniqueId();
+
+        String json = JsonUtil.getJson(blockAcount);
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setContent(json);
+        chatMessage.setToken(getToken());
+        chatMessage.setUniqueId(uniqueId);
+        chatMessage.setTokenIssuer("1");
+        chatMessage.setType(Constants.BLOCK);
+        setCallBacks(null, null, null, true, Constants.BLOCK, null, uniqueId);
+        String asyncContent = JsonUtil.getJson(chatMessage);
+        sendAsyncMessage(asyncContent, 4, "SEND_BLOCK");
+
+    }
+
+    public void block(Long contactId, Long threadId) {
+        BlockAcount blockAcount = new BlockAcount();
+        if (threadId != null) {
+            blockAcount.setThreadId(threadId);
+        }
+        if (contactId != null) {
+            blockAcount.setContactId(contactId);
+        }
+        String uniqueId = getUniqueId();
+
+        String json = JsonUtil.getJson(blockAcount);
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setContent(json);
+        chatMessage.setToken(getToken());
+        chatMessage.setUniqueId(uniqueId);
+        chatMessage.setTokenIssuer("1");
+        chatMessage.setType(Constants.BLOCK);
+        setCallBacks(null, null, null, true, Constants.BLOCK, null, uniqueId);
+        String asyncContent = JsonUtil.getJson(chatMessage);
+        sendAsyncMessage(asyncContent, 4, "SEND_BLOCK");
+
+    }
+
+    public void unblock(long contactId) {
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setSubjectId(contactId);
+        String uniqueId = getUniqueId();
+        chatMessage.setToken(getToken());
+        chatMessage.setUniqueId(uniqueId);
+        chatMessage.setTokenIssuer("1");
+        chatMessage.setType(Constants.UNBLOCK);
+        setCallBacks(null, null, null, true, Constants.UNBLOCK, null, uniqueId);
+        String asyncContent = JsonUtil.getJson(chatMessage);
+        sendAsyncMessage(asyncContent, 4, "SEND_UN_BLOCK");
     }
 
     /**

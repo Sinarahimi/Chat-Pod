@@ -38,6 +38,10 @@ public interface ChatListener {
 
     void onRenameThread(String content);
 
+    void onMapSearch(String content);
+
+    void onMapRouting(String content);
+
     void onNewMessage(String content);
 
     void onDeleteMessage(String content);

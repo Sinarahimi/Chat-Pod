@@ -91,6 +91,16 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
+    public void onMapSearch(String content) {
+
+    }
+
+    @Override
+    public void onMapRouting(String content) {
+
+    }
+
+    @Override
     public void onNewMessage(String content) {
 
     }

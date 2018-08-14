@@ -210,22 +210,39 @@ public class Async extends WebSocketAdapter {
         if (BuildConfig.DEBUG) Log.e("onCloseFrame", frame.getCloseReason());
         stopSocket();
         if (reconnectOnClose) {
-            Handler handlerReconnect = new Handler();
-            handlerReconnect.postDelayed(() -> {
-                try {
-                    reConnect();
-                    if (BuildConfig.DEBUG) Logger.e("Async: reConnect in " + "retryStep" + "s");
-                } catch (IOException e) {
-                    if (BuildConfig.DEBUG) Logger.e("Async: reConnect", e.getMessage());
-                } catch (WebSocketException e) {
-                    if (BuildConfig.DEBUG) Logger.e("Async: reConnect", e.getMessage());
-                }
-            }, retryStep * 1000);
-
-            if (retryStep < 60) retryStep *= 2;
-
+            LooperThread looperThread = new LooperThread();
+            looperThread.run();
         } else {
             if (BuildConfig.DEBUG) Logger.e("Socket Closed!");
+        }
+    }
+
+    class LooperThread extends Thread {
+        Handler handler;
+
+        @Override
+        public void run() {
+            super.run();
+            Looper.prepare();
+            handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        reConnect();
+                        if (BuildConfig.DEBUG)
+                            Logger.e("Async: reConnect in " + "retryStep" + retryStep + "s");
+                    } catch (WebSocketException e) {
+                        try {
+                            asyncListenerManager.callOnError(e.getMessage());
+                        } catch (IOException e1) {
+                            e1.printStackTrace();
+                        }
+                    }
+                }
+            }, retryStep * 1000);
+            if (retryStep < 60) retryStep *= 2;
+            Looper.loop();
         }
     }
 
@@ -467,7 +484,7 @@ public class Async extends WebSocketAdapter {
      * Async else we set {@param renew = true}  to the Async to
      * get the new PeerId
      */
-    private void reConnect() throws IOException, WebSocketException {
+    private void reConnect() throws WebSocketException {
         WebSocketFactory webSocketFactory = new WebSocketFactory();
         webSocketFactory.setVerifyHostname(false);
         try {

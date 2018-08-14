@@ -373,4 +373,24 @@ public class ChatListenerManager {
             }
         }
     }
+
+    public void callOnMapSearch(String content) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onMapSearch(content);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+    public void callOnMapRouting(String content) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onMapRouting(content);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
 }

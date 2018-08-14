@@ -20,7 +20,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-
     <TextView
         android:id="@+id/textViewStateChat"
         android:layout_width="wrap_content"
@@ -30,7 +29,6 @@
         android:text="State"
         app:layout_constraintBottom_toTopOf="@+id/spinner"
         app:layout_constraintStart_toStartOf="parent" />
-
 
     <Button
         android:id="@+id/buttonSendMessage"
@@ -42,7 +40,6 @@
         android:onClick="sendMessage"
         android:text="Send message"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/button3"
         app:layout_constraintTop_toBottomOf="@+id/editTextMessage" />
 
     <EditText
@@ -104,7 +101,7 @@
 
     <Spinner
         android:id="@+id/spinnerSecond"
-        android:layout_width="0dp"
+        android:layout_width="170dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="117dp"
         android:layout_marginEnd="8dp"
@@ -113,9 +110,24 @@
         android:background="@android:drawable/btn_dropdown"
         android:spinnerMode="dropdown"
         app:layout_constraintBottom_toBottomOf="@+id/editTextMessage"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/spinnerThird"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.488" />
+
+    <Spinner
+        android:id="@+id/spinnerThird"
+        android:layout_width="170dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="117dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="113dp"
+        android:background="@android:drawable/btn_dropdown"
+        android:spinnerMode="dropdown"
+        app:layout_constraintBottom_toBottomOf="@+id/editTextMessage"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.488" />
 
     <Button
         android:id="@+id/buttonFileChoose"
@@ -135,8 +147,8 @@
         android:layout_marginEnd="88dp"
         android:layout_marginStart="46dp"
         android:layout_marginTop="17dp"
-        android:text="ChooseFile"
         android:onClick="ChooseFile"
+        android:text="ChooseFile"
         app:layout_constraintEnd_toStartOf="@+id/buttonSendMessage"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editTextMessage" />

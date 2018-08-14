@@ -16,6 +16,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.fanap.podchat.mainmodel.Invitee;
+import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
+import com.fanap.podchat.mainmodel.NosqlSearchMetadataCriteria;
 import com.fanap.podchat.mainmodel.SearchContact;
 
 import java.util.ArrayList;
@@ -64,14 +66,28 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
             , "Leave Thread"
             , "Delete Message"
             , "Search Contact"
+            , "Search History"
+    };
+    private static final String[] funcThird = {
+            "Choose Map function"
+            , "Search Map"
+            , "Map Routing"
+            , "Block"
+            , "UnBlock"
     };
     private Uri uri;
 
     //    fel token
-//    private static String TOKEN = "e4f1d5da7b254d9381d0487387eabb0a";
+    private String name = "felfel";
+    private static String TOKEN = "e4f1d5da7b254d9381d0487387eabb0a";
     //Fifi
-    private String name = "Fifi";
-    private static String TOKEN = "5fb88da4c6914d07a501a76d68a62363";
+//    private String name = "Fifi";
+//    private static String TOKEN = "5fb88da4c6914d07a501a76d68a62363";
+
+    //    private String name = "jiji";
+//    private static String TOKEN = "f53f39a1893e4c4da18e59822290a552";
+//    private String name = "zizi";
+//    private static String TOKEN = "7cba09ff83554fc98726430c30afcfc6";
     //Token Alexi
 //    private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
 //    private static String name = "Alexi";
@@ -94,6 +110,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         textViewToken.setText(TOKEN + name);
         Spinner spinner = findViewById(R.id.spinner);
         Spinner spinnerSecond = findViewById(R.id.spinnerSecond);
+        Spinner spinnerThird = findViewById(R.id.spinnerThird);
         ChatContract.view view = new ChatContract.view() {
             @Override
             public void onGetUserInfo() {
@@ -208,6 +225,43 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         presenter.getLiveState().observe(this, textViewState::setText);
 
         setupSpinner(spinner);
+        setupSecondSpinner(spinnerSecond);
+        setupThirdSpinner(spinnerThird);
+    }
+
+    private void setupThirdSpinner(Spinner spinnerThird) {
+        ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, funcThird);
+
+        adapterSpinner.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerThird.setAdapter(adapterSpinner);
+        spinnerThird.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                switch (position) {
+                    case 0:
+                        break;
+                    case 1:
+                        presenter.mapSearch("میدان آزادی", 35.7003510, 51.3376472);
+                        break;
+                    case 2:
+                        presenter.mapRouting("35.7003510,51.3376472", "35.7343510,50.3376472");
+                        break;
+                    case 3:
+                        presenter.block(1063L,null);
+                        break;
+                    case 4:
+                        break;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+    }
+
+    private void setupSecondSpinner(Spinner spinnerSecond) {
         ArrayAdapter<String> adapterSpinner = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, funcSecond);
 
         adapterSpinner.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -226,7 +280,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                         presenter.sendFileMessage(ChatActivity.this, ChatActivity.this,
                                 "test file message",
                                 381
-                                , getUri(),null);
+                                , getUri(), null);
                         break;
                     case 3:
                         presenter.uploadImage(ChatActivity.this, ChatActivity.this, getUri());
@@ -253,8 +307,16 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                         presenter.deleteMessage(14029, true);
                         break;
                     case 9:
-                        SearchContact.Builder searchContact = new SearchContact.Builder("","").id("1022");
+                        SearchContact searchContact = new SearchContact.Builder("0", "2").id("1063").build();
                         presenter.searchContact(searchContact);
+                        break;
+                    case 10:
+                        NosqlSearchMetadataCriteria.Builder builderMeta = new NosqlSearchMetadataCriteria.Builder("name").is("Sample");
+                        NosqlSearchMetadataCriteria metadataCriteria = new NosqlSearchMetadataCriteria(builderMeta);
+                        NosqlListMessageCriteriaVO criteriaVO = new NosqlListMessageCriteriaVO.Builder(351)
+                                .count(10).metadataCriteria(metadataCriteria).build();
+                        presenter.searchHistory(criteriaVO);
+                        break;
                 }
             }
 
@@ -313,7 +375,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 ArrayList<Integer> threadIds = new ArrayList<>();
                 threadIds.add(381);
 //                threadIds.add(351);
-                presenter.getThread(20, 0, null,"FiFi");
+                presenter.getThread(20, 0, null, "FiFi");
                 break;
             case 2:
                 //"rename thread",

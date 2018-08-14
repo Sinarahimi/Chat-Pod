@@ -1,9 +1,7 @@
 package com.fanap.podchat.networking.api;
 
-import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.SearchContactVO;
 import com.fanap.podchat.mainmodel.UpdateContact;
-import com.fanap.podchat.model.AddContact;
 import com.fanap.podchat.model.AddContacts;
 import com.fanap.podchat.model.ContactRemove;
 import com.fanap.podchat.model.Contacts;
@@ -58,15 +56,15 @@ public interface ContactApi {
             , @Field("uniqueId") String uniqueId
             , @Field("cellphoneNumber") String cellphoneNumber);
 
-    @GET("nzh/listContactById")
+    @GET("nzh/listContacts")
     Observable<Response<SearchContactVO>> searchContact(@Header("_token_") String token
             , @Header("_token_issuer_") int tokenIssuer
             , @Query("id") String id
             , @Query("firstName") String firstName
             , @Query("lastName") String lastName
             , @Query("email") String email
-            , @Query("uniqueId") String offset
-            , @Query("offset") String uniqueId
+            , @Query("uniqueId") String uniqueId
+            , @Query("offset") String offset
             , @Query("size") String size
             , @Query("typeCode") String typeCode
             , @Query("q") String query

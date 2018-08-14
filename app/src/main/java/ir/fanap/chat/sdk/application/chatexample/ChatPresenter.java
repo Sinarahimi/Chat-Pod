@@ -10,6 +10,7 @@ import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
 import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.mainmodel.Invitee;
+import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.SearchContact;
 import com.fanap.podchat.model.MessageVO;
@@ -39,6 +40,16 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void mapSearch(String searchTerm, Double latitude, Double longitude) {
+        chat.mapSearch(searchTerm, latitude, longitude);
+    }
+
+    @Override
+    public void mapRouting(String originLat, String originLng) {
+        chat.mapRouting(originLat, originLng);
+    }
+
+    @Override
     public void getThread(int count, int offset, ArrayList<Integer> threadIds, String threadName) {
         chat.getThreads(count, offset, threadIds, threadName);
     }
@@ -51,6 +62,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void getHistory(int count, int offset, String order, long subjectId) {
         chat.getHistory(count, offset, order, subjectId);
+    }
+
+    @Override
+    public void searchHistory(NosqlListMessageCriteriaVO builderListMessage) {
+        chat.searchHistory(builderListMessage);
     }
 
     @Override
@@ -114,13 +130,23 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void searchContact(SearchContact.Builder searchContact) {
+    public void searchContact(SearchContact searchContact) {
         chat.searchContact(searchContact);
     }
 
     @Override
-    public void sendFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri,String metaData) {
-        chat.sendFileMessage(context, activity, description, threadId, fileUri,metaData);
+    public void block(Long contactId, Long threadId) {
+        chat.block(contactId, threadId);
+    }
+
+    @Override
+    public void unBlock(long contactId) {
+        chat.unblock(contactId);
+    }
+
+    @Override
+    public void sendFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri, String metaData) {
+        chat.sendFileMessage(context, activity, description, threadId, fileUri, metaData);
     }
 
     @Override
@@ -257,6 +283,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void onRenameThread(String content) {
         super.onRenameThread(content);
         view.onRenameGroupThread();
+    }
+
+    @Override
+    public void onMapRouting(String content) {
+
     }
 
     @Override

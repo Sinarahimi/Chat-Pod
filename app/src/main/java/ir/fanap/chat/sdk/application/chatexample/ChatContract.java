@@ -4,8 +4,10 @@ import android.app.Activity;
 import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.net.Uri;
+import android.support.annotation.Nullable;
 
 import com.fanap.podchat.mainmodel.Invitee;
+import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.ParticipantContent;
 import com.fanap.podchat.mainmodel.SearchContact;
 
@@ -65,11 +67,17 @@ public interface ChatContract {
         void connect(String serverAddress, String appId, String severName, String token, String ssoHost
                 , String platformHost, String fileServer);
 
+        void mapSearch(String searchTerm, Double latitude, Double longitude);
+
+        void mapRouting(String originLat, String originLng);
+
         void getThread(int count, int offset, ArrayList<Integer> threadIds, String threadName);
 
         void getUserInfo();
 
         void getHistory(int count, int offset, String order, long subjectId);
+
+        void searchHistory(NosqlListMessageCriteriaVO messageCriteriaVO);
 
         void getContact(int count, int offset);
 
@@ -95,7 +103,11 @@ public interface ChatContract {
 
         void removeContact(long id);
 
-        void searchContact(SearchContact.Builder searchContact);
+        void searchContact(SearchContact searchContact);
+
+        void block(Long contactId, Long threadId);
+
+        void unBlock(long contactId);
 
         void sendFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri, String metaData);
 
