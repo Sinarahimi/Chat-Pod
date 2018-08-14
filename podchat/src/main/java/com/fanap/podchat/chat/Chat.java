@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.database.Cursor;
-import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -12,7 +11,6 @@ import android.os.Handler;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.content.CursorLoader;
 import android.util.Log;
 
@@ -24,7 +22,6 @@ import com.fanap.podasync.util.JsonUtil;
 import com.fanap.podchat.BuildConfig;
 import com.fanap.podchat.mainmodel.AddParticipant;
 import com.fanap.podchat.mainmodel.BaseMessage;
-import com.fanap.podchat.mainmodel.BlockAcount;
 import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.mainmodel.ChatMessageContent;
 import com.fanap.podchat.mainmodel.ChatThread;
@@ -59,6 +56,8 @@ import com.fanap.podchat.model.MetaDataImageFile;
 import com.fanap.podchat.model.OutPut;
 import com.fanap.podchat.model.OutPutAddContact;
 import com.fanap.podchat.model.OutPutAddParticipant;
+import com.fanap.podchat.model.OutPutBlock;
+import com.fanap.podchat.model.OutPutBlockList;
 import com.fanap.podchat.model.OutPutContact;
 import com.fanap.podchat.model.OutPutDeleteMessage;
 import com.fanap.podchat.model.OutPutInfoThread;
@@ -72,6 +71,8 @@ import com.fanap.podchat.model.OutPutThreads;
 import com.fanap.podchat.model.OutPutUpdateContact;
 import com.fanap.podchat.model.OutPutUserInfo;
 import com.fanap.podchat.model.ResultAddParticipant;
+import com.fanap.podchat.model.ResultBlock;
+import com.fanap.podchat.model.ResultBlockList;
 import com.fanap.podchat.model.ResultContact;
 import com.fanap.podchat.model.ResultFile;
 import com.fanap.podchat.model.ResultImageFile;
@@ -83,9 +84,9 @@ import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultUpdateContact;
 import com.fanap.podchat.model.ResultUserInfo;
 import com.fanap.podchat.model.ResultsHistory;
+import com.fanap.podchat.networking.RetrofitHelperFileServer;
 import com.fanap.podchat.networking.RetrofitHelperMap;
 import com.fanap.podchat.networking.RetrofitHelperPlatformHost;
-import com.fanap.podchat.networking.RetrofitHelperFileServer;
 import com.fanap.podchat.networking.RetrofitHelperSsoHost;
 import com.fanap.podchat.networking.api.ContactApi;
 import com.fanap.podchat.networking.api.FileApi;
@@ -100,9 +101,11 @@ import com.fanap.podchat.util.FilePick;
 import com.fanap.podchat.util.Permission;
 import com.fanap.podchat.util.Util;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonArray;
 import com.orhanobut.logger.Logger;
+import com.squareup.moshi.Json;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import com.squareup.moshi.Types;
@@ -250,7 +253,11 @@ public class Chat extends AsyncAdapter {
             case Constants.ADD_PARTICIPANT:
                 handleResponseMessage(callback, chatMessage, messageUniqueId);
                 break;
+            case Constants.UNBLOCK:
+                handleResponseMessage(callback, chatMessage, messageUniqueId);
+                break;
             case Constants.BLOCK:
+                handleResponseMessage(callback, chatMessage, messageUniqueId);
                 break;
             case Constants.CHANGE_TYPE:
                 break;
@@ -308,8 +315,6 @@ public class Chat extends AsyncAdapter {
             case Constants.THREAD_PARTICIPANTS:
                 handleResponseMessage(callback, chatMessage, messageUniqueId);
                 break;
-            case Constants.UNBLOCK:
-                break;
             case Constants.UN_MUTE_THREAD:
                 handleResponseMessage(callback, chatMessage, messageUniqueId);
                 break;
@@ -320,7 +325,9 @@ public class Chat extends AsyncAdapter {
                 break;
             case Constants.USER_STATUS:
                 break;
-            case Constants.USER_S_STATUS:
+            case Constants.GET_BLOCKED:
+                handleResponseMessage(callback, chatMessage, messageUniqueId);
+
                 break;
             case Constants.DELETE_MESSAGE:
                 handleResponseMessage(callback, chatMessage, messageUniqueId);
@@ -980,13 +987,10 @@ public class Chat extends AsyncAdapter {
         });
     }
 
-    public void block(long contactId, long threadId) {
-        BlockAcount blockAcount = new BlockAcount();
+    public void block(Long contactId) {
+        BlockContactId blockAcount = new BlockContactId();
         blockAcount.setContactId(contactId);
-        blockAcount.setThreadId(threadId);
-
         String uniqueId = getUniqueId();
-
         String json = JsonUtil.getJson(blockAcount);
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setContent(json);
@@ -997,30 +1001,6 @@ public class Chat extends AsyncAdapter {
         setCallBacks(null, null, null, true, Constants.BLOCK, null, uniqueId);
         String asyncContent = JsonUtil.getJson(chatMessage);
         sendAsyncMessage(asyncContent, 4, "SEND_BLOCK");
-
-    }
-
-    public void block(Long contactId, Long threadId) {
-        BlockAcount blockAcount = new BlockAcount();
-        if (threadId != null) {
-            blockAcount.setThreadId(threadId);
-        }
-        if (contactId != null) {
-            blockAcount.setContactId(contactId);
-        }
-        String uniqueId = getUniqueId();
-
-        String json = JsonUtil.getJson(blockAcount);
-        ChatMessage chatMessage = new ChatMessage();
-        chatMessage.setContent(json);
-        chatMessage.setToken(getToken());
-        chatMessage.setUniqueId(uniqueId);
-        chatMessage.setTokenIssuer("1");
-        chatMessage.setType(Constants.BLOCK);
-        setCallBacks(null, null, null, true, Constants.BLOCK, null, uniqueId);
-        String asyncContent = JsonUtil.getJson(chatMessage);
-        sendAsyncMessage(asyncContent, 4, "SEND_BLOCK");
-
     }
 
     public void unblock(long contactId) {
@@ -1034,6 +1014,41 @@ public class Chat extends AsyncAdapter {
         setCallBacks(null, null, null, true, Constants.UNBLOCK, null, uniqueId);
         String asyncContent = JsonUtil.getJson(chatMessage);
         sendAsyncMessage(asyncContent, 4, "SEND_UN_BLOCK");
+    }
+
+    public void getBlockList(Integer count, Integer offset) {
+
+        ChatMessageContent chatMessageContent = new ChatMessageContent();
+        if (offset != null) {
+            chatMessageContent.setOffset(offset);
+        }
+        if (count != null) {
+            chatMessageContent.setCount(count);
+        }
+        String json = JsonUtil.getJson(chatMessageContent);
+
+        String uniqueId = getUniqueId();
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setContent(json);
+        chatMessage.setType(Constants.GET_BLOCKED);
+        chatMessage.setTokenIssuer("1");
+        chatMessage.setToken(getToken());
+        chatMessage.setUniqueId(uniqueId);
+        setCallBacks(null, null, null, true, Constants.GET_BLOCKED, null, uniqueId);
+        String asyncContent = JsonUtil.getJson(chatMessage);
+        sendAsyncMessage(asyncContent, 4, "SEND_UN_BLOCK");
+    }
+
+    public class BlockContactId {
+        private long contactId;
+
+        public long getContactId() {
+            return contactId;
+        }
+
+        public void setContactId(long contactId) {
+            this.contactId = contactId;
+        }
     }
 
     /**
@@ -1600,6 +1615,57 @@ public class Chat extends AsyncAdapter {
                 if (BuildConfig.DEBUG) Logger.i("RECEIVE_DELETE_MESSAGE");
                 if (BuildConfig.DEBUG) Logger.json(jsonDeleteMsg);
                 break;
+            case Constants.BLOCK:
+                if (callback.isResult()) {
+                    Contact contact = JsonUtil.fromJSON(chatMessage.getContent(), Contact.class);
+                    OutPutBlock outPutBlock = new OutPutBlock();
+                    ResultBlock resultBlock = new ResultBlock();
+                    resultBlock.setContact(contact);
+                    outPutBlock.setResult(resultBlock);
+                    outPutBlock.setErrorCode(0);
+                    outPutBlock.setHasError(false);
+                    String jsonBlock = JsonUtil.getJson(outPutBlock);
+                    listenerManager.callOnBlock(jsonBlock);
+                    if (BuildConfig.DEBUG) Logger.i("RECEIVE_BLOCK");
+                    if (BuildConfig.DEBUG) Logger.json(chatMessage.getContent());
+                    messageCallbacks.remove(messageUniqueId);
+                }
+                break;
+            case Constants.UNBLOCK:
+                if (callback.isResult()) {
+                    Contact contact = JsonUtil.fromJSON(chatMessage.getContent(), Contact.class);
+                    OutPutBlock outPutBlock = new OutPutBlock();
+                    ResultBlock resultBlock = new ResultBlock();
+                    resultBlock.setContact(contact);
+                    outPutBlock.setResult(resultBlock);
+                    outPutBlock.setErrorCode(0);
+                    outPutBlock.setHasError(false);
+                    String jsonUnBlock = JsonUtil.getJson(outPutBlock);
+                    listenerManager.callOnUnBlock(jsonUnBlock);
+                    if (BuildConfig.DEBUG) Logger.i("RECEIVE_UN_BLOCK");
+                    if (BuildConfig.DEBUG) Logger.json(chatMessage.getContent());
+                    messageCallbacks.remove(messageUniqueId);
+                }
+                break;
+            case Constants.GET_BLOCKED:
+                if (callback.isResult()) {
+                    OutPutBlockList outPutBlockList = new OutPutBlockList();
+                    outPutBlockList.setErrorCode(0);
+                    outPutBlockList.setHasError(false);
+                    ResultBlockList resultBlockList = new ResultBlockList();
+
+                    List<Contact> contacts = JsonUtil.fromJSON(chatMessage.getContent(), new TypeReference<List<Contact>>() {
+                    });
+                    resultBlockList.setContacts(contacts);
+                    outPutBlockList.setResult(resultBlockList);
+                    String jsonGetBlock = JsonUtil.getJson(outPutBlockList);
+                    listenerManager.callOnGetBlockList(jsonGetBlock);
+                    if (BuildConfig.DEBUG) Logger.i("RECEIVE_GET_BLOCK_LIST");
+                    if (BuildConfig.DEBUG) Logger.json(jsonGetBlock);
+//                        listenerManager.callOnGetBlockList();
+                }
+                break;
+
         }
     }
 

@@ -14,6 +14,12 @@ public interface ChatListener {
 
     void onThreadInfoUpdated(String content);
 
+    void onBlock(String content);
+
+    void onUnBlock(String content);
+
+    void getBlockList(String content);
+
     void onSeen(String content);
 
     void onMuteThread(String content);
@@ -63,4 +69,6 @@ public interface ChatListener {
     void onLastSeenUpdated(String content);
 
     void onChatState(String state);
+
+    void onGetBlockList(String content);
 }

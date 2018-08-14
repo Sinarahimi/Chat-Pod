@@ -4,6 +4,7 @@ public class Contact {
     private String firstName;
     private long id;
     private String lastName;
+    private String profileImage;
     private LinkedUser linkedUser;
     private String cellphoneNumber;
     private String email;
@@ -81,5 +82,13 @@ public class Contact {
 
     public void setNotSeenDuration(long notSeenDuration) {
         this.notSeenDuration = notSeenDuration;
+    }
+
+    public String getProfileImage() {
+        return profileImage;
+    }
+
+    public void setProfileImage(String profileImage) {
+        this.profileImage = profileImage;
     }
 }

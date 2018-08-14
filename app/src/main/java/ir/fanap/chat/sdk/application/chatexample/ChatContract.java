@@ -105,9 +105,11 @@ public interface ChatContract {
 
         void searchContact(SearchContact searchContact);
 
-        void block(Long contactId, Long threadId);
+        void block(Long contactId);
 
         void unBlock(long contactId);
+
+        void getBlockList(Integer count, Integer offset);
 
         void sendFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri, String metaData);
 

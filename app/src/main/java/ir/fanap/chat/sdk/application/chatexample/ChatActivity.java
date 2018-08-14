@@ -74,11 +74,12 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
             , "Map Routing"
             , "Block"
             , "UnBlock"
+            , "GetBlockList"
     };
     private Uri uri;
 
     //    fel token
-    private String name = "felfel";
+    private String name = "felfeli";
     private static String TOKEN = "e4f1d5da7b254d9381d0487387eabb0a";
     //Fifi
 //    private String name = "Fifi";
@@ -247,9 +248,13 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                         presenter.mapRouting("35.7003510,51.3376472", "35.7343510,50.3376472");
                         break;
                     case 3:
-                        presenter.block(1063L,null);
+                        presenter.block(1063L);
                         break;
                     case 4:
+                        presenter.unBlock(25L);
+                        break;
+                    case 5:
+                        presenter.getBlockList(null, null);
                         break;
                 }
             }

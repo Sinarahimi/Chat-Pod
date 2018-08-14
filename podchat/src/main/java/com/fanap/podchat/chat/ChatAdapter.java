@@ -31,6 +31,21 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
+    public void onBlock(String content) {
+
+    }
+
+    @Override
+    public void onUnBlock(String content) {
+
+    }
+
+    @Override
+    public void getBlockList(String content) {
+
+    }
+
+    @Override
     public void onSeen(String content) {
 
     }
@@ -152,6 +167,11 @@ public class ChatAdapter implements ChatListener {
 
     @Override
     public void onChatState(String state) {
+
+    }
+
+    @Override
+    public void onGetBlockList(String content) {
 
     }
 }

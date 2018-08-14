@@ -383,10 +383,40 @@ public class ChatListenerManager {
             }
         }
     }
+
     public void callOnMapRouting(String content) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
                 listener.onMapRouting(content);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnBlock(String content) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onBlock(content);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+
+    public void callOnUnBlock(String content) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onUnBlock(content);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
+    public void callOnGetBlockList(String content) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onGetBlockList(content);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }

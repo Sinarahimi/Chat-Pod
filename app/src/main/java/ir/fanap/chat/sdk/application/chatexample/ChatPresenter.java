@@ -135,13 +135,18 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void block(Long contactId, Long threadId) {
-        chat.block(contactId, threadId);
+    public void block(Long contactId) {
+        chat.block(contactId);
     }
 
     @Override
     public void unBlock(long contactId) {
         chat.unblock(contactId);
+    }
+
+    @Override
+    public void getBlockList(Integer count, Integer offset) {
+        chat.getBlockList(count, offset);
     }
 
     @Override

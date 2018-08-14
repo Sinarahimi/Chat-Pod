@@ -36,7 +36,7 @@ public class ChatMessageType {
             Constants.FORWARD_MESSAGE,
             Constants.USER_INFO,
             Constants.USER_STATUS,
-            Constants.USER_S_STATUS,
+            Constants.GET_BLOCKED,
             Constants.RELATION_INFO,
             Constants.THREAD_PARTICIPANTS,
             Constants.EDIT_MESSAGE,
@@ -72,7 +72,7 @@ public class ChatMessageType {
         int FORWARD_MESSAGE = 22;
         int USER_INFO = 23;
         int USER_STATUS = 24;
-        int USER_S_STATUS = 25;
+        int GET_BLOCKED = 25;
         int RELATION_INFO = 26;
         int THREAD_PARTICIPANTS = 27;
         int EDIT_MESSAGE = 28;
