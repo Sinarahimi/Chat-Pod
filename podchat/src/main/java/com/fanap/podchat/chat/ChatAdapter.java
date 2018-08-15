@@ -41,11 +41,6 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void getBlockList(String content) {
-
-    }
-
-    @Override
     public void onSeen(String content) {
 
     }
@@ -172,6 +167,11 @@ public class ChatAdapter implements ChatListener {
 
     @Override
     public void onGetBlockList(String content) {
+
+    }
+
+    @Override
+    public void onSearchContact(String content) {
 
     }
 }

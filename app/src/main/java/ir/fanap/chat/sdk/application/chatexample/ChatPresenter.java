@@ -8,14 +8,12 @@ import android.net.Uri;
 import com.fanap.podasync.util.JsonUtil;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
-import com.fanap.podchat.mainmodel.ChatMessage;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.SearchContact;
 import com.fanap.podchat.model.MessageVO;
 import com.fanap.podchat.model.OutPutNewMessage;
-import com.squareup.moshi.JsonAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -290,10 +288,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         view.onRenameGroupThread();
     }
 
-    @Override
-    public void onMapRouting(String content) {
 
-    }
 
     @Override
     public void onContactAdded(String content) {
@@ -363,5 +358,40 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
 
         long id = messageVO.getId();
         chat.seenMessage(id, participant.getId());
+    }
+
+    @Override
+    public void onBlock(String content) {
+        super.onBlock(content);
+        view.onBlock();
+    }
+
+    @Override
+    public void onUnBlock(String content) {
+        super.onUnBlock(content);
+        view.onUnblock();
+    }
+
+    @Override
+    public void onMapSearch(String content) {
+        super.onMapSearch(content);
+        view.onMapSearch();
+    }
+
+    @Override
+    public void onMapRouting(String content) {
+        view.onMapRouting();
+    }
+
+    @Override
+    public void onGetBlockList(String content) {
+        super.onGetBlockList(content);
+        view.ongetBlockList();
+    }
+
+    @Override
+    public void onSearchContact(String content) {
+        super.onSearchContact(content);
+        view.onSearchContact();
     }
 }

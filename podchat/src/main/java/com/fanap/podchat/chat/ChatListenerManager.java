@@ -423,4 +423,13 @@ public class ChatListenerManager {
         }
     }
 
+    public void callOnSearchContact(String content) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onSearchContact(content);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
 }

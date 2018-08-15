@@ -18,8 +18,6 @@ public interface ChatListener {
 
     void onUnBlock(String content);
 
-    void getBlockList(String content);
-
     void onSeen(String content);
 
     void onMuteThread(String content);
@@ -71,4 +69,7 @@ public interface ChatListener {
     void onChatState(String state);
 
     void onGetBlockList(String content);
+
+    void onSearchContact(String content);
+
 }

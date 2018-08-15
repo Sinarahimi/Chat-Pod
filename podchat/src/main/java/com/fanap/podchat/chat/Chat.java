@@ -8,6 +8,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Handler;
+import android.os.Looper;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
@@ -185,7 +186,7 @@ public class Chat extends AsyncAdapter {
      */
     public void connect(String socketAddress, String appId, String severName, String token,
                         String ssoHost, String platformHost, String fileServer) {
-//        Looper.prepare();
+        Looper.prepare();
         if (platformHost.endsWith("/")) {
             pingHandler = new Handler();
             messageCallbacks = new HashMap<>();
@@ -826,15 +827,15 @@ public class Chat extends AsyncAdapter {
 
                     SearchContactVO contact = contactResponse.body();
                     String json = JsonUtil.getJson(contact);
-                    Logger.json(json);
-                    Logger.i("searachContact", contact);
+                    listenerManager.callOnSearchContact(json);
+                    if (BuildConfig.DEBUG) Logger.json(json);
+                    if (BuildConfig.DEBUG) Logger.i("RECEIVE_SEARCH_CONTACT");
                 }
             }, (Throwable throwable) -> Logger.e(throwable.getMessage()));
         } else {
             if (BuildConfig.DEBUG) Logger.e("Chat is not ready");
         }
     }
-
 
     /**
      * Add one contact to the contact list
@@ -957,8 +958,9 @@ public class Chat extends AsyncAdapter {
                     resultMap.setMaps(mapNeshan.getItems());
                     outPutMapNeshan.setResult(resultMap);
                     String json = JsonUtil.getJson(outPutMapNeshan);
-                    Logger.i("RECEIVE_MAP_ROUTING");
-                    Logger.json(json);
+                    listenerManager.callOnMapSearch(json);
+                    if (BuildConfig.DEBUG) Logger.i("RECEIVE_MAP_SEARCH");
+                    if (BuildConfig.DEBUG) Logger.json(json);
                 }
             }
         }, (Throwable throwable) -> listenerManager.callOnError(throwable.getMessage()));
@@ -1003,9 +1005,9 @@ public class Chat extends AsyncAdapter {
         sendAsyncMessage(asyncContent, 4, "SEND_BLOCK");
     }
 
-    public void unblock(long contactId) {
+    public void unblock(long blockId) {
         ChatMessage chatMessage = new ChatMessage();
-        chatMessage.setSubjectId(contactId);
+        chatMessage.setSubjectId(blockId);
         String uniqueId = getUniqueId();
         chatMessage.setToken(getToken());
         chatMessage.setUniqueId(uniqueId);
@@ -1039,14 +1041,14 @@ public class Chat extends AsyncAdapter {
         sendAsyncMessage(asyncContent, 4, "SEND_UN_BLOCK");
     }
 
-    public class BlockContactId {
+    private class BlockContactId {
         private long contactId;
 
-        public long getContactId() {
+        private long getContactId() {
             return contactId;
         }
 
-        public void setContactId(long contactId) {
+        private void setContactId(long contactId) {
             this.contactId = contactId;
         }
     }
@@ -1128,6 +1130,7 @@ public class Chat extends AsyncAdapter {
         String uniqueId = getUniqueId();
         chatMessage.setUniqueId(uniqueId);
         chatMessage.setToken(getToken());
+        chatMessage.setTokenIssuer("1");
 
         setCallBacks(null, null, null, true, Constants.USER_INFO, null, uniqueId);
         String asyncContent = JsonUtil.getJson(chatMessage);
@@ -1627,7 +1630,7 @@ public class Chat extends AsyncAdapter {
                     String jsonBlock = JsonUtil.getJson(outPutBlock);
                     listenerManager.callOnBlock(jsonBlock);
                     if (BuildConfig.DEBUG) Logger.i("RECEIVE_BLOCK");
-                    if (BuildConfig.DEBUG) Logger.json(chatMessage.getContent());
+                    if (BuildConfig.DEBUG) Logger.json(jsonBlock);
                     messageCallbacks.remove(messageUniqueId);
                 }
                 break;
@@ -1643,7 +1646,7 @@ public class Chat extends AsyncAdapter {
                     String jsonUnBlock = JsonUtil.getJson(outPutBlock);
                     listenerManager.callOnUnBlock(jsonUnBlock);
                     if (BuildConfig.DEBUG) Logger.i("RECEIVE_UN_BLOCK");
-                    if (BuildConfig.DEBUG) Logger.json(chatMessage.getContent());
+                    if (BuildConfig.DEBUG) Logger.json(jsonUnBlock);
                     messageCallbacks.remove(messageUniqueId);
                 }
                 break;

@@ -9,9 +9,8 @@ import android.support.test.filters.MediumTest;
 import android.support.test.runner.AndroidJUnit4;
 
 import com.fanap.podchat.mainmodel.Invitee;
+import com.fanap.podchat.mainmodel.SearchContact;
 
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -38,8 +37,10 @@ public class ChatTest {
     //TOKEN = ALEXI
 //    private static String TOKEN = "1fcecc269a8949d6b58312cab66a4926";
 
-    private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
-    private static String NAME = "ALEXI";
+//    private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
+
+    private static String NAME = "felfeli";
+    private static String TOKEN = "e4f1d5da7b254d9381d0487387eabb0a";
 
     @Before
     public void setUp() {
@@ -54,8 +55,17 @@ public class ChatTest {
     @Test
     @MediumTest
     public void getUserInfo() {
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         presenter.getUserInfo();
-        view.onGetUserInfo();
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         Mockito.verify(view, Mockito.times(1)).onGetUserInfo();
     }
 
@@ -67,7 +77,7 @@ public class ChatTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        presenter.getThread(10, 0, null,null);
+        presenter.getThread(10, 0, null, null);
         try {
             Thread.sleep(5000);
         } catch (InterruptedException e) {
@@ -484,18 +494,129 @@ public class ChatTest {
 
     @Test
     @MediumTest
-    public void searchInThreads(){
+    public void searchInThreads() {
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        presenter.getThread(20, 0, null,"FiFi");
+        presenter.getThread(20, 0, null, "FiFi");
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        Mockito.verify(view,Mockito.times(1)).onGetThreadList();
+        Mockito.verify(view, Mockito.times(1)).onGetThreadList();
+    }
+
+    @Test
+    @MediumTest
+    public void block() {
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        presenter.block(481L);
+
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Mockito.verify(view, Mockito.times(1)).onBlock();
+    }
+
+    @Test
+    @MediumTest
+    public void unBlock() {
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        presenter.unBlock(41L);
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Mockito.verify(view, Mockito.times(1)).onUnblock();
+    }
+
+    @Test
+    @MediumTest
+    public void searchContact() {
+
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        SearchContact searchContact = new SearchContact.Builder("0", "2").id("1063").build();
+        presenter.searchContact(searchContact);
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Mockito.verify(view, Mockito.times(1)).onSearchContact();
+    }
+
+    @Test
+    @MediumTest
+    public void searchHistory() {
+
+    }
+
+    @Test
+    @MediumTest
+    public void getBlockList() {
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        presenter.getBlockList(null, null);
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Mockito.verify(view, Mockito.times(1)).ongetBlockList();
+    }
+
+    @Test
+    @MediumTest
+    public void routingMap() {
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        presenter.mapRouting("35.7003510,51.3376472", "35.7343510,50.3376472");
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Mockito.verify(view, Mockito.times(1)).onMapRouting();
+    }
+
+    @Test
+    @MediumTest
+    public void searchMap() {
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        presenter.mapSearch("میدان آزادی", 35.7003510, 51.3376472);
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Mockito.verify(view, Mockito.times(1)).onMapSearch();
     }
 }

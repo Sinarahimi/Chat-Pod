@@ -15,7 +15,9 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.fanap.podasync.util.JsonUtil;
 import com.fanap.podchat.mainmodel.Invitee;
+import com.fanap.podchat.mainmodel.Inviter;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.NosqlSearchMetadataCriteria;
 import com.fanap.podchat.mainmodel.SearchContact;
@@ -93,7 +95,8 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 //    private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
 //    private static String name = "Alexi";
     private String fileUri;
-//    private static String TOKEN = "11a2fc342a304a1d89dc2c90ade9d588";
+    //SandBox
+//    private static String TOKEN = "f101be4085f243688e396e5f8b65538b";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -221,6 +224,41 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
             public void onLeaveThread() {
 
             }
+
+            @Override
+            public void onBlock() {
+
+            }
+
+            @Override
+            public void onUnblock() {
+
+            }
+
+            @Override
+            public void onSearchContact() {
+
+            }
+
+            @Override
+            public void onSearchHisory() {
+
+            }
+
+            @Override
+            public void ongetBlockList() {
+
+            }
+
+            @Override
+            public void onMapSearch() {
+
+            }
+
+            @Override
+            public void onMapRouting() {
+
+            }
         };
         presenter = new ChatPresenter(this, view);
         presenter.getLiveState().observe(this, textViewState::setText);
@@ -316,10 +354,9 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                         presenter.searchContact(searchContact);
                         break;
                     case 10:
-                        NosqlSearchMetadataCriteria.Builder builderMeta = new NosqlSearchMetadataCriteria.Builder("name").is("Sample");
-                        NosqlSearchMetadataCriteria metadataCriteria = new NosqlSearchMetadataCriteria(builderMeta);
-                        NosqlListMessageCriteriaVO criteriaVO = new NosqlListMessageCriteriaVO.Builder(351)
-                                .count(10).metadataCriteria(metadataCriteria).build();
+                        NosqlSearchMetadataCriteria builderMeta = new NosqlSearchMetadataCriteria.Builder("name").is("sina").build();
+                        NosqlListMessageCriteriaVO criteriaVO = new NosqlListMessageCriteriaVO.Builder(231)
+                                .count(10).metadataCriteria(builderMeta).build();
                         presenter.searchHistory(criteriaVO);
                         break;
                 }
@@ -358,7 +395,10 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
     }
 
     public void sendMessage(View view) {
-        presenter.sendTextMessage("test at" + new Date().getTime() + name, 381, null);
+        Inviter inviter = new Inviter();
+        inviter.setName("sina");
+        String meta = JsonUtil.getJson(inviter);
+        presenter.sendTextMessage("test at" + new Date().getTime() + name, 231, meta);
 
 //        String text = editText.getText().toString();
 ////        long textThread = Long.valueOf(editTextThread.getText().toString());
@@ -423,10 +463,10 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                  */
                 //alexi 570
                 //felfeli 571
-                Invitee[] invite = new Invitee[]{new Invitee(485, 2)
-                        , new Invitee(577, 2)
-                        , new Invitee(578, 2)
-                        , new Invitee(824, 2)
+                Invitee[] invite = new Invitee[]{new Invitee(481, 2)
+//                        , new Invitee(577, 2)
+//                        , new Invitee(578, 2)
+//                        , new Invitee(824, 2)
                 };
                 presenter.createThread(0, invite, null);
                 break;

@@ -60,6 +60,20 @@ public interface ChatContract {
         void onRemoveParticipant();
 
         void onLeaveThread();
+
+        void onBlock();
+
+        void onUnblock();
+
+        void onSearchContact();
+
+        void onSearchHisory();
+
+        void ongetBlockList();
+
+        void onMapSearch();
+
+        void onMapRouting();
     }
 
     interface presenter {

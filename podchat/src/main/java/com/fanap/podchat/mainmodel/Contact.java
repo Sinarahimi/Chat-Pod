@@ -3,6 +3,7 @@ package com.fanap.podchat.mainmodel;
 public class Contact {
     private String firstName;
     private long id;
+    private long userId;
     private String lastName;
     private String profileImage;
     private LinkedUser linkedUser;
@@ -90,5 +91,13 @@ public class Contact {
 
     public void setProfileImage(String profileImage) {
         this.profileImage = profileImage;
+    }
+
+    public long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(long userId) {
+        this.userId = userId;
     }
 }

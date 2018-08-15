@@ -56,6 +56,12 @@ And now it's ready for chat .
 |26|`addParticipants(long threadId, List<Long> contactIds)`         |      |
 |27|`removeParticipants(long threadId, List<Long> participantIds)`         |      |
 |28|`leaveThread(long threadId)`         |      |
+|29|`block(Long contactId)`         |      |
+|30|`unblock(long blockId)`         |      |
+|31|`getBlockList(Integer count, Integer offset)`         |      |
+|32|`mapSearch(String searchTerm, Double latitude, Double longitude)`         |      |
+|33|`mapRouting(String origin, String destination)`         |      |
+|34|`searchContact(SearchContact searchContact)`         |      |
 
 ### replyMessage
 ```java
@@ -200,7 +206,13 @@ For getting call back you should extend your class from `ChatAdapter`.
 |24| `onUpdateContact()`         |       |
 |25| `onUploadFile()`         |       |
 |26| `onUploadImageFile()`         |       |
-|26| `onChatState()`         |       |
+|27| `onChatState()`         |       |
+|28| `onMapSearch(String content)`         |       |
+|29| `onMapRouting(String content)`         |       |
+|30| `onGetBlockList(String content)`         |       |
+|31| `onBlock(String content)`         |       |
+|32| `onUnBlock(String content)`         |       |
+|33| `void onSearchContact(String content)`         |       |
 
 ## Built With :heart:
 
