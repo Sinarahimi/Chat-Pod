@@ -4,11 +4,9 @@ import android.app.Activity;
 import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.net.Uri;
-import android.support.annotation.Nullable;
 
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
-import com.fanap.podchat.mainmodel.ParticipantContent;
 import com.fanap.podchat.mainmodel.SearchContact;
 
 import java.util.ArrayList;

@@ -8,13 +8,11 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Handler;
-import android.os.Looper;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.content.CursorLoader;
 import android.util.Log;
-import android.util.SparseArray;
 
 import com.fanap.podasync.Async;
 import com.fanap.podasync.AsyncAdapter;
@@ -94,6 +92,7 @@ import com.fanap.podchat.networking.api.ContactApi;
 import com.fanap.podchat.networking.api.FileApi;
 import com.fanap.podchat.networking.api.MapApi;
 import com.fanap.podchat.networking.api.TokenApi;
+import com.fanap.podchat.persistance.MessageDatabaseHelper;
 import com.fanap.podchat.util.Callback;
 import com.fanap.podchat.util.ChatConstant;
 import com.fanap.podchat.util.ChatMessageType;
@@ -107,7 +106,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.JsonArray;
 import com.orhanobut.logger.Logger;
-import com.squareup.moshi.Json;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 import com.squareup.moshi.Types;
@@ -145,6 +143,7 @@ public class Chat extends AsyncAdapter {
     private static Chat instance;
     private String platformHost;
     private static ChatListenerManager listenerManager;
+    private static MessageDatabaseHelper  messageDatabaseHelper;
     private long userId;
     private ContactApi contactApi;
     private static HashMap<String, Callback> messageCallbacks;
@@ -170,6 +169,7 @@ public class Chat extends AsyncAdapter {
             instance = new Chat();
             moshi = new Moshi.Builder().build();
             listenerManager = new ChatListenerManager();
+            messageDatabaseHelper = new MessageDatabaseHelper(context);
         }
         return instance;
     }
@@ -791,6 +791,18 @@ public class Chat extends AsyncAdapter {
      * Get all of the contacts of the user
      */
     public void getContacts(int count, int offset) {
+
+        ArrayList<Contact> arrayList = new ArrayList<>(messageDatabaseHelper.getContacst());
+        OutPutContact outPutContact = new OutPutContact();
+
+        ResultContact resultContact = new ResultContact();
+        resultContact.setContacts(arrayList);
+        outPutContact.setResult(resultContact);
+        outPutContact.setContentCount(messageDatabaseHelper.getContacst().size());
+        String contactJson = JsonUtil.getJson(outPutContact);
+
+        listenerManager.callOnGetContacts(contactJson);
+
         ChatMessageContent chatMessageContent = new ChatMessageContent();
         chatMessageContent.setCount(count);
         chatMessageContent.setOffset(offset);
@@ -806,7 +818,9 @@ public class Chat extends AsyncAdapter {
 
         JsonAdapter<ChatMessage> chatMessageJsonAdapter = moshi.adapter(ChatMessage.class);
         String asyncContent = chatMessageJsonAdapter.toJson(chatMessage);
+        if (chatReady) {
         setCallBacks(null, null, null, true, Constants.GET_CONTACTS, offset, uniqueId);
+        }
         sendAsyncMessage(asyncContent, 3, "GET_CONTACT_SEND");
     }
 
@@ -1949,6 +1963,7 @@ public class Chat extends AsyncAdapter {
         }
     }
 
+    //TODO make it public
     // Add list of contacts with their mobile numbers and their cellphoneNumbers
     private void addContacts(ArrayList<String> firstNames, ArrayList<String> cellphoneNumbers) {
         ArrayList<String> lastNames = new ArrayList<>();
@@ -2145,6 +2160,7 @@ public class Chat extends AsyncAdapter {
         return JsonUtil.getJson(outPut);
     }
 
+    //Todo need change
     @NonNull
     private String reformatGetContactResponse(ChatMessage chatMessage, OutPutContact outPutContact) {
         ResultContact resultContact = new ResultContact();
@@ -2159,7 +2175,10 @@ public class Chat extends AsyncAdapter {
         } catch (IOException e) {
             Log.e("IOException", e.toString());
         }
-        resultContact.setContacts(contacts);
+
+        messageDatabaseHelper.save(contacts);
+        ArrayList<Contact> contactsList = new ArrayList<>(messageDatabaseHelper.getContacst());
+        resultContact.setContacts(contactsList);
         outPutContact.setResult(resultContact);
         outPutContact.setContentCount(chatMessage.getContentCount());
         return JsonUtil.getJson(outPutContact);

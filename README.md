@@ -19,6 +19,9 @@ chat.init(context);
 ```
 Then you need to connect.
 ```java
+
+```java
+connect(String socketServerAddress,String appId,String  serverName,String token, String ssoHost, String platformHost, String fileServer)
 chat.connect("ws://172.16.106.26:8003/ws",
                 "POD-Chat", "chat-server", TOKEN, "http://172.16.110.76",
                 "http://172.16.106.26:8080","http://172.16.106.26:8080")
@@ -26,72 +29,20 @@ chat.connect("ws://172.16.106.26:8003/ws",
 ```
 And now it's ready for chat .
 
-|Num|Method                        | Description                                                                            |
+|Num|Thread & Base Method           | Description                                                                            |
 |:--|:------------------------------|:---------------------------------------------------------------------------------------|
-|1|`connect(socketServerAddress, appId, serverName, token`   | connect to async.       |
-|2|`String ssoHost, String platformHost, String fileServer)`
-|3|`logOutSocket()`                                           | log out of socket.      |
-|4|`sendTextMessage(String textMessage, long threadId, String metaData)`       | Send text message to thread.           |
-|5|`renameThread(long threadId, String title)`                |  Rename the owner thread.                |
-|6|`createThread(int threadType, Invitee[] invitee, String threadTitle)`                |  Create the thread.                |
-|7|`forwardMessage(long threadId, ArrayList<Long> messageIds)`                 | Forward the message or messages.        |
-|8|`replyMessage(String messageContent, long threadId, long messageId)`         | Reply the message in the thread       |
-|9|`editMessage(int messageId, String messageContent)`         | Edit the message      |
-|10|`getThreads(int count, int offset, ArrayList<Integer> threadIds, String threadName)`         | gets the list of thread       |
-|11|`getHistory(int count, int offset, String order, long threadId)`         | get the history of the specific thread       |
-|12|`getContacts(int count, int offset)`         | get contact list      |
-|13|`removeContact(long userId)`         | remove user in contact list      |
-|14|`updateContact(String userId,String firstName, String lastName, String cellphoneNumber, String email)`| update user info in contact list      |
-|15|`removeContact(long userId)`         | remove user in contact list      |
-|16|`addContact(String firstName, String lastName, String cellphoneNumber, String email)`         | Add contact      |
-|17|`getThreadParticipants(int count, int offset, long threadId)`         | Get the participant list      |
-|18|`getUserInfo()`         | Get the information of the current user      |
-|19|`muteThread(int threadId)`         | Mute the thread      |
-|20|`unmuteThread(int threadId)`         | Un Mute the thread      |
-|21|`sendFileMessage(Context context, String description, long threadId, Uri fileUri, String metadata)`         | Send file      |
-|22|`syncContact(Context context, Activity activity)`         | Sync Contact      |
-|23|`uploadFile(Context context, Activity activity, String fileUri, Uri uri)`         | Upload file      |
-|24|`uploadImage(Context context, Activity activity, Uri fileUri)`         | Upload image      |
-|25|`deleteMessage(long messageId, Boolean deleteForAll)`         |      |
-|26|`addParticipants(long threadId, List<Long> contactIds)`         |      |
-|27|`removeParticipants(long threadId, List<Long> participantIds)`         |      |
-|28|`leaveThread(long threadId)`         |      |
-|29|`block(Long contactId)`         |      |
-|30|`unblock(long blockId)`         |      |
-|31|`getBlockList(Integer count, Integer offset)`         |      |
-|32|`mapSearch(String searchTerm, Double latitude, Double longitude)`         |      |
-|33|`mapRouting(String origin, String destination)`         |      |
-|34|`searchContact(SearchContact searchContact)`         |      |
-
-### replyMessage
-```java
-chat.sendReplyMessage("Reply to the text", 235, 532);
-```
-
-### editMessage
-```java
-chat.editMessage(533, "edited_at" + new Date().getTime());
-```
-
-### getContacts
-```java
-chat.getContact(50,0);
-```
-
-### removeContact
-```java
-chat.removeContact(long userId)
-```
-
-### addContact
-```java
-chat.addContact("Sina", "Rahimi", "0912131", "Develop.rahimi95@gmail.com");
-```
-### syncContact
-```java
-chat.syncContact(this, this);
-```
-
+|1|`createThread(int threadType, Invitee[] invitee, String threadTitle)`                |  Create the thread.                |
+|2|`getHistory(int count, int offset, String order, long threadId)`         | get the history of the specific thread       |
+|3|`getThreads(int count, int offset, ArrayList<Integer> threadIds, String threadName)`         | gets the list of thread       |
+|4|`muteThread(int threadId)`         | Mute the thread      |
+|5|`unmuteThread(int threadId)`         | Un Mute the thread      |
+|6|`getThreadParticipants(int count, int offset, long threadId)`         | Get the participant list      |
+|7|`addParticipants(long threadId, List<Long> contactIds)`         |  add participant of the group    |
+|8|`removeParticipants(long threadId, List<Long> participantIds)`         |  remove participant of the group    |
+|9|`leaveThread(long threadId)`         | leave any thread you want     |
+|10|`logOutSocket()`    | log out of the socket.      |
+|11|`renameThread(long threadId, String title)`                |  Rename the thread if you are the owner.                |
+|12|`getUserInfo()`         | Get information about the current user        |     
 
 ### getUserInfo
 ```java
@@ -115,7 +66,6 @@ chat.getThread(10, 0, null);
 presenter.getHistory(50, 0, null, 312);
 presenter.getHistory(50, 0, "desc", 312);
 ```
-
 ### getThreadParticipant
 ```java
 chat.getThreadParticipants(50, 5, 235);
@@ -136,6 +86,29 @@ chat.muteThread(232);
 chat.unmuteThread(232);
 ```
 
+
+⭐️
+
+|Num|Message Method           | Description                                                                            |
+|:--|:------------------------------|:---------------------------------------------------------------------------------------|
+|1|`sendTextMessage(String textMessage, long threadId, String metaData)`       | Send text message to thread.           |
+|2|`forwardMessage(long threadId, ArrayList<Long> messageIds)`                 | Forward the message or messages.        |
+|3|`replyMessage(String messageContent, long threadId, long messageId)`         | Reply the message in the thread       |
+|4|`editMessage(int messageId, String messageContent)`         | Edit the message      |
+|5|`sendFileMessage(Context context, String description, long threadId, Uri fileUri, String metadata)`         | Send file      |
+|6|`deleteMessage(long messageId, Boolean deleteForAll)`         | delete the message     |
+|6|`uploadFile(Context context, Activity activity, String fileUri, Uri uri)`         | Upload file      |
+|6|`uploadImage(Context context, Activity activity, Uri fileUri)`         | Upload image      |
+
+### replyMessage
+```java
+chat.sendReplyMessage("Reply to the text", 235, 532);
+```
+
+### editMessage
+```java
+chat.editMessage(533, "edited_at" + new Date().getTime());
+```
 ### sendTextMessage
 ```java
 chat.sendTextMessage("This is test", 235);
@@ -158,6 +131,21 @@ chat.replyMessage("Reply to the text", 235, 532);
 chat.editMessage(533, "edited_at" + new Date().getTime());
 ```
 
+
+⭐️
+
+|Num|Contact Method           | Description                                                                            |
+|:--|:------------------------------|:---------------------------------------------------------------------------------------|
+|1|`getContacts(int count, int offset)`         | get contact list      |
+|2|`removeContact(long userId)`         | remove user in contact list      |
+|3|`updateContact(String userId,String firstName, String lastName, String cellphoneNumber, String email)`| update user info in contact 
+|4|`addContact(String firstName, String lastName, String cellphoneNumber, String email)`         | Add contact      |
+|5|`syncContact(Context context, Activity activity)`         | Sync mobile's Contact with server contact      |
+|6|`getBlockList(Integer count, Integer offset)`         |  get your block list    |
+|7|`block(Long contactId)`         | block the contact     |
+|8|`unblock(long blockId)`         | unblock the contact     |
+|9|`searchContact(SearchContact searchContact)`         |  search through the contacts    |
+
 ### getContacts
 ```java
 chat.getContact(50,0);
@@ -172,47 +160,83 @@ chat.removeContact(long userId)
 ```java
 chat.addContact("Sina", "Rahimi", "0912131", "Develop.rahimi95@gmail.com");
 ```
+### syncContact
+```java
+chat.syncContact(this, this);
+```
+### getContacts
+```java
+chat.getContact(50,0);
+```
+
+⭐️
+
+|Num|Map Method           | Description                                                                            |
+|:--|:------------------------------|:---------------------------------------------------------------------------------------|
+|1|`mapSearch(String searchTerm, Double latitude, Double longitude)`         | search in the map     |
+|2|`mapRouting(String origin, String destination)`         | give you the direction     |
+
+
+
+
 ### Register Listener
 After creating a Chat instance, you should call addListener method to register a ChatListener that receives Chat events.
 ChatAdapter is an empty implementation of ChatListener interface.
 For getting call back you should extend your class from `ChatAdapter`. 
 
-#### The following callback methods of ChatListener are called
-|Num|Method                        | Description                                                                            |
+###The table below is the list of callback methods defined in ChatListener interface.
+
+|Num|Thread & Base Method           | Listener Description       |
 |:--|:------------------------------|:---------------------------------------------------------------------------------------|
-|1| `onDeliver()`   | Called when message is delivered.       |
+|1| `onGetHistory()`| Called when history of the thread is return.      |
+|2| `onGetThread()`       |  Called when get threads is return.          |
+|3| `onMuteThread()`                 |Called when thread is muted.         |
+|4| `onUnmuteThread()`         | Called when message is un muted.      |
+|5| `onUserInfo()`         | Called when information of the user is return.     |
+|6| `onCreateThread()`         |Called when thread is created.         |
+|7| `onGetThreadParticipant()`         |Called when you want participants of the specific thread.         |
+|8| `onRenameThread()`         |Called when you rename of the thread that you are admin of that       |
+|9| `onChatState()`         | Return the last state of the chat      |
+|10| `onThreadInfoUpdated()`         | Called when something change is the thread      |
+|11| `onThreadRemoveParticipant()`         |Called when remove the participant of the group      |
+|12| `onThreadLeaveParticipant()`         | Called when participant of the group leaves the thread      |
+|13| `onThreadAddParticipant()`         |Called when contact added as a participant in the group       |
+|14| `onError()`         |Called when something error happend       |
+
+⭐️
+
+|Num|Contact Method           | Listener Description       |
+|:--|:------------------------------|:---------------------------------------------------------------------------------------|
 |2| `onGetContacts()`| Called when get contacts is return.      |
-|3| `onGetHistory()`| Called when history of the thread is return.      |
-|4| `onGetThread()`       |  Called when get threads is return.          |
-|5| `onSeen()`                |  Called when message is seen.               |
-|6| `onMuteThread()`                 |Called when thread is muted.         |
-|7| `onUnmuteThread()`         | Called when message is un muted.      |
-|8| `onUserInfo()`         | Called when information of the user is return.     |
-|9| `onSent()`         | Called when message is sent.       |
-|10| `onCreateThread()`         |Called when thread is created.         |
-|11| `onGetThreadParticipant()`         |Called when you want participants of the specific thread.         |
-|12| `onEditedMessage()`         |Called when message edited       |
 |13| `onContactAdded()` |Called when contact added to your contact       |
+|30| `onGetBlockList()`         |Called when list of block contacts are received        |
+|31| `onBlock()`         |Called when contact was blocked       |
+|32| `onUnBlock()`         |Called when contact was unblocked      |
+|33| `onSearchContact()`         |Called when        |
 |14| `onRemoveContact()`         |Called when you want to remove contact       |
-|15| `onRenameThread()`         |Called when you rename of the thread that you are admin of that       |
 |16| `onSyncContact()`         |Called your phone contact sync to the server contact       |
-|17| `onThreadAddParticipant()`         |       |
-|18| `onThreadRemoveParticipant()`         |       |
-|19| `onThreadLeaveParticipant()`         |       |
-|20| `onDeleteMessage()`         |       |
-|21| `onError()`         |       |
-|22| `onThreadInfoUpdated()`         |       |
-|23| `onNewMessage()`         |       |
-|24| `onUpdateContact()`         |       |
-|25| `onUploadFile()`         |       |
-|26| `onUploadImageFile()`         |       |
-|27| `onChatState()`         |       |
+|24| `onUpdateContact()`         |Called when update contact received       |
+
+⭐️
+
+|Num|Map Method           | Listener Description       |
+|:--|:------------------------------|:---------------------------------------------------------------------------------------|
 |28| `onMapSearch()`         |       |
 |29| `onMapRouting()`         |       |
-|30| `onGetBlockList()`         |       |
-|31| `onBlock()`         |       |
-|32| `onUnBlock()`         |       |
-|33| `void onSearchContact()`         |       |
+
+⭐️
+
+|Num|Message Method                 | Listener Description                                                                            |
+|:--|:------------------------------|:---------------------------------------------------------------------------------------|
+|1| `onDeliver()`   | Called when message is delivered.       |
+|5| `onSeen()`                |  Called when message is seen.  |
+|9| `onSent()`         | Called when message is sent.       |
+|12| `onEditedMessage()`         |Called when message edited       |
+|20| `onDeleteMessage()`         | Called when message delited      |
+|23| `onNewMessage()`         |Called when new message recived      |
+|25| `onUploadFile()`         |Called when file uploaded       |
+|26| `onUploadImageFile()`         | Called when image uploaded      |
+
 
 ## Built With :heart:
 

@@ -1,11 +1,18 @@
 package com.fanap.podchat.mainmodel;
 
+import android.arch.persistence.room.Embedded;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
+
+@Entity
 public class Contact {
-    private String firstName;
+    @PrimaryKey
     private long id;
+    private String firstName;
     private long userId;
     private String lastName;
     private String profileImage;
+    @Embedded
     private LinkedUser linkedUser;
     private String cellphoneNumber;
     private String email;

@@ -14,6 +14,7 @@ import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.SearchContact;
 import com.fanap.podchat.model.MessageVO;
 import com.fanap.podchat.model.OutPutNewMessage;
+import com.orhanobut.logger.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -226,6 +227,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     @Override
     public void onGetContacts(String content) {
         super.onGetContacts(content);
+        Logger.json(content);
         view.onGetContacts();
     }
 

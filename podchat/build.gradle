@@ -42,8 +42,11 @@ dependencies {
     implementation 'io.reactivex:rxjava:1.1.6'
     implementation 'io.reactivex:rxandroid:1.2.1'
 
+    implementation 'android.arch.persistence.room:runtime:1.1.1'
+    annotationProcessor 'android.arch.persistence.room:compiler:1.1.1'
+
     //logger
-    implementation 'com.orhanobut:logger:2.2.0'
+    api 'com.orhanobut:logger:2.2.0'
 
     implementation project(':podasync')
 }
