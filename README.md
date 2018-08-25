@@ -207,12 +207,12 @@ For getting call back you should extend your class from `ChatAdapter`.
 |25| `onUploadFile()`         |       |
 |26| `onUploadImageFile()`         |       |
 |27| `onChatState()`         |       |
-|28| `onMapSearch(String content)`         |       |
-|29| `onMapRouting(String content)`         |       |
-|30| `onGetBlockList(String content)`         |       |
-|31| `onBlock(String content)`         |       |
-|32| `onUnBlock(String content)`         |       |
-|33| `void onSearchContact(String content)`         |       |
+|28| `onMapSearch()`         |       |
+|29| `onMapRouting()`         |       |
+|30| `onGetBlockList()`         |       |
+|31| `onBlock()`         |       |
+|32| `onUnBlock()`         |       |
+|33| `void onSearchContact()`         |       |
 
 ## Built With :heart:
 

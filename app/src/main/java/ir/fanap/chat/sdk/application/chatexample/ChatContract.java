@@ -83,7 +83,7 @@ public interface ChatContract {
 
         void mapSearch(String searchTerm, Double latitude, Double longitude);
 
-        void mapRouting(String originLat, String originLng);
+        void mapRouting(String origin, String destination);
 
         void getThread(int count, int offset, ArrayList<Integer> threadIds, String threadName);
 

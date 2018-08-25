@@ -43,8 +43,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void mapRouting(String originLat, String originLng) {
-        chat.mapRouting(originLat, originLng);
+    public void mapRouting(String origin, String originLng) {
+        chat.mapRouting(origin, originLng);
     }
 
     @Override

@@ -27,7 +27,7 @@ public class ChatMessageType {
             Constants.GET_CONTACTS,
             Constants.GET_THREADS,
             Constants.GET_HISTORY,
-            Constants.LAST_SEEN_TYPE,
+            Constants.REMOVED_FROM_THREAD,
             Constants.REMOVE_PARTICIPANT,
             Constants.MUTE_THREAD,
             Constants.CHANGE_TYPE,
@@ -64,7 +64,7 @@ public class ChatMessageType {
         int GET_THREADS = 14;
         int GET_HISTORY = 15;
         int CHANGE_TYPE = 16;
-        int LAST_SEEN_TYPE = 17;
+        int REMOVED_FROM_THREAD = 17;
         int REMOVE_PARTICIPANT = 18;
         int MUTE_THREAD = 19;
         int UN_MUTE_THREAD = 20;

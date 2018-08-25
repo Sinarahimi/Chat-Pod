@@ -96,7 +96,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 //    private static String name = "Alexi";
     private String fileUri;
     //SandBox
-//    private static String TOKEN = "f101be4085f243688e396e5f8b65538b";
+//    private static String TOKEN = "697eb267d4eb41f4a13df5f464133f83";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -389,7 +389,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 "POD-Chat", "chat-server", TOKEN, "http://172.16.110.76",
                 "http://172.16.106.26:8080/hamsam/", "http://172.16.106.26:8080/hamsam/");
 
-//        presenter.connect("ws://chat-sandbox.pod.land/ws",
+//        presenter.connect("wss://sandbox.pod.land:8043/ws",
 //                "POD-Chat", "chat-server", TOKEN, "https://accounts.pod.land",
 //                "https://sandbox.pod.land:8043/srv/basic-platform/","http://sandbox.fanapium.com:8080/");
     }
@@ -463,7 +463,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                  */
                 //alexi 570
                 //felfeli 571
-                Invitee[] invite = new Invitee[]{new Invitee(481, 2)
+                Invitee[] invite = new Invitee[]{new Invitee(577, 2)
 //                        , new Invitee(577, 2)
 //                        , new Invitee(578, 2)
 //                        , new Invitee(824, 2)

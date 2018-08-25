@@ -432,4 +432,14 @@ public class ChatListenerManager {
             }
         }
     }
+
+    public void callOnRemovedFromThread(String content) {
+        for (ChatListener listener : getSynchronizedListeners()) {
+            try {
+                listener.onSearchContact(content);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
+        }
+    }
 }

@@ -14,6 +14,7 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.content.CursorLoader;
 import android.util.Log;
+import android.util.SparseArray;
 
 import com.fanap.podasync.Async;
 import com.fanap.podasync.AsyncAdapter;
@@ -186,7 +187,7 @@ public class Chat extends AsyncAdapter {
      */
     public void connect(String socketAddress, String appId, String severName, String token,
                         String ssoHost, String platformHost, String fileServer) {
-        Looper.prepare();
+//        Looper.prepare();
         if (platformHost.endsWith("/")) {
             pingHandler = new Handler();
             messageCallbacks = new HashMap<>();
@@ -291,7 +292,8 @@ public class Chat extends AsyncAdapter {
             case Constants.INVITATION:
                 handleResponseMessage(callback, chatMessage, messageUniqueId);
                 break;
-            case Constants.LAST_SEEN_TYPE:
+            case Constants.REMOVED_FROM_THREAD:
+                //TODO removed thread
                 break;
             case Constants.LEAVE_THREAD:
                 handleResponseMessage(callback, chatMessage, messageUniqueId);
@@ -1044,11 +1046,11 @@ public class Chat extends AsyncAdapter {
     private class BlockContactId {
         private long contactId;
 
-        private long getContactId() {
+        public long getContactId() {
             return contactId;
         }
 
-        private void setContactId(long contactId) {
+        public void setContactId(long contactId) {
             this.contactId = contactId;
         }
     }
@@ -1421,6 +1423,9 @@ public class Chat extends AsyncAdapter {
     private void handleResponseMessage(Callback callback, ChatMessage chatMessage, String messageUniqueId) {
         OutPut outPut = new OutPut();
         switch (callback.getRequestType()) {
+            case Constants.REMOVED_FROM_THREAD:
+                listenerManager.callOnRemovedFromThread(chatMessage.getContent());
+                break;
             case Constants.GET_HISTORY:
 
                 ResultsHistory resultsHistory = new ResultsHistory();

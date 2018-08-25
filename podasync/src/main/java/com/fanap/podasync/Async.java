@@ -32,9 +32,15 @@ import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
 
 import static com.neovisionaries.ws.client.WebSocketState.OPEN;
 
@@ -73,8 +79,9 @@ public class Async extends WebSocketAdapter {
     private int retryStep = 1;
     private boolean reconnectOnClose = true;
 
+
     public Async() {
-        //Empty constructor
+
     }
 
     public static Async getInstance(Context context) {
@@ -248,8 +255,51 @@ public class Async extends WebSocketAdapter {
 
     public void connect(String socketServerAddress, final String appId, String serverName,
                         String token, String ssoHost, String deviceID) {
+
         WebSocketFactory webSocketFactory = new WebSocketFactory();
-        webSocketFactory.setVerifyHostname(false);
+//        SSLSocketFactory factory = new SSLSocketFactory() {
+//            @Override
+//            public Socket createSocket(String host, int port) throws IOException, UnknownHostException {
+//                return null;
+//            }
+//
+//            @Override
+//            public Socket createSocket(String host, int port, InetAddress localHost, int localPort) throws IOException, UnknownHostException {
+//                return null;
+//            }
+//
+//            @Override
+//            public Socket createSocket(InetAddress host, int port) throws IOException {
+//                return null;
+//            }
+//
+//            @Override
+//            public Socket createSocket(InetAddress address, int port, InetAddress localAddress, int localPort) throws IOException {
+//                return null;
+//            }
+//
+//            @Override
+//            public String[] getDefaultCipherSuites() {
+//                return new String[0];
+//            }
+//
+//            @Override
+//            public String[] getSupportedCipherSuites() {
+//                return new String[0];
+//            }
+//
+//            @Override
+//            public Socket createSocket(Socket s, String host, int port, boolean autoClose) throws IOException {
+//                return null;
+//            }
+//        };
+//        webSocketFactory.setSSLSocketFactory(factory);
+        // Create a custom SSL context.
+//        SSLContext context = NaiveSSLContext.getInstance("TLS");
+// Set the custom SSL context.
+//        webSocketFactory.setSSLContext(context);
+//        webSocketFactory.setVerifyHostname(false);
+        SSLSocketFactory.getDefault();
         saveDeviceId(deviceID);
         setAppId(appId);
         setServerAddress(socketServerAddress);

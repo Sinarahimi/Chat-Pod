@@ -517,7 +517,7 @@ public class ChatTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        presenter.block(481L);
+        presenter.block(575L);
 
         try {
             Thread.sleep(3000);
@@ -535,7 +535,7 @@ public class ChatTest {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        presenter.unBlock(41L);
+        presenter.unBlock(62L);
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {

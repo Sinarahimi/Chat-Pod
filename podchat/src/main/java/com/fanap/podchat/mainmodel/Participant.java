@@ -3,6 +3,8 @@ package com.fanap.podchat.mainmodel;
 public class Participant {
     private long id;
     private String name;
+    private String firstName;
+    private String lastName;
     private String image;
     private long notSeenDuration;
 
@@ -36,5 +38,21 @@ public class Participant {
 
     public void setImage(String image) {
         this.image = image;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 }
