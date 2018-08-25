@@ -1,14 +1,26 @@
 package com.fanap.podchat.mainmodel;
 
+import android.arch.persistence.room.Embedded;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
+import android.arch.persistence.room.TypeConverters;
+
 import com.fanap.podchat.model.LastMessageVO;
+import com.fanap.podchat.util.DataTypeConverter;
 
 import java.util.List;
 
+@Entity
 public class Thread {
+    @PrimaryKey
     private long id;
     private long joinDate;
+    @Embedded
     private Inviter inviter;
+    @Embedded
+    private LastMessageVO lastMessageVO;
     private String title;
+    @TypeConverters(DataTypeConverter.class)
     private List<Participant> participants;
     private long time;
     private String lastMessage;
@@ -17,7 +29,6 @@ public class Thread {
     private long partner;
     private String image;
     private long unreadCount;
-    private LastMessageVO lastMessageVO;
     private long lastSeenMessageId;
     private long partnerLastMessageId;
     private long partnerLastSeenMessageId;

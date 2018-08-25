@@ -143,7 +143,7 @@ public class Chat extends AsyncAdapter {
     private static Chat instance;
     private String platformHost;
     private static ChatListenerManager listenerManager;
-    private static MessageDatabaseHelper  messageDatabaseHelper;
+    private static MessageDatabaseHelper messageDatabaseHelper;
     private long userId;
     private ContactApi contactApi;
     private static HashMap<String, Callback> messageCallbacks;
@@ -709,6 +709,10 @@ public class Chat extends AsyncAdapter {
      * @param offset specified offset you want
      */
     public void getThreads(int count, int offset, ArrayList<Integer> threadIds, String threadName) {
+
+
+
+
         ChatMessageContent chatMessageContent = new ChatMessageContent();
         chatMessageContent.setCount(count);
         chatMessageContent.setOffset(offset);
@@ -792,36 +796,36 @@ public class Chat extends AsyncAdapter {
      */
     public void getContacts(int count, int offset) {
 
-        ArrayList<Contact> arrayList = new ArrayList<>(messageDatabaseHelper.getContacst());
+        ArrayList<Contact> arrayList = new ArrayList<>(messageDatabaseHelper.getContacts());
         OutPutContact outPutContact = new OutPutContact();
 
         ResultContact resultContact = new ResultContact();
         resultContact.setContacts(arrayList);
         outPutContact.setResult(resultContact);
-        outPutContact.setContentCount(messageDatabaseHelper.getContacst().size());
+        outPutContact.setContentCount(messageDatabaseHelper.getContacts().size());
         String contactJson = JsonUtil.getJson(outPutContact);
 
         listenerManager.callOnGetContacts(contactJson);
 
-        ChatMessageContent chatMessageContent = new ChatMessageContent();
-        chatMessageContent.setCount(count);
-        chatMessageContent.setOffset(offset);
-
-        JsonAdapter<ChatMessageContent> messageContentJsonAdapter = moshi.adapter(ChatMessageContent.class);
-        String content = messageContentJsonAdapter.toJson(chatMessageContent);
-        String uniqueId = getUniqueId();
-        ChatMessage chatMessage = new ChatMessage();
-        chatMessage.setContent(content);
-        chatMessage.setType(Constants.GET_CONTACTS);
-        chatMessage.setToken(getToken());
-        chatMessage.setUniqueId(uniqueId);
-
-        JsonAdapter<ChatMessage> chatMessageJsonAdapter = moshi.adapter(ChatMessage.class);
-        String asyncContent = chatMessageJsonAdapter.toJson(chatMessage);
         if (chatReady) {
-        setCallBacks(null, null, null, true, Constants.GET_CONTACTS, offset, uniqueId);
+            ChatMessageContent chatMessageContent = new ChatMessageContent();
+            chatMessageContent.setCount(count);
+            chatMessageContent.setOffset(offset);
+
+            JsonAdapter<ChatMessageContent> messageContentJsonAdapter = moshi.adapter(ChatMessageContent.class);
+            String content = messageContentJsonAdapter.toJson(chatMessageContent);
+            String uniqueId = getUniqueId();
+            ChatMessage chatMessage = new ChatMessage();
+            chatMessage.setContent(content);
+            chatMessage.setType(Constants.GET_CONTACTS);
+            chatMessage.setToken(getToken());
+            chatMessage.setUniqueId(uniqueId);
+
+            JsonAdapter<ChatMessage> chatMessageJsonAdapter = moshi.adapter(ChatMessage.class);
+            String asyncContent = chatMessageJsonAdapter.toJson(chatMessage);
+            setCallBacks(null, null, null, true, Constants.GET_CONTACTS, offset, uniqueId);
+            sendAsyncMessage(asyncContent, 3, "GET_CONTACT_SEND");
         }
-        sendAsyncMessage(asyncContent, 3, "GET_CONTACT_SEND");
     }
 
     public void searchContact(SearchContact searchContact) {
@@ -2177,7 +2181,7 @@ public class Chat extends AsyncAdapter {
         }
 
         messageDatabaseHelper.save(contacts);
-        ArrayList<Contact> contactsList = new ArrayList<>(messageDatabaseHelper.getContacst());
+        ArrayList<Contact> contactsList = new ArrayList<>(messageDatabaseHelper.getContacts());
         resultContact.setContacts(contactsList);
         outPutContact.setResult(resultContact);
         outPutContact.setContentCount(chatMessage.getContentCount());

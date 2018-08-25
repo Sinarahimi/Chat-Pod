@@ -18,7 +18,6 @@ The first step is to initialize the Chat module.
 chat.init(context);
 ```
 Then you need to connect.
-```java
 
 ```java
 connect(String socketServerAddress,String appId,String  serverName,String token, String ssoHost, String platformHost, String fileServer)
@@ -97,8 +96,8 @@ chat.unmuteThread(232);
 |4|`editMessage(int messageId, String messageContent)`         | Edit the message      |
 |5|`sendFileMessage(Context context, String description, long threadId, Uri fileUri, String metadata)`         | Send file      |
 |6|`deleteMessage(long messageId, Boolean deleteForAll)`         | delete the message     |
-|6|`uploadFile(Context context, Activity activity, String fileUri, Uri uri)`         | Upload file      |
-|6|`uploadImage(Context context, Activity activity, Uri fileUri)`         | Upload image      |
+|7|`uploadFile(Context context, Activity activity, String fileUri, Uri uri)`         | Upload file      |
+|8|`uploadImage(Context context, Activity activity, Uri fileUri)`         | Upload image      |
 
 ### replyMessage
 ```java
@@ -207,35 +206,35 @@ For getting call back you should extend your class from `ChatAdapter`.
 
 |Num|Contact Method           | Listener Description       |
 |:--|:------------------------------|:---------------------------------------------------------------------------------------|
-|2| `onGetContacts()`| Called when get contacts is return.      |
-|13| `onContactAdded()` |Called when contact added to your contact       |
-|30| `onGetBlockList()`         |Called when list of block contacts are received        |
-|31| `onBlock()`         |Called when contact was blocked       |
-|32| `onUnBlock()`         |Called when contact was unblocked      |
-|33| `onSearchContact()`         |Called when        |
-|14| `onRemoveContact()`         |Called when you want to remove contact       |
-|16| `onSyncContact()`         |Called your phone contact sync to the server contact       |
-|24| `onUpdateContact()`         |Called when update contact received       |
+|1| `onGetContacts()`| Called when get contacts is return.      |
+|2| `onContactAdded()` |Called when contact added to your contact       |
+|3| `onGetBlockList()`         |Called when list of block contacts are received        |
+|4| `onBlock()`         |Called when contact was blocked       |
+|5| `onUnBlock()`         |Called when contact was unblocked      |
+|6| `onSearchContact()`         |Called when        |
+|7| `onRemoveContact()`         |Called when you want to remove contact       |
+|8| `onSyncContact()`         |Called your phone contact sync to the server contact       |
+|9| `onUpdateContact()`         |Called when update contact received       |
 
 ⭐️
 
 |Num|Map Method           | Listener Description       |
 |:--|:------------------------------|:---------------------------------------------------------------------------------------|
-|28| `onMapSearch()`         |       |
-|29| `onMapRouting()`         |       |
+|1| `onMapSearch()`         |       |
+|2| `onMapRouting()`         |       |
 
 ⭐️
 
 |Num|Message Method                 | Listener Description                                                                            |
 |:--|:------------------------------|:---------------------------------------------------------------------------------------|
 |1| `onDeliver()`   | Called when message is delivered.       |
-|5| `onSeen()`                |  Called when message is seen.  |
-|9| `onSent()`         | Called when message is sent.       |
-|12| `onEditedMessage()`         |Called when message edited       |
-|20| `onDeleteMessage()`         | Called when message delited      |
-|23| `onNewMessage()`         |Called when new message recived      |
-|25| `onUploadFile()`         |Called when file uploaded       |
-|26| `onUploadImageFile()`         | Called when image uploaded      |
+|2| `onSeen()`                |  Called when message is seen.  |
+|3| `onSent()`         | Called when message is sent.       |
+|4| `onEditedMessage()`         |Called when message edited       |
+|5| `onDeleteMessage()`         | Called when message delited      |
+|6| `onNewMessage()`         |Called when new message recived      |
+|7| `onUploadFile()`         |Called when file uploaded       |
+|8| `onUploadImageFile()`         | Called when image uploaded      |
 
 
 ## Built With :heart:
@@ -249,3 +248,7 @@ For getting call back you should extend your class from `ChatAdapter`.
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
+
+## Contact Me
+
+If you have ideas or feedback, feel free to open up issues, put up pull reqeusts, and  [contact me directly](mailto:develop.rahimi95@gmail.com).
