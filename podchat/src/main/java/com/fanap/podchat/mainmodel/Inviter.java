@@ -1,6 +1,11 @@
 package com.fanap.podchat.mainmodel;
 
+import android.arch.persistence.room.Embedded;
+import android.arch.persistence.room.PrimaryKey;
+
 public class Inviter {
+    @Embedded(prefix = "Inviter_")
+    @PrimaryKey
     private long id;
     private String name;
     private String firstName;

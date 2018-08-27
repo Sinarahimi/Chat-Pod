@@ -8,6 +8,7 @@ import android.net.Uri;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.SearchContact;
+import com.fanap.podchat.mainmodel.ThreadInfoVO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -144,6 +145,8 @@ public interface ChatContract {
         void addParticipants(long threadId, List<Long> contactIds);
 
         void leaveThread(long threadId);
+
+        void updateThreadInfo(long threadId, ThreadInfoVO threadInfoVO);
 
         void deleteMessage(long messageId, Boolean deleteForAll);
     }

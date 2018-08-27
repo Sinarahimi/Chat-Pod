@@ -1,11 +1,21 @@
 package com.fanap.podchat.mainmodel;
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Embedded;
+import android.arch.persistence.room.PrimaryKey;
+
 public class Participant {
+    @PrimaryKey
     private long id;
+    @ColumnInfo(name = "participant_name")
     private String name;
+    @ColumnInfo(name = "first_name")
     private String firstName;
+    @ColumnInfo(name = "last_name")
     private String lastName;
+    @ColumnInfo(name = "image")
     private String image;
+    @Embedded(prefix = "participant_")
     private long notSeenDuration;
 
     public long getId() {

@@ -126,13 +126,21 @@ class AsyncListenerManager {
 
     public void callOnStateChanged(String message) throws IOException {
         for (AsyncListener listener : getSynchronizedListeners()) {
-            listener.onStateChanged(message);
+            try {
+                listener.onStateChanged(message);
+            } catch (Throwable throwable) {
+                callHandleCallbackError(listener, throwable);
+            }
         }
     }
 
     public void callOnDisconnected(String message) throws IOException {
         for (AsyncListener listener : getSynchronizedListeners()) {
-            listener.onDisconnected(message);
+            try {
+                listener.onDisconnected(message);
+            } catch (Throwable throwable) {
+                callHandleCallbackError(listener, throwable);
+            }
         }
     }
 

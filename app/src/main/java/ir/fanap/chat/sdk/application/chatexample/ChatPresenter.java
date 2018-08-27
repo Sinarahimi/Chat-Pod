@@ -12,6 +12,7 @@ import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.SearchContact;
+import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.model.MessageVO;
 import com.fanap.podchat.model.OutPutNewMessage;
 import com.orhanobut.logger.Logger;
@@ -204,6 +205,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
+    public void updateThreadInfo(long threadId, ThreadInfoVO threadInfoVO) {
+        chat.updateThreadInfo(threadId, threadInfoVO);
+    }
+
+    @Override
     public void deleteMessage(long messageId, Boolean deleteForAll) {
         chat.deleteMessage(messageId, deleteForAll);
     }
@@ -289,7 +295,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         super.onRenameThread(content);
         view.onRenameGroupThread();
     }
-
 
 
     @Override

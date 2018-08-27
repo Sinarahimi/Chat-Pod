@@ -1,8 +1,16 @@
 package com.fanap.podchat.model;
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Embedded;
+import android.arch.persistence.room.PrimaryKey;
+
+
 public class ConversationSummery {
+    @Embedded(prefix = "ConversationSummery_")
+    @PrimaryKey
     private long id;
     private String title;
+    @Embedded(prefix = "ConversationSummery_")
     private String metadata;
 
     public long getId() {

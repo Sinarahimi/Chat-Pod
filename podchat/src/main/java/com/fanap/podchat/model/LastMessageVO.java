@@ -1,16 +1,26 @@
 package com.fanap.podchat.model;
 
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Embedded;
+import android.arch.persistence.room.PrimaryKey;
+
 import com.fanap.podchat.mainmodel.Participant;
 
 public class LastMessageVO {
-    private Participant participant;
+    @ColumnInfo(name = "lastMessageVO_id")
+    @PrimaryKey
     private long id;
     private String uniqueId;
     private String message;
     private boolean edited;
     private boolean editable;
+    @ColumnInfo(name = "lastMessageVO_time")
     private long time;
+    @Embedded
+    private Participant participant;
+    @Embedded
     private ReplyInfoVO replyInfoVO;
+    @Embedded
     private ForwardInfo forwardInfo;
 
     public Participant getParticipant() {

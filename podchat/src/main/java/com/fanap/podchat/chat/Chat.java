@@ -38,6 +38,7 @@ import com.fanap.podchat.mainmodel.ResultDeleteMessage;
 import com.fanap.podchat.mainmodel.SearchContact;
 import com.fanap.podchat.mainmodel.SearchContactVO;
 import com.fanap.podchat.mainmodel.Thread;
+import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.mainmodel.UpdateContact;
 import com.fanap.podchat.mainmodel.UserInfo;
 import com.fanap.podchat.model.AddContacts;
@@ -321,8 +322,6 @@ public class Chat extends AsyncAdapter {
             case Constants.UN_MUTE_THREAD:
                 handleResponseMessage(callback, chatMessage, messageUniqueId);
                 break;
-            case Constants.UPDATE_METADATA:
-                break;
             case Constants.USER_INFO:
                 handleResponseMessage(callback, chatMessage, messageUniqueId);
                 break;
@@ -330,7 +329,6 @@ public class Chat extends AsyncAdapter {
                 break;
             case Constants.GET_BLOCKED:
                 handleResponseMessage(callback, chatMessage, messageUniqueId);
-
                 break;
             case Constants.DELETE_MESSAGE:
                 handleResponseMessage(callback, chatMessage, messageUniqueId);
@@ -352,6 +350,8 @@ public class Chat extends AsyncAdapter {
                 if (BuildConfig.DEBUG) Logger.i("LAST_SEEN_UPDATED");
                 if (BuildConfig.DEBUG) Logger.i(chatMessage.getContent());
                 listenerManager.callOnLastSeenUpdated(chatMessage.getContent());
+                break;
+            case Constants.UPDATE_THREAD_INFO:
                 break;
         }
     }
@@ -702,6 +702,8 @@ public class Chat extends AsyncAdapter {
         setCallBacks(null, null, null, true, Constants.DELETE_MESSAGE, null, uniqueId);
     }
 
+    //TODO implement cache
+
     /**
      * Get the list of threads or you can just pass the thread id that you want
      *
@@ -710,32 +712,45 @@ public class Chat extends AsyncAdapter {
      */
     public void getThreads(int count, int offset, ArrayList<Integer> threadIds, String threadName) {
 
+//        OutPutThreads outPutThreads = new OutPutThreads();
+//        ResultThreads resultThreads = new ResultThreads();
+//        resultThreads.setThreads(messageDatabaseHelper.getThread());
+//        outPutThreads.setContentCount(messageDatabaseHelper.getThread().size());
+//        outPutThreads.setErrorCode(0);
+//        outPutThreads.setErrorMessage("");
+//        outPutThreads.setHasError(false);
+//        outPutThreads.setResult(resultThreads);
+//
+//        String threadJson = JsonUtil.getJson(outPutThreads);
+//        listenerManager.callOnGetThread(threadJson);
 
+        String asyncContent = null;
+        if (chatReady) {
+            ChatMessageContent chatMessageContent = new ChatMessageContent();
+            chatMessageContent.setCount(count);
+            chatMessageContent.setOffset(offset);
+            if (threadName != null) {
+                chatMessageContent.setName(threadName);
+            }
+            if (threadIds != null) {
+                chatMessageContent.setThreadIds(threadIds);
+            }
+            JsonAdapter<ChatMessageContent> messageContentJsonAdapter = moshi.adapter(ChatMessageContent.class);
+            String content = messageContentJsonAdapter.toJson(chatMessageContent);
 
+            String uniqueId = getUniqueId();
+            ChatMessage chatMessage = new ChatMessage();
+            chatMessage.setContent(content);
+            chatMessage.setType(Constants.GET_THREADS);
+            chatMessage.setTokenIssuer("1");
+            chatMessage.setToken(getToken());
+            chatMessage.setUniqueId(uniqueId);
 
-        ChatMessageContent chatMessageContent = new ChatMessageContent();
-        chatMessageContent.setCount(count);
-        chatMessageContent.setOffset(offset);
-        if (threadName != null) {
-            chatMessageContent.setName(threadName);
+            JsonAdapter<ChatMessage> chatMessageJsonAdapter = moshi.adapter(ChatMessage.class);
+            asyncContent = chatMessageJsonAdapter.toJson(chatMessage);
+            setCallBacks(null, null, null, true, Constants.GET_THREADS, offset, uniqueId);
         }
-        if (threadIds != null) {
-            chatMessageContent.setThreadIds(threadIds);
-        }
-        JsonAdapter<ChatMessageContent> messageContentJsonAdapter = moshi.adapter(ChatMessageContent.class);
-        String content = messageContentJsonAdapter.toJson(chatMessageContent);
 
-        String uniqueId = getUniqueId();
-        ChatMessage chatMessage = new ChatMessage();
-        chatMessage.setContent(content);
-        chatMessage.setType(Constants.GET_THREADS);
-        chatMessage.setTokenIssuer("1");
-        chatMessage.setToken(getToken());
-        chatMessage.setUniqueId(uniqueId);
-
-        JsonAdapter<ChatMessage> chatMessageJsonAdapter = moshi.adapter(ChatMessage.class);
-        String asyncContent = chatMessageJsonAdapter.toJson(chatMessage);
-        setCallBacks(null, null, null, true, Constants.GET_THREADS, offset, uniqueId);
         sendAsyncMessage(asyncContent, 3, "Get thread send");
     }
 
@@ -1095,6 +1110,26 @@ public class Chat extends AsyncAdapter {
         setCallBacks(null, null, null, true, Constants.INVITATION, null, uniqueId);
         String asyncContent = JsonUtil.getJson(chatMessage);
         sendAsyncMessage(asyncContent, 4, "SEND_CREATE_THREAD");
+    }
+
+
+    public void updateThreadInfo(long threadId, ThreadInfoVO threadInfoVO) {
+
+        String content = JsonUtil.getJson(threadInfoVO);
+
+        String uniqueId = getUniqueId();
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setTokenIssuer("1");
+        chatMessage.setToken(getToken());
+        chatMessage.setSubjectId(threadId);
+        chatMessage.setUniqueId(uniqueId);
+        chatMessage.setType(Constants.UPDATE_THREAD_INFO);
+        chatMessage.setContent(content);
+
+        String asyncContent = JsonUtil.getJson(chatMessage);
+        setCallBacks(null, null, null, true, Constants.UPDATE_THREAD_INFO, null, uniqueId);
+        sendAsyncMessage(asyncContent, 4, "SEND_CREATE_THREAD");
+
     }
 
     /**

@@ -5,6 +5,23 @@
 # Changelog
 
 All notable changes to this project will be documented here.
+## Future Version [] -2018-08-00
+-   [Add]Implement Cache
+-   [Add]Support Wss for socket
+-   [Add]Update Thread Info
+-   [Add]Spam
+-   [BugFix]Chat Ready on Live State
+
+
+## Version [0.1.2.1] -2018-08-19
+-   [Add]Map Routing
+-   [Add]Map Search
+-   [Add]Block
+-   [Add]Unblock
+-   [Add]GetBlockList
+-   [Add]Search Contact
+-   [Add]Search History
+
 
 ## Version [0.0.7.1] -2018-07-30
 

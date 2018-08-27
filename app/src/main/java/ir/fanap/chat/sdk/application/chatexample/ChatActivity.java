@@ -21,6 +21,7 @@ import com.fanap.podchat.mainmodel.Inviter;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.NosqlSearchMetadataCriteria;
 import com.fanap.podchat.mainmodel.SearchContact;
+import com.fanap.podchat.mainmodel.ThreadInfoVO;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -87,13 +88,13 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 //    private String name = "Fifi";
 //    private static String TOKEN = "5fb88da4c6914d07a501a76d68a62363";
 
-//        private String name = "jiji";
+    //        private String name = "jiji";
 //    private static String TOKEN = "f53f39a1893e4c4da18e59822290a552";
-    private String name = "zizi";
-    private static String TOKEN = "7cba09ff83554fc98726430c30afcfc6";
+//    private String name = "zizi";
+//    private static String TOKEN = "7cba09ff83554fc98726430c30afcfc6";
     //Token Alexi
-//    private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
-//    private static String name = "Alexi";
+    private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
+    private static String name = "Alexi";
     private String fileUri;
     //SandBox
 //    private static String TOKEN = "697eb267d4eb41f4a13df5f464133f83";
@@ -294,6 +295,9 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                     case 5:
                         presenter.getBlockList(null, null);
                         break;
+                    case 6:
+                        ThreadInfoVO threadInfoVO = new ThreadInfoVO.Builder().description("this is test description").build();
+                        presenter.updateThreadInfo(691,threadInfoVO );
                 }
             }
 

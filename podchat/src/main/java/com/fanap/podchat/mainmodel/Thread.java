@@ -1,8 +1,10 @@
 package com.fanap.podchat.mainmodel;
 
+import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
+import android.arch.persistence.room.Relation;
 import android.arch.persistence.room.TypeConverters;
 
 import com.fanap.podchat.model.LastMessageVO;
@@ -12,13 +14,15 @@ import java.util.List;
 
 @Entity
 public class Thread {
+    @ColumnInfo(name = "thread_id")
     @PrimaryKey
     private long id;
     private long joinDate;
-    @Embedded
+    @Relation(parentColumn = "id", entityColumn = "id")
     private Inviter inviter;
     @Embedded
     private LastMessageVO lastMessageVO;
+    @ColumnInfo(name = "thread_title")
     private String title;
     @TypeConverters(DataTypeConverter.class)
     private List<Participant> participants;
@@ -27,6 +31,7 @@ public class Thread {
     private String lastParticipantName;
     private boolean group;
     private long partner;
+    @ColumnInfo(name = "thread_image")
     private String image;
     private long unreadCount;
     private long lastSeenMessageId;

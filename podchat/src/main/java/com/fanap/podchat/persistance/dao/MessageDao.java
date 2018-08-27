@@ -23,9 +23,9 @@ public interface MessageDao {
     @Query("select * from Contact")
     List<Contact> getContact();
 
-    @Query("select * from Thread")
-    List<Thread> getThread();
-
-    @Insert(onConflict = REPLACE)
-    void insertThread(List<Contact> t);
+//    @Query("select * from Thread")
+//    List<Thread> getThread();
+//
+//    @Insert(onConflict = REPLACE)
+//    void insertThread(List<Thread> threads);
 }

@@ -32,7 +32,7 @@ public class ChatMessageType {
             Constants.MUTE_THREAD,
             Constants.CHANGE_TYPE,
             Constants.UN_MUTE_THREAD,
-            Constants.UPDATE_METADATA,
+            Constants.UPDATE_THREAD_INFO,
             Constants.FORWARD_MESSAGE,
             Constants.USER_INFO,
             Constants.USER_STATUS,
@@ -68,7 +68,7 @@ public class ChatMessageType {
         int REMOVE_PARTICIPANT = 18;
         int MUTE_THREAD = 19;
         int UN_MUTE_THREAD = 20;
-        int UPDATE_METADATA = 21;
+        int UPDATE_THREAD_INFO = 21;
         int FORWARD_MESSAGE = 22;
         int USER_INFO = 23;
         int USER_STATUS = 24;
