@@ -299,7 +299,7 @@ public class Async extends WebSocketAdapter {
 ////                NaiveSSLContext.getInstance("TLS");
 ////        webSocketFactory.setSSLContext(context);
 ////        webSocketFactory.setVerifyHostname(false);
-////        SSLSocketFactory.getDefault();
+        SSLSocketFactory.getDefault();
         saveDeviceId(deviceID);
         setAppId(appId);
         setServerAddress(socketServerAddress);

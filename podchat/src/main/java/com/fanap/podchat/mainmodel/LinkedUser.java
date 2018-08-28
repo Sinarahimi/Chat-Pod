@@ -1,7 +1,10 @@
 package com.fanap.podchat.mainmodel;
 
-public class LinkedUser {
+import android.arch.persistence.room.ColumnInfo;
 
+public class LinkedUser {
+    @ColumnInfo(name = "linkedUser_id")
+    private long id;
     private String username;
     private String nickname;
     private String name;
@@ -37,5 +40,13 @@ public class LinkedUser {
 
     public void setImage(String image) {
         this.image = image;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 }

@@ -1129,7 +1129,6 @@ public class Chat extends AsyncAdapter {
         String asyncContent = JsonUtil.getJson(chatMessage);
         setCallBacks(null, null, null, true, Constants.UPDATE_THREAD_INFO, null, uniqueId);
         sendAsyncMessage(asyncContent, 4, "SEND_CREATE_THREAD");
-
     }
 
     /**

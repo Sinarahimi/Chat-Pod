@@ -78,26 +78,27 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
             , "Block"
             , "UnBlock"
             , "GetBlockList"
+            , "Update the thread info"
     };
     private Uri uri;
 
-    //    fel token
+    //fel token
 //    private String name = "felfeli";
 //    private static String TOKEN = "e4f1d5da7b254d9381d0487387eabb0a";
     //Fifi
 //    private String name = "Fifi";
 //    private static String TOKEN = "5fb88da4c6914d07a501a76d68a62363";
 
-    //        private String name = "jiji";
+    //private String name = "jiji";
 //    private static String TOKEN = "f53f39a1893e4c4da18e59822290a552";
 //    private String name = "zizi";
 //    private static String TOKEN = "7cba09ff83554fc98726430c30afcfc6";
     //Token Alexi
-    private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
-    private static String name = "Alexi";
+//    private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
+//    private static String name = "Alexi";
     private String fileUri;
-    //SandBox
-//    private static String TOKEN = "697eb267d4eb41f4a13df5f464133f83";
+    private static String name = "SandBox";
+        private static String TOKEN = "7a84acfe1fad45b4b842738b7a977e6f";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -297,7 +298,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                         break;
                     case 6:
                         ThreadInfoVO threadInfoVO = new ThreadInfoVO.Builder().description("this is test description").build();
-                        presenter.updateThreadInfo(691,threadInfoVO );
+                        presenter.updateThreadInfo(691, threadInfoVO);
                 }
             }
 
@@ -389,13 +390,13 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 // ssoGrantDevicesAddress: "/oauth2/grants/devices",
 // {**REQUIRED**} Socket Address platformHost: "//https://sandbox.pod.land:8043/srv/basic-platform", fileServer: "
 //http://sandbox.fanapium.com:8080", serverName: "chat-server", // {**REQUIRED**} Server to to register on
-        presenter.connect("ws://172.16.106.26:8003/ws",
-                "POD-Chat", "chat-server", TOKEN, "http://172.16.110.76",
-                "http://172.16.106.26:8080/hamsam/", "http://172.16.106.26:8080/hamsam/");
+//        presenter.connect("ws://172.16.106.26:8003/ws",
+//                "POD-Chat", "chat-server", TOKEN, "http://172.16.110.76",
+//                "http://172.16.106.26:8080/hamsam/", "http://172.16.106.26:8080/hamsam/");
 
-//        presenter.connect("wss://sandbox.pod.land:8043/ws",
-//                "POD-Chat", "chat-server", TOKEN, "https://accounts.pod.land",
-//                "https://sandbox.pod.land:8043/srv/basic-platform/","http://sandbox.fanapium.com:8080/");
+        presenter.connect("ws://chat-sandbox.pod.land/ws",
+                "POD-Chat", "chat-server", TOKEN, "https://accounts.pod.land",
+                "https://sandbox.pod.land:8043/srv/basic-platform/","http://sandbox.fanapium.com:8080/");
     }
 
     public void sendMessage(View view) {
@@ -467,7 +468,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                  */
                 //alexi 570
                 //felfeli 571
-                Invitee[] invite = new Invitee[]{new Invitee(577, 2)
+                Invitee[] invite = new Invitee[]{new Invitee(822, 2)
 //                        , new Invitee(577, 2)
 //                        , new Invitee(578, 2)
 //                        , new Invitee(824, 2)

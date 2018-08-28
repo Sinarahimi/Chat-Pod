@@ -49,9 +49,26 @@ chat.getUserInfo();
 ```
 
 ### createThread
+Id types :
 ```java
-Invitee[] invite = new Invitee[]{new Invitee(textThread, 2)};
+*int TO_BE_USER_SSO_ID = 1;
+* int TO_BE_USER_CONTACT_ID = 2;
+* int TO_BE_USER_CELLPHONE_NUMBER = 3;
+* int TO_BE_USER_USERNAME = 4;
+*/
+```
+
+```java
+Invitee[] invite = new Invitee[]{new Invitee(id, idType)};
 chat.createThread(0, invite, "");
+```
+or
+```java
+ Invitee[] invite = new Invitee[]{new Invitee(822, 2)
+//                        , new Invitee(577, 2)
+//                        , new Invitee(578, 2)
+//                        , new Invitee(824, 2)
+                };
 ```
 
 ### getThreads
