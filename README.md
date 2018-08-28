@@ -65,9 +65,9 @@ chat.createThread(0, invite, "");
 or
 ```java
  Invitee[] invite = new Invitee[]{new Invitee(822, 2)
-//                        , new Invitee(577, 2)
-//                        , new Invitee(578, 2)
-//                        , new Invitee(824, 2)
+, new Invitee(577, 2)
+, new Invitee(578, 2)
+, new Invitee(824, 2)
                 };
 ```
 
