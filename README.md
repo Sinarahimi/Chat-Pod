@@ -57,7 +57,8 @@ Id types :
 * int TO_BE_USER_USERNAME = 4;
 */
 ```
-Id can be USER_SSO_ID/CONTACT_ID/CELLPHONE_NUMBER/USERNAME.
+Id can be :
+USER_SSO_ID,CONTACT_ID,CELLPHONE_NUMBER or USERNAME.
 ```java
 Invitee[] invite = new Invitee[]{new Invitee(id, idType)};
 chat.createThread(0, invite, "");
