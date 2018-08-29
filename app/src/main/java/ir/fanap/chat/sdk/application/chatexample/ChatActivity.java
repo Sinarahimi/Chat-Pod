@@ -98,7 +98,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 //    private static String name = "Alexi";
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "d445370ae203450cb8e67d1b7262870c";
+    private static String TOKEN = "1aefd75747944fb2a4bbde50ac6a5633";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

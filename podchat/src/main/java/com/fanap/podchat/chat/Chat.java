@@ -2209,7 +2209,6 @@ public class Chat extends AsyncAdapter {
         return JsonUtil.getJson(outPut);
     }
 
-    //Todo need change
     @NonNull
     private String reformatGetContactResponse(ChatMessage chatMessage, OutPutContact outPutContact) {
         ResultContact resultContact = new ResultContact();
