@@ -1,7 +1,6 @@
 package com.fanap.podchat.model;
 
-
-public class OutPut {
+public class OutPutMute {
     private boolean hasError;
     private String errorMessage;
     private long errorCode;

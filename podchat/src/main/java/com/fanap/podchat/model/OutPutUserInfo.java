@@ -4,7 +4,7 @@ public class OutPutUserInfo {
     private boolean hasError;
     private String errorMessage;
     private long errorCode;
-    private ResultUserInfo resultUserInfo;
+    private ResultUserInfo result;
 
     public boolean isHasError() {
         return hasError;
@@ -31,10 +31,10 @@ public class OutPutUserInfo {
     }
 
     public ResultUserInfo getResultUserInfo() {
-        return resultUserInfo;
+        return result;
     }
 
     public void setResultUserInfo(ResultUserInfo resultUserInfo) {
-        this.resultUserInfo = resultUserInfo;
+        this.result = resultUserInfo;
     }
 }

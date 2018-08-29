@@ -54,7 +54,7 @@ import com.fanap.podchat.model.FileMetaDataContent;
 import com.fanap.podchat.model.MessageVO;
 import com.fanap.podchat.model.MetaDataFile;
 import com.fanap.podchat.model.MetaDataImageFile;
-import com.fanap.podchat.model.OutPut;
+import com.fanap.podchat.model.OutPutHistory;
 import com.fanap.podchat.model.OutPutAddContact;
 import com.fanap.podchat.model.OutPutAddParticipant;
 import com.fanap.podchat.model.OutPutBlock;
@@ -65,6 +65,7 @@ import com.fanap.podchat.model.OutPutInfoThread;
 import com.fanap.podchat.model.OutPutLeaveThread;
 import com.fanap.podchat.model.OutPutMapNeshan;
 import com.fanap.podchat.model.OutPutMapRout;
+import com.fanap.podchat.model.OutPutMute;
 import com.fanap.podchat.model.OutPutNewMessage;
 import com.fanap.podchat.model.OutPutParticipant;
 import com.fanap.podchat.model.OutPutThread;
@@ -1296,7 +1297,7 @@ public class Chat extends AsyncAdapter {
     }
 
     private void handleError(ChatMessage chatMessage) {
-        OutPut outPut = new OutPut();
+        OutPutHistory outPut = new OutPutHistory();
         Error error = JsonUtil.fromJSON(chatMessage.getContent(), Error.class);
         if (error.getCode() == 401) {
             pingHandler.removeCallbacksAndMessages(null);
@@ -1473,7 +1474,7 @@ public class Chat extends AsyncAdapter {
     }
 
     private void handleResponseMessage(Callback callback, ChatMessage chatMessage, String messageUniqueId) {
-        OutPut outPut = new OutPut();
+        OutPutHistory outPut = new OutPutHistory();
         switch (callback.getRequestType()) {
             case Constants.REMOVED_FROM_THREAD:
                 listenerManager.callOnRemovedFromThread(chatMessage.getContent());
@@ -1481,17 +1482,27 @@ public class Chat extends AsyncAdapter {
             case Constants.GET_HISTORY:
 
                 ResultsHistory resultsHistory = new ResultsHistory();
-                resultsHistory.setContentCount(chatMessage.getContentCount());
+                outPut.setContentCount(chatMessage.getContentCount());
                 if (chatMessage.getContent().length() + callback.getOffset() < chatMessage.getContentCount()) {
-                    resultsHistory.setHasNext(true);
+                    outPut.setHasNext(true);
                 } else {
-                    resultsHistory.setHasNext(false);
+                    outPut.setHasNext(false);
                 }
-                resultsHistory.setHistory(chatMessage.getContent());
-                resultsHistory.setNextOffset(callback.getOffset() + chatMessage.getContent().length());
+                List<MessageVO> messageVOS = null;
+                Type type = Types.newParameterizedType(List.class, MessageVO.class);
+                JsonAdapter<List<MessageVO>> messageVOSAdapter = moshi.adapter(type);
+                try {
+                    messageVOS = messageVOSAdapter.fromJson(chatMessage.getContent());
+                } catch (IOException e) {
+                    if (BuildConfig.DEBUG) Logger.e(e.getMessage());
+                }
+                outPut.setNextOffset(callback.getOffset() + chatMessage.getContentCount());
+
+                resultsHistory.setHistory(messageVOS);
                 outPut.setErrorCode(0);
                 outPut.setHasError(false);
                 outPut.setErrorMessage("");
+                outPut.setResult(resultsHistory);
 
                 String json = JsonUtil.getJson(outPut);
                 listenerManager.callOnGetThreadHistory(json);
@@ -1538,7 +1549,7 @@ public class Chat extends AsyncAdapter {
             case Constants.MUTE_THREAD:
 
                 if (callback.isResult()) {
-                    String muteThreadJson = reformatMuteThread(chatMessage, outPut);
+                    String muteThreadJson = reformatMuteThread(chatMessage);
                     listenerManager.callOnMuteThread(muteThreadJson);
                     messageCallbacks.remove(messageUniqueId);
                     if (BuildConfig.DEBUG) Logger.i("RECEIVE_MUTE_THREAD");
@@ -1548,7 +1559,7 @@ public class Chat extends AsyncAdapter {
             case Constants.UN_MUTE_THREAD:
 
                 if (callback.isResult()) {
-                    String unmuteThreadJson = reformatMuteThread(chatMessage, outPut);
+                    String unmuteThreadJson = reformatMuteThread(chatMessage);
                     listenerManager.callOnUnmuteThread(unmuteThreadJson);
                     messageCallbacks.remove(messageUniqueId);
                     if (BuildConfig.DEBUG) Logger.i("RECEIVE_UN_MUTE_THREAD");
@@ -1613,8 +1624,8 @@ public class Chat extends AsyncAdapter {
                     ResultParticipant resultParticipant = new ResultParticipant();
 
                     List<Participant> participants = new ArrayList<>();
-                    Type type = Types.newParameterizedType(List.class, Participant.class);
-                    JsonAdapter<List<Participant>> adapter = moshi.adapter(type);
+                    Type typeParticipant = Types.newParameterizedType(List.class, Participant.class);
+                    JsonAdapter<List<Participant>> adapter = moshi.adapter(typeParticipant);
                     try {
                         participants = adapter.fromJson(chatMessage.getContent());
                     } catch (IOException e) {
@@ -1725,7 +1736,6 @@ public class Chat extends AsyncAdapter {
 //                        listenerManager.callOnGetBlockList();
                 }
                 break;
-
         }
     }
 
@@ -1757,7 +1767,7 @@ public class Chat extends AsyncAdapter {
         ResultParticipant resultParticipant = new ResultParticipant();
         resultParticipant.setParticipants(participants);
         outPutParticipant.setResult(resultParticipant);
-        outPutParticipant.setNextOffset(callback.getOffset() + chatMessage.getContent().length());
+        outPutParticipant.setNextOffset(callback.getOffset() + chatMessage.getContentCount());
     }
 
     @NonNull
@@ -2099,8 +2109,9 @@ public class Chat extends AsyncAdapter {
         return JsonUtil.getJson(outPutUserInfo);
     }
 
-    private String reformatMuteThread(ChatMessage chatMessage, OutPut outPut) {
+    private String reformatMuteThread(ChatMessage chatMessage) {
         if (BuildConfig.DEBUG) Log.i("RECEIVED_MUTE_THREAD", chatMessage.getContent());
+        OutPutMute outPut = new OutPutMute();
         outPut.setResult(chatMessage.getContent());
         outPut.setHasError(false);
         outPut.setErrorMessage("");
@@ -2181,13 +2192,13 @@ public class Chat extends AsyncAdapter {
         } else {
             outPutThreads.setHasNext(false);
         }
-        outPutThreads.setNextOffset(callback.getOffset() + chatMessage.getContent().length());
+        outPutThreads.setNextOffset(callback.getOffset() + chatMessage.getContentCount());
         outPutThreads.setResult(resultThreads);
         return JsonUtil.getJson(outPutThreads);
     }
 
     @NonNull
-    private String reformatError(boolean hasError, ChatMessage chatMessage, OutPut outPut) {
+    private String reformatError(boolean hasError, ChatMessage chatMessage, OutPutHistory outPut) {
         Error error = JsonUtil.fromJSON(chatMessage.getContent(), Error.class);
         Log.e("RECEIVED_ERROR", chatMessage.getContent());
         Log.e("ErrorMessage", error.getMessage());

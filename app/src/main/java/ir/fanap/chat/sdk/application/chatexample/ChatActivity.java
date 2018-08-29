@@ -89,7 +89,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 //    private String name = "Fifi";
 //    private static String TOKEN = "5fb88da4c6914d07a501a76d68a62363";
 
-    //private String name = "jiji";
+    //    private String name = "jiji";
 //    private static String TOKEN = "f53f39a1893e4c4da18e59822290a552";
 //    private String name = "zizi";
 //    private static String TOKEN = "7cba09ff83554fc98726430c30afcfc6";
@@ -98,7 +98,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 //    private static String name = "Alexi";
     private String fileUri;
     private static String name = "SandBox";
-        private static String TOKEN = "7a84acfe1fad45b4b842738b7a977e6f";
+    private static String TOKEN = "d445370ae203450cb8e67d1b7262870c";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -301,7 +301,6 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                         presenter.updateThreadInfo(691, threadInfoVO);
                 }
             }
-
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
 
@@ -389,7 +388,8 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 //https://accounts.pod.land", // {**REQUIRED**} Socket Address
 // ssoGrantDevicesAddress: "/oauth2/grants/devices",
 // {**REQUIRED**} Socket Address platformHost: "//https://sandbox.pod.land:8043/srv/basic-platform", fileServer: "
-//http://sandbox.fanapium.com:8080", serverName: "chat-server", // {**REQUIRED**} Server to to register on
+        http:
+//sandbox.fanapium.com:8080", serverName: "chat-server", // {**REQUIRED**} Server to to register on
 //        presenter.connect("ws://172.16.106.26:8003/ws",
 //                "POD-Chat", "chat-server", TOKEN, "http://172.16.110.76",
 //                "http://172.16.106.26:8080/hamsam/", "http://172.16.106.26:8080/hamsam/");
@@ -403,8 +403,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         Inviter inviter = new Inviter();
         inviter.setName("sina");
         String meta = JsonUtil.getJson(inviter);
-        presenter.sendTextMessage("test at" + new Date().getTime() + name, 231, meta);
-
+        presenter.sendTextMessage("test at" +" "+ new Date().getTime() + name, 22, meta);
 //        String text = editText.getText().toString();
 ////        long textThread = Long.valueOf(editTextThread.getText().toString());
 ////        if (!text.equals("")) {
@@ -423,9 +422,9 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
             case 1:
                 //"get thread"
                 ArrayList<Integer> threadIds = new ArrayList<>();
-                threadIds.add(381);
+                threadIds.add(22);
 //                threadIds.add(351);
-                presenter.getThread(20, 0, null, "FiFi");
+                presenter.getThread(20, 0, threadIds, null);
                 break;
             case 2:
                 //"rename thread",
@@ -468,7 +467,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                  */
                 //alexi 570
                 //felfeli 571
-                Invitee[] invite = new Invitee[]{new Invitee(822, 2)
+                Invitee[] invite = new Invitee[]{new Invitee(589, 2)
 //                        , new Invitee(577, 2)
 //                        , new Invitee(578, 2)
 //                        , new Invitee(824, 2)
@@ -477,7 +476,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
             case 9:
                 //get thread history
-                presenter.getHistory(10, 0, null, 381);
+                presenter.getHistory(10, 0, null, 22);
                 break;
             case 10:
                 //"mute thread",

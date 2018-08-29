@@ -15,9 +15,6 @@ import static android.arch.persistence.room.OnConflictStrategy.REPLACE;
 public interface MessageDao {
 
     @Insert(onConflict = REPLACE)
-    void insertContact(Contact t);
-
-    @Insert(onConflict = REPLACE)
     void insertContact(List<Contact> t);
 
     @Query("select * from Contact")

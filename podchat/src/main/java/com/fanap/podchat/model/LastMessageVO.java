@@ -8,7 +8,6 @@ import com.fanap.podchat.mainmodel.Participant;
 
 public class LastMessageVO {
     @ColumnInfo(name = "lastMessageVO_id")
-    @PrimaryKey
     private long id;
     private String uniqueId;
     private String message;

@@ -18,7 +18,7 @@ public class Thread {
     @PrimaryKey
     private long id;
     private long joinDate;
-    @Relation(parentColumn = "id", entityColumn = "id")
+    @Embedded
     private Inviter inviter;
     @Embedded
     private LastMessageVO lastMessageVO;
