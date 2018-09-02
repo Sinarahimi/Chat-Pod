@@ -149,5 +149,6 @@ public interface ChatContract {
         void updateThreadInfo(long threadId, ThreadInfoVO threadInfoVO);
 
         void deleteMessage(long messageId, Boolean deleteForAll);
+
     }
 }

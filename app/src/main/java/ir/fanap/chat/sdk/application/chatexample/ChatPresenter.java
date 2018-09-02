@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.net.Uri;
+import android.widget.Toast;
 
 import com.fanap.podasync.util.JsonUtil;
 import com.fanap.podchat.chat.Chat;
@@ -19,6 +20,8 @@ import com.orhanobut.logger.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import ir.fanap.chat.sdk.R;
 
 public class ChatPresenter extends ChatAdapter implements ChatContract.presenter {
 
@@ -252,6 +255,12 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public void onSent(String content) {
         super.onSent(content);
         view.onSentMessage();
+    }
+
+    @Override
+    public void onError(String content) {
+        super.onError(content);
+        Toast.makeText(context,content,Toast.LENGTH_SHORT).show();
     }
 
     @Override

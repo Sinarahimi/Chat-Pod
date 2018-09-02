@@ -1,5 +1,10 @@
-package com.fanap.podchat.networking;
+package com.fanap.podchat.networking.retrofithelper;
 
+
+import com.fanap.podchat.networking.TLSSocketFactory;
+
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -20,10 +25,26 @@ public class RetrofitHelperPlatformHost {
 
     private Retrofit.Builder retrofit;
 
+
+
     public RetrofitHelperPlatformHost(String platformHost) {
+
+        OkHttpClient client=new OkHttpClient();
+        try {
+            client = new OkHttpClient.Builder()
+                    .sslSocketFactory(new TLSSocketFactory())
+                    .build();
+        } catch (KeyManagementException e) {
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        }
+
+
         retrofit = new Retrofit.Builder()
                 .baseUrl(platformHost)
-                .client(new OkHttpClient().newBuilder().addNetworkInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)).build())
+//                .client(new OkHttpClient().newBuilder().addNetworkInterceptor(new HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY)).build())
+                .client(client)
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create());
     }

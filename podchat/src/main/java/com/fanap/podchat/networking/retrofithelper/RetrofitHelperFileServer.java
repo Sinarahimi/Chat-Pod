@@ -1,4 +1,4 @@
-package com.fanap.podchat.networking;
+package com.fanap.podchat.networking.retrofithelper;
 
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;

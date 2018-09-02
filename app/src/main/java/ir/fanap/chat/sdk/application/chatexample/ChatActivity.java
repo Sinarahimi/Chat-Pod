@@ -89,16 +89,16 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 //    private String name = "Fifi";
 //    private static String TOKEN = "5fb88da4c6914d07a501a76d68a62363";
 
-    //    private String name = "jiji";
+    //        private String name = "jiji";
 //    private static String TOKEN = "f53f39a1893e4c4da18e59822290a552";
-//    private String name = "zizi";
-//    private static String TOKEN = "7cba09ff83554fc98726430c30afcfc6";
+    private String name = "zizi";
+    private static String TOKEN = "7cba09ff83554fc98726430c30afcfc6";
     //Token Alexi
 //    private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
 //    private static String name = "Alexi";
     private String fileUri;
-    private static String name = "SandBox";
-    private static String TOKEN = "1aefd75747944fb2a4bbde50ac6a5633";
+//    private static String name = "SandBox";
+//    private static String TOKEN = "919d4af280664c52b0e2979644f9e1ea";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -298,9 +298,10 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                         break;
                     case 6:
                         ThreadInfoVO threadInfoVO = new ThreadInfoVO.Builder().description("this is test description").build();
-                        presenter.updateThreadInfo(691, threadInfoVO);
+                        presenter.updateThreadInfo(1031, threadInfoVO);
                 }
             }
+
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
 
@@ -351,7 +352,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                         presenter.leaveThread(691);
                         break;
                     case 8:
-                        presenter.deleteMessage(14029, true);
+                        presenter.deleteMessage(1921, true);
                         break;
                     case 9:
                         SearchContact searchContact = new SearchContact.Builder("0", "2").id("1063").build();
@@ -390,21 +391,24 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 // {**REQUIRED**} Socket Address platformHost: "//https://sandbox.pod.land:8043/srv/basic-platform", fileServer: "
         http:
 //sandbox.fanapium.com:8080", serverName: "chat-server", // {**REQUIRED**} Server to to register on
-//        presenter.connect("ws://172.16.106.26:8003/ws",
-//                "POD-Chat", "chat-server", TOKEN, "http://172.16.110.76",
-//                "http://172.16.106.26:8080/hamsam/", "http://172.16.106.26:8080/hamsam/");
+        presenter.connect("ws://172.16.106.26:8003/ws",
+                "POD-Chat", "chat-server", TOKEN, "http://172.16.110.76",
+                "http://172.16.106.26:8080/hamsam/", "http://172.16.106.26:8080/hamsam/");
 
-        presenter.connect("ws://chat-sandbox.pod.land/ws",
-                "POD-Chat", "chat-server", TOKEN, "https://accounts.pod.land",
-                "https://sandbox.pod.land:8043/srv/basic-platform/","http://sandbox.fanapium.com:8080/");
+//        presenter.connect("ws://chat-sandbox.pod.land/ws",
+//                "POD-Chat", "chat-server", TOKEN, "https://accounts.pod.land",
+//                "https://sandbox.pod.land:8043/srv/basic-platform/","http://sandbox.fanapium.com:8080/");
     }
 
     public void sendMessage(View view) {
         Inviter inviter = new Inviter();
         inviter.setName("sina");
         String meta = JsonUtil.getJson(inviter);
-        presenter.sendTextMessage("test at" +" "+ new Date().getTime() + name, 22, meta);
-//        String text = editText.getText().toString();
+        presenter.sendTextMessage("test at" + " " + new Date().getTime() + name
+                , 351, meta);
+
+
+// String text = editText.getText().toString();
 ////        long textThread = Long.valueOf(editTextThread.getText().toString());
 ////        if (!text.equals("")) {
 ////            presenter.sendTextMessage(text, 381, null);
@@ -422,8 +426,8 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
             case 1:
                 //"get thread"
                 ArrayList<Integer> threadIds = new ArrayList<>();
-                threadIds.add(22);
-//                threadIds.add(351);
+//                threadIds.add(22);
+                threadIds.add(1031);
                 presenter.getThread(20, 0, threadIds, null);
                 break;
             case 2:
@@ -450,7 +454,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
             case 7:
                 //"get thread participant",
-                presenter.getThreadParticipant(10, 0, 691);
+                presenter.getThreadParticipant(10, 0, 22);
                 break;
             case 8:
                 /**
@@ -467,8 +471,8 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                  */
                 //alexi 570
                 //felfeli 571
-                Invitee[] invite = new Invitee[]{new Invitee(589, 2)
-//                        , new Invitee(577, 2)
+                Invitee[] invite = new Invitee[]{new Invitee(563, 2)
+                        , new Invitee(577, 2)
 //                        , new Invitee(578, 2)
 //                        , new Invitee(824, 2)
                 };
@@ -480,11 +484,11 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
             case 10:
                 //"mute thread",
-                presenter.muteThread(352);
+                presenter.muteThread(22);
                 break;
             case 11:
                 //"un mute thread"
-                presenter.unMuteThread(352);
+                presenter.unMuteThread(22);
                 break;
             case 12:
                 //"get contacts"
@@ -496,7 +500,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
             case 14:
                 // add contact
-                presenter.addContact("پوریا", "babae", "09387225694", "");
+                presenter.addContact("masodi", "am", "", "masoudmanson");
                 break;
             case 15:
                 // remove contact

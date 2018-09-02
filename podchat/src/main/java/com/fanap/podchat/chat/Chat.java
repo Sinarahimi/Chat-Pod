@@ -86,10 +86,10 @@ import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultUpdateContact;
 import com.fanap.podchat.model.ResultUserInfo;
 import com.fanap.podchat.model.ResultsHistory;
-import com.fanap.podchat.networking.RetrofitHelperFileServer;
-import com.fanap.podchat.networking.RetrofitHelperMap;
-import com.fanap.podchat.networking.RetrofitHelperPlatformHost;
-import com.fanap.podchat.networking.RetrofitHelperSsoHost;
+import com.fanap.podchat.networking.retrofithelper.RetrofitHelperFileServer;
+import com.fanap.podchat.networking.retrofithelper.RetrofitHelperMap;
+import com.fanap.podchat.networking.retrofithelper.RetrofitHelperPlatformHost;
+import com.fanap.podchat.networking.retrofithelper.RetrofitHelperSsoHost;
 import com.fanap.podchat.networking.api.ContactApi;
 import com.fanap.podchat.networking.api.FileApi;
 import com.fanap.podchat.networking.api.MapApi;
@@ -125,7 +125,6 @@ import java.util.UUID;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
 import retrofit2.Response;
 import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
@@ -161,6 +160,8 @@ public class Chat extends AsyncAdapter {
     private boolean currentDeviceExist;
     private String fileServer;
     private boolean syncContacts = false;
+    private int lastOffset;
+    private List<Contact> contactList;
 
     /**
      * Initialize the Chat
@@ -353,18 +354,19 @@ public class Chat extends AsyncAdapter {
                 listenerManager.callOnLastSeenUpdated(chatMessage.getContent());
                 break;
             case Constants.UPDATE_THREAD_INFO:
+                handleResponseMessage(callback, chatMessage, messageUniqueId);
                 break;
         }
     }
 
     /**
-     * Send text message with
+     * Send text message to the thread
      *
      * @param textMessage String that we want to sent to the thread
      * @param threadId    Id of the destination thread
-     * @param metaData    if you don't have metaData you can set it to "null"
+     * @param JsonMetaData    It should be Json,if you don't have metaData you can set it to "null"
      */
-    public void sendTextMessage(String textMessage, long threadId, String metaData) {
+    public void sendTextMessage(String textMessage, long threadId, String JsonMetaData) {
 
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setContent(textMessage);
@@ -372,8 +374,8 @@ public class Chat extends AsyncAdapter {
         chatMessage.setTokenIssuer("1");
         chatMessage.setToken(getToken());
 
-        if (metaData != null) {
-            chatMessage.setSystemMetadata(metaData);
+        if (JsonMetaData != null) {
+            chatMessage.setSystemMetadata(JsonMetaData);
         }
 
         String uniqueId = getUniqueId();
@@ -398,6 +400,8 @@ public class Chat extends AsyncAdapter {
             syncContact = true;
             getContacts(50, 0);
             setContext(context);
+            lastOffset = 0;
+            contactList = new ArrayList<>();
         } else {
             String jsonError = getErrorOutPut(ChatConstant.ERROR_READ_CONTACT_PERMISSION, ChatConstant.ERROR_CODE_READ_CONTACT_PERMISSION);
             if (BuildConfig.DEBUG) Logger.e(jsonError);
@@ -471,14 +475,6 @@ public class Chat extends AsyncAdapter {
 
     }
 
-    @NonNull
-    private String getErrorOutPut(String errorMessage, int errorCode) {
-        ErrorOutPut error = new ErrorOutPut(true, errorMessage, errorCode);
-        String jsonError = JsonUtil.getJson(error);
-        listenerManager.callOnError(jsonError);
-        return jsonError;
-    }
-
     public void uploadFile(Context context, Activity activity, String fileUri, Uri uri) {
         if (Permission.Check_READ_STORAGE(activity)) {
             if (getFileServer() != null) {
@@ -520,6 +516,25 @@ public class Chat extends AsyncAdapter {
             if (BuildConfig.DEBUG) Logger.e(jsonError);
         }
     }
+
+    public String getFile(int fileId, String hashCode, boolean downloadable) {
+        String url = fileServer + "/nzh/file/" + "?fileId=" + fileId + "&downloadable=" + downloadable + "&hashCode=" + hashCode;
+        return url;
+    }
+
+    public String getImage(int imageId, String hashCode, boolean downloadable) {
+        String url = getPlatformHost() + "nzh/uploadImage" + "?imageId=" + imageId + "&downloadable=" + downloadable + "&hashCode=" + hashCode;
+        return url;
+    }
+
+    @NonNull
+    private String getErrorOutPut(String errorMessage, int errorCode) {
+        ErrorOutPut error = new ErrorOutPut(true, errorMessage, errorCode);
+        String jsonError = JsonUtil.getJson(error);
+        listenerManager.callOnError(jsonError);
+        return jsonError;
+    }
+
 
     /**
      * Remove the peerId and send ping again but this time
@@ -904,7 +919,8 @@ public class Chat extends AsyncAdapter {
                 }
             }, (Throwable throwable) ->
             {
-                Logger.e("Error on add contact", throwable.toString());
+                Logger.e("Error on add contact", throwable.getMessage());
+                Logger.e( throwable.getMessage());
             });
         } else {
             if (BuildConfig.DEBUG) Logger.e("PlatformHost Address Is Empty!");
@@ -1129,7 +1145,7 @@ public class Chat extends AsyncAdapter {
 
         String asyncContent = JsonUtil.getJson(chatMessage);
         setCallBacks(null, null, null, true, Constants.UPDATE_THREAD_INFO, null, uniqueId);
-        sendAsyncMessage(asyncContent, 4, "SEND_CREATE_THREAD");
+        sendAsyncMessage(asyncContent, 4, "UPDATE_THREAD_INFO");
     }
 
     /**
@@ -1524,6 +1540,10 @@ public class Chat extends AsyncAdapter {
                     }
                 }
                 break;
+                case Constants.UPDATE_THREAD_INFO:
+                    if (BuildConfig.DEBUG) Logger.i("RECEIVE_UPDATE_THREAD_INFO");
+                    if (BuildConfig.DEBUG) Logger.json(chatMessage.getContent());
+                    break;
             case Constants.GET_THREADS:
                 OutPutThreads outPutThreads = new OutPutThreads();
 
@@ -1587,9 +1607,9 @@ public class Chat extends AsyncAdapter {
             case Constants.THREAD_PARTICIPANTS:
 
                 if (callback.isResult()) {
-                    reformatThreadParticipants(callback, chatMessage);
+                    OutPutParticipant outPutParticipant = reformatThreadParticipants(callback, chatMessage);
 
-                    String jsonParticipant = JsonUtil.getJson(outPut);
+                    String jsonParticipant = JsonUtil.getJson(outPutParticipant);
                     listenerManager.callOnGetThreadParticipant(jsonParticipant);
                     messageCallbacks.remove(messageUniqueId);
                     if (BuildConfig.DEBUG) Logger.i("RECEIVE_PARTICIPANT");
@@ -1739,16 +1759,11 @@ public class Chat extends AsyncAdapter {
         }
     }
 
-    private void reformatThreadParticipants(Callback callback, ChatMessage chatMessage) {
+    private OutPutParticipant reformatThreadParticipants(Callback callback, ChatMessage chatMessage) {
         OutPutParticipant outPutParticipant = new OutPutParticipant();
         outPutParticipant.setErrorCode(0);
         outPutParticipant.setErrorMessage("");
         outPutParticipant.setHasError(false);
-        if (chatMessage.getContent().length() + callback.getOffset() < chatMessage.getContentCount()) {
-            outPutParticipant.setHasNext(true);
-        } else {
-            outPutParticipant.setHasNext(false);
-        }
         if (chatMessage.getContent().length() + callback.getOffset() < chatMessage.getContentCount()) {
             outPutParticipant.setHasNext(true);
         } else {
@@ -1768,6 +1783,7 @@ public class Chat extends AsyncAdapter {
         resultParticipant.setParticipants(participants);
         outPutParticipant.setResult(resultParticipant);
         outPutParticipant.setNextOffset(callback.getOffset() + chatMessage.getContentCount());
+        return outPutParticipant;
     }
 
     @NonNull
@@ -1983,19 +1999,6 @@ public class Chat extends AsyncAdapter {
         } else {
             if (BuildConfig.DEBUG) Logger.e("FileServer url Is null");
         }
-    }
-
-    private void getFile(String hashCode, FileApi fileApi, int fileId) {
-        Observable<Response<ResponseBody>> getFileObservable = fileApi.getFile(fileId, true, hashCode);
-        getFileObservable.subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread()).subscribe(new Action1<Response<ResponseBody>>() {
-            @Override
-            public void call(Response<ResponseBody> responseBody) {
-                if (responseBody.isSuccessful()) {
-                    responseBody.body();
-                    Logger.i("respond", responseBody);
-                }
-            }
-        }, throwable -> Logger.e(throwable.getMessage()));
     }
 
     //model
