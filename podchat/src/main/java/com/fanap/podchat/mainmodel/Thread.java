@@ -14,7 +14,6 @@ import java.util.List;
 
 @Entity
 public class Thread {
-    @ColumnInfo(name = "thread_id")
     @PrimaryKey
     private long id;
     private long joinDate;

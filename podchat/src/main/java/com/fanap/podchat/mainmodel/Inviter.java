@@ -5,7 +5,7 @@ import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.PrimaryKey;
 
 public class Inviter {
-    @ColumnInfo(name = "Inviter_id")
+    @ColumnInfo(name = "inviter_id")
     private long id;
     private String name;
     private String firstName;

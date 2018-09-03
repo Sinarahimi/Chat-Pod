@@ -91,14 +91,14 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 
     //        private String name = "jiji";
 //    private static String TOKEN = "f53f39a1893e4c4da18e59822290a552";
-    private String name = "zizi";
-    private static String TOKEN = "7cba09ff83554fc98726430c30afcfc6";
+//    private String name = "zizi";
+//    private static String TOKEN = "7cba09ff83554fc98726430c30afcfc6";
     //Token Alexi
 //    private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
 //    private static String name = "Alexi";
     private String fileUri;
-//    private static String name = "SandBox";
-//    private static String TOKEN = "919d4af280664c52b0e2979644f9e1ea";
+    private static String name = "SandBox";
+    private static String TOKEN = "e5be690ff6774d2fa80619d39cf66a60";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -391,13 +391,13 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 // {**REQUIRED**} Socket Address platformHost: "//https://sandbox.pod.land:8043/srv/basic-platform", fileServer: "
         http:
 //sandbox.fanapium.com:8080", serverName: "chat-server", // {**REQUIRED**} Server to to register on
-        presenter.connect("ws://172.16.106.26:8003/ws",
-                "POD-Chat", "chat-server", TOKEN, "http://172.16.110.76",
-                "http://172.16.106.26:8080/hamsam/", "http://172.16.106.26:8080/hamsam/");
+//        presenter.connect("ws://172.16.106.26:8003/ws",
+//                "POD-Chat", "chat-server", TOKEN, "http://172.16.110.76",
+//                "http://172.16.106.26:8080/hamsam/", "http://172.16.106.26:8080/hamsam/");
 
-//        presenter.connect("ws://chat-sandbox.pod.land/ws",
-//                "POD-Chat", "chat-server", TOKEN, "https://accounts.pod.land",
-//                "https://sandbox.pod.land:8043/srv/basic-platform/","http://sandbox.fanapium.com:8080/");
+        presenter.connect("ws://chat-sandbox.pod.land/ws",
+                "POD-Chat", "chat-server", TOKEN, "https://accounts.pod.land",
+                "https://sandbox.pod.land:8043/srv/basic-platform/","http://sandbox.fanapium.com:8080/");
     }
 
     public void sendMessage(View view) {
@@ -428,7 +428,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 ArrayList<Integer> threadIds = new ArrayList<>();
 //                threadIds.add(22);
                 threadIds.add(1031);
-                presenter.getThread(20, 0, threadIds, null);
+                presenter.getThread(20, 0, null, null);
                 break;
             case 2:
                 //"rename thread",
