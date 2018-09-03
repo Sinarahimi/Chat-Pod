@@ -3,14 +3,20 @@
 **Fanap's POD** Chat service
 
 # Changelog
+## Future Version [*] -2018-00-00
+-   [Add]Support SSL for Pre Android 4.4 for socket and Request
+-   [Add]Implement Cache for Message
+-   [Add]Spam
+-   [Add]Add project to Maven
+-   [BugFix]Sync Contact
 
 All notable changes to this project will be documented here.
-## Future Version [] -2018-08-00
--   [Add]Implement Cache
--   [Add]Support Wss for socket
+## Version [0.1.2.3] -2018-09-03
+-   [Add]Implement Cache for get Contact
 -   [Add]Update Thread Info
--   [Add]Spam
--   [BugFix]Chat Ready on Live State
+-   [Add]Get file
+-   [Add]Get Image
+-   [BugFix]You can get CHAT_READY on Live State
 
 
 ## Version [0.1.2.1] -2018-08-19
