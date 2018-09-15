@@ -153,7 +153,11 @@ public class ChatListenerManager {
 
     public void callOnError(String content) {
         for (ChatListener listener : getSynchronizedListeners()) {
-            listener.onError(content);
+            try {
+                listener.onError(content);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
         }
     }
 
@@ -413,6 +417,7 @@ public class ChatListenerManager {
             }
         }
     }
+
     public void callOnGetBlockList(String content) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {

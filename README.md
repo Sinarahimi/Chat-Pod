@@ -116,6 +116,8 @@ chat.unmuteThread(232);
 |6|`deleteMessage(long messageId, Boolean deleteForAll)`         | delete the message     |
 |7|`uploadFile(Context context, Activity activity, String fileUri, Uri uri)`         | Upload file      |
 |8|`uploadImage(Context context, Activity activity, Uri fileUri)`         | Upload image      |
+|9|`getFile(int fileId, String hashCode, boolean downloadable)`         | Get file with return url     |
+|10|`getImage(int imageId, String hashCode, boolean downloadable)`         | Get image with return url     |
 
 ### replyMessage
 ```java

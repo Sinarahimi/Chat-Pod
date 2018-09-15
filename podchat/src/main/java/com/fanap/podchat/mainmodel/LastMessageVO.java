@@ -1,10 +1,12 @@
-package com.fanap.podchat.model;
+package com.fanap.podchat.mainmodel;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.PrimaryKey;
 
 import com.fanap.podchat.mainmodel.Participant;
+import com.fanap.podchat.model.ForwardInfo;
+import com.fanap.podchat.model.ReplyInfoVO;
 
 public class LastMessageVO {
     @ColumnInfo(name = "last_message_vo_id")

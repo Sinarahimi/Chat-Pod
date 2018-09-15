@@ -1,6 +1,6 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
+apply plugin: 'maven-publish'
 
 android {
     compileSdkVersion 27
@@ -8,7 +8,7 @@ android {
         minSdkVersion 17
         targetSdkVersion 27
         versionCode 1
-        versionName "0.0.8.0"
+        versionName '0.0.8.0'
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -39,9 +39,9 @@ ext {
     bintrayRepo = 'maven'
     bintrayName = 'Async-pod'
 
-    publishedGroupId = 'fanap.async'
-    libraryName = 'PodaAsync'
-    artifact = 'Async-pod'
+    publishedGroupId = 'com.fanap.podasync'
+    libraryName = 'podaasync'
+    artifact = 'podaasync'
 
     libraryDescription = 'Fanaps POD Async service (DIRANA)'
 
@@ -62,84 +62,56 @@ ext {
 group = publishedGroupId
 version = libraryVersion
 
-install {
-    repositories.mavenInstaller {
-        pom.project {
-            packaging 'aar'
+
+
+publishing {
+    publications {
+        Production(MavenPublication) {
+            artifact("build/outputs/aar/podasync-release.aar")
             groupId publishedGroupId
             artifactId artifact
+            version libraryVersion
 
-            name libraryName
-            description libraryDescription
-            url siteUrl
+            //The publication doesn't know about our dependencies, so we have to manually add them to the pom
+            pom.withXml {
+                def dependenciesNode = asNode().appendNode('dependencies')
 
-            licenses {
-                license {
-                    name licenseName
-                    url licenseUrl
+                //Iterate over the compile dependencies (we don't want the test ones), adding a <dependency> node for each
+                configurations.compile.allDependencies.withType(ModuleDependency) {ModuleDependency dp
+                    def dependencyNode = dependenciesNode.appendNode('dependency')
+                    dependencyNode.appendNode('groupId', dp.group)
+                    dependencyNode.appendNode('artifactId', dp.name)
+                    dependencyNode.appendNode('version', dp.version)
                 }
-            }
-            developers {
-                developer {
-                    id developerId
-                    name developerName
-                    email developerEmail
-                }
-            }
-            scm {
-                connection gitUrl
-                developerConnection gitUrl
-                url siteUrl
             }
         }
     }
 }
 
-task sourcesJar(type: Jar) {
-    classifier = 'sources'
-    from android.sourceSets.main.java.srcDirs
-}
-
-task javadoc(type: Javadoc) {
-    source = android.sourceSets.main.java.srcDirs
-    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
-}
-
-task javadocJar(type: Jar, dependsOn: javadoc) {
-    classifier = 'javadoc'
-    from javadoc.destinationDir
-}
-
-artifacts {
-    archives javadocJar
-    archives sourcesJar
-}
-
-Properties properties = new Properties()
-properties.load(project.rootProject.file('local.properties').newDataInputStream())
 
 bintray {
-    user = properties.getProperty("bintray.user")
-    key = properties.getProperty("bintray.apikey")
 
-    configurations = ['archives']
+    Properties properties = new Properties()
+    properties.load(project.rootProject.file('local.properties').newDataInputStream())
+    user = properties.getProperty('bintray.user')
+    key = properties.getProperty('bintray.apikey')
+
+    publications = ['Production']
+    override = true
     pkg {
         repo = bintrayRepo
-        name = bintrayName
+        name = project.name
+        userOrg = 'sinara'
+        licenses = allLicenses
         desc = libraryDescription
         websiteUrl = siteUrl
         vcsUrl = gitUrl
-        licenses = allLicenses
-        dryRun = false
-        publish = true
-        override = false
-        publicDownloadNumbers = true
         version {
-            desc = libraryDescription
+            name = libraryVersion
         }
+        publish = true
     }
 }
-
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')

@@ -535,7 +535,6 @@ public class Chat extends AsyncAdapter {
         return jsonError;
     }
 
-
     /**
      * Remove the peerId and send ping again but this time
      * peerId that was set in the server was removed
@@ -1116,7 +1115,7 @@ public class Chat extends AsyncAdapter {
     public void createThread(int threadType, Invitee[] invitee, String threadTitle) {
         List<Invitee> invitees = new ArrayList<>(Arrays.asList(invitee));
         ChatThread chatThread = new ChatThread();
-        chatThread.setThreadType(threadType);
+        chatThread.setType(threadType);
         chatThread.setInvitees(invitees);
         chatThread.setTitle(threadTitle);
 
@@ -1313,7 +1312,7 @@ public class Chat extends AsyncAdapter {
     }
 
     private void handleError(ChatMessage chatMessage) {
-        OutPutHistory outPut = new OutPutHistory();
+        ErrorOutPut outPut = new ErrorOutPut();
         Error error = JsonUtil.fromJSON(chatMessage.getContent(), Error.class);
         if (error.getCode() == 401) {
             pingHandler.removeCallbacksAndMessages(null);

@@ -5,6 +5,8 @@ public class ErrorOutPut {
     private String errorMessage;
     private long errorCode;
 
+    public ErrorOutPut(){}
+
     public ErrorOutPut(boolean hasError, String errorMessage, long errorCode) {
         this.errorCode = errorCode;
         this.errorMessage = errorMessage;

@@ -18,14 +18,6 @@ public class ChatThread {
     private List<Invitee[]> arrayInvitees;
     private String title;
 
-    public int getThreadType() {
-        return type;
-    }
-
-    public void setThreadType(int type) {
-        this.type = type;
-    }
-
     public String getOwnerSsoId() {
         return ownerSsoId;
     }
@@ -56,5 +48,13 @@ public class ChatThread {
 
     public void setArrayInvitees(List<Invitee[]> arrayInvitees) {
         this.arrayInvitees = arrayInvitees;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
     }
 }

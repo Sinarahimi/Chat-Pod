@@ -9,6 +9,11 @@
 -   [Add]Spam
 -   [Add]Add project to Maven
 -   [BugFix]Sync Contact
+-   [BugFix]OnError Listener
+
+## Version [0.1.2.4] -2018-09-15
+-   [BugFix]OnError Listener
+-   [BugFix]Create Thread 
 
 All notable changes to this project will be documented here.
 ## Version [0.1.2.3] -2018-09-03

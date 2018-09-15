@@ -98,7 +98,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 //    private static String name = "Alexi";
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "e5be690ff6774d2fa80619d39cf66a60";
+    private static String TOKEN = "dbf1b417a64240299decc7ca11ead072";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -476,7 +476,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 //                        , new Invitee(578, 2)
 //                        , new Invitee(824, 2)
                 };
-                presenter.createThread(0, invite, null);
+                presenter.createThread(4, invite, null);
                 break;
             case 9:
                 //get thread history
@@ -500,7 +500,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
             case 14:
                 // add contact
-                presenter.addContact("masodi", "am", "", "masoudmanson");
+                presenter.addContact("masodi", "ra", "09128054535", "");
                 break;
             case 15:
                 // remove contact
