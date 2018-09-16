@@ -1128,7 +1128,6 @@ public class Chat extends AsyncAdapter {
         sendAsyncMessage(asyncContent, 4, "SEND_CREATE_THREAD");
     }
 
-
     public void updateThreadInfo(long threadId, ThreadInfoVO threadInfoVO) {
 
         String content = JsonUtil.getJson(threadInfoVO);

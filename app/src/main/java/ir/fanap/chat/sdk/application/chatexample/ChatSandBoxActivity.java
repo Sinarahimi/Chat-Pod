@@ -29,7 +29,7 @@ import java.util.List;
 
 import ir.fanap.chat.sdk.R;
 
-public class ChatActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener, View.OnClickListener {
+public class ChatSandBoxActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener, View.OnClickListener {
     private static final int FILE_REQUEST_CODE = 2;
     private ChatContract.presenter presenter;
     private EditText editText;
@@ -98,7 +98,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 //    private static String name = "Alexi";
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "dbf1b417a64240299decc7ca11ead072";
+    private static String TOKEN = "d20054317466441ab5f1998cc1f1b9b8";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -322,18 +322,18 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 //            "Choose function",
                         break;
                     case 1:
-                        presenter.syncContact(ChatActivity.this);
+                        presenter.syncContact(ChatSandBoxActivity.this);
                         break;
                     case 2:
-                        presenter.sendFileMessage(ChatActivity.this, ChatActivity.this,
+                        presenter.sendFileMessage(ChatSandBoxActivity.this, ChatSandBoxActivity.this,
                                 "test file message",
                                 381
                                 , getUri(), null);
                         break;
                     case 3:
-                        presenter.uploadImage(ChatActivity.this, ChatActivity.this, getUri());
+                        presenter.uploadImage(ChatSandBoxActivity.this, ChatSandBoxActivity.this, getUri());
                     case 4:
-                        presenter.uploadFile(ChatActivity.this, ChatActivity.this, getFileUri(), getUri());
+                        presenter.uploadFile(ChatSandBoxActivity.this, ChatSandBoxActivity.this, getFileUri(), getUri());
                         break;
                     case 5:
                         List<Long> contactIds = new ArrayList<>();
