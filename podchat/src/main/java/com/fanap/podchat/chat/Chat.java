@@ -802,20 +802,19 @@ public class Chat extends AsyncAdapter {
 
         long offsets = history.getOffset();
 
-        if (history.getCount() != null) {
+        if (history.getCount() != 0) {
             history.setCount(history.getCount());
         } else {
             history.setCount(50L);
         }
 
-        if (history.getOffset() != null) {
+        if (history.getOffset() != 0) {
             history.setOffset(history.getOffset());
         } else {
             history.setOffset(0L);
             offsets = 0;
         }
 
-//        JsonAdapter<History> messageContentJsonAdapter = moshi.adapter(History.class);
         Gson gson = new GsonBuilder().create();
         JsonObject jObj = (JsonObject) gson.toJsonTree(history);
         if (history.getLastMessageId() == 0) {
