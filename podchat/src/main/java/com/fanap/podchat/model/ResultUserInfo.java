@@ -3,13 +3,13 @@ package com.fanap.podchat.model;
 import com.fanap.podchat.mainmodel.UserInfo;
 
 public class ResultUserInfo {
-    private UserInfo userInfo;
+    private UserInfo user;
 
-    public UserInfo getUserInfo() {
-        return userInfo;
+    public UserInfo getUser() {
+        return user;
     }
 
-    public void setUserInfo(UserInfo userInfo) {
-        this.userInfo = userInfo;
+    public void setUser(UserInfo user) {
+        this.user = user;
     }
 }

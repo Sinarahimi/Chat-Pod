@@ -5,6 +5,8 @@ import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.net.Uri;
 
+import com.fanap.podchat.chat.Chat;
+import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.SearchContact;
@@ -84,19 +86,19 @@ public interface ChatContract {
 
         void mapRouting(String origin, String destination);
 
-        void getThread(int count, int offset, ArrayList<Integer> threadIds, String threadName);
+        void getThread(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName);
 
         void getUserInfo();
 
-        void getHistory(int count, int offset, String order, long subjectId);
+        void getHistory(History history, long threadId);
 
         void searchHistory(NosqlListMessageCriteriaVO messageCriteriaVO);
 
-        void getContact(int count, int offset);
+        void getContact(Integer count, Long offset);
 
         void createThread(int threadType, Invitee[] invitee, String threadTitle);
 
-        void sendTextMessage(String textMessage, long threadId, String metaData);
+        void sendTextMessage(String textMessage, long threadId, String metaData,Chat.SendTextMessageHandler handler);
 
         void replyMessage(String messageContent, long threadId, long messageId);
 
@@ -110,7 +112,7 @@ public interface ChatContract {
 
         void editMessage(int messageId, String messageContent);
 
-        void getThreadParticipant(int count, int offset, long threadId);
+        void getThreadParticipant(int count, Long offset, long threadId);
 
         void addContact(String firstName, String lastName, String cellphoneNumber, String email);
 

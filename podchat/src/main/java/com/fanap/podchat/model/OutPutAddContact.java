@@ -4,7 +4,6 @@ public class OutPutAddContact {
     private boolean hasError;
     private String errorMessage;
     private long errorCode;
-    private long contentCount;
     private ResultAddContact result;
 
     public boolean isHasError() {
@@ -29,14 +28,6 @@ public class OutPutAddContact {
 
     public void setErrorCode(long errorCode) {
         this.errorCode = errorCode;
-    }
-
-    public long getContentCount() {
-        return contentCount;
-    }
-
-    public void setContentCount(long contentCount) {
-        this.contentCount = contentCount;
     }
 
     public ResultAddContact getResult() {

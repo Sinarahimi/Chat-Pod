@@ -11,8 +11,8 @@ android {
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 27
-        versionCode 1
-        versionName '0.0.8.0'
+        versionCode 2
+        versionName '0.0.8.1'
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -32,7 +32,6 @@ android {
 buildscript {
     repositories {
         jcenter()
-        maven { url 'https://jitpack.io' }
     }
     dependencies {
         classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
@@ -87,7 +86,6 @@ publishing {
         }
     }
 }
-
 
 bintray {
 

@@ -1,59 +1,25 @@
 package com.fanap.podchat.model;
 
+import com.fanap.podchat.mainmodel.Contact;
+
 public class ResultAddContact {
 
-    private int id;
-    private String firstName;
-    private String lastName;
-    private String cellphoneNumber;
-    private String email;
-    private String uniqueId;
+    private Contact Contact;
+    private long contentCount;
 
-    public String getFirstName() {
-        return firstName;
+    public long getContentCount() {
+        return contentCount;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
+    public void setContentCount(long contentCount) {
+        this.contentCount = contentCount;
     }
 
-    public int getId() {
-        return id;
+    public com.fanap.podchat.mainmodel.Contact getContact() {
+        return Contact;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getCellphoneNumber() {
-        return cellphoneNumber;
-    }
-
-    public void setCellphoneNumber(String cellphoneNumber) {
-        this.cellphoneNumber = cellphoneNumber;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getUniqueId() {
-        return uniqueId;
-    }
-
-    public void setUniqueId(String uniqueId) {
-        this.uniqueId = uniqueId;
+    public void setContact(com.fanap.podchat.mainmodel.Contact contact) {
+        Contact = contact;
     }
 }

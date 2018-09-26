@@ -30,11 +30,11 @@ public class OutPutUserInfo {
         this.errorCode = errorCode;
     }
 
-    public ResultUserInfo getResultUserInfo() {
+    public ResultUserInfo getResult() {
         return result;
     }
 
-    public void setResultUserInfo(ResultUserInfo resultUserInfo) {
+    public void setResult(ResultUserInfo resultUserInfo) {
         this.result = resultUserInfo;
     }
 }

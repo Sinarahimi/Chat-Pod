@@ -376,6 +376,10 @@ public class Async extends WebSocketAdapter {
         return stateLiveData;
     }
 
+    public void setStateLiveData(String state){
+        stateLiveData.postValue(state);
+    }
+
     public LiveData<String> getMessageLiveData() {
         return messageLiveData;
     }
@@ -483,10 +487,10 @@ public class Async extends WebSocketAdapter {
 
     private void handleOnServerRegister(String textMessage) {
         if (BuildConfig.DEBUG) Logger.i("SERVER_REGISTERED");
-        if (BuildConfig.DEBUG) Logger.i("READY FOR CHAT", textMessage);
+        if (BuildConfig.DEBUG) Logger.i("ASYNC_IS_READY", textMessage);
         try {
-            asyncListenerManager.callOnStateChanged("CHAT_READY");
-            stateLiveData.postValue("CHAT_READY");
+            asyncListenerManager.callOnStateChanged("ASYNC_READY");
+            stateLiveData.postValue("ASYNC_READY");
         } catch (IOException e) {
             e.printStackTrace();
         }

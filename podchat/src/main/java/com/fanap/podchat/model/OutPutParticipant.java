@@ -4,8 +4,7 @@ public class OutPutParticipant {
     private boolean hasError;
     private String errorMessage;
     private long errorCode;
-    private boolean hasNext;
-    private long nextOffset;
+
     private ResultParticipant result;
 
     public boolean isHasError() {
@@ -33,21 +32,7 @@ public class OutPutParticipant {
     }
 
 
-    public boolean isHasNext() {
-        return hasNext;
-    }
 
-    public void setHasNext(boolean hasNext) {
-        this.hasNext = hasNext;
-    }
-
-    public long getNextOffset() {
-        return nextOffset;
-    }
-
-    public void setNextOffset(long nextOffset) {
-        this.nextOffset = nextOffset;
-    }
 
     public ResultParticipant getResult() {
         return result;
@@ -56,4 +41,6 @@ public class OutPutParticipant {
     public void setResult(ResultParticipant result) {
         this.result = result;
     }
+
+
 }

@@ -17,13 +17,13 @@ public class ChatStateType {
             ChatSateConstant.CLOSED,
             ChatSateConstant.CLOSING,
             ChatSateConstant.CONNECTING,
-            ChatSateConstant.CHAT_READY})
+            ChatSateConstant.ASYNC_READY})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ChatSateConstant {
         String CONNECTING = "CONNECTING";
         String CLOSING = "CLOSING";
         String CLOSED = "CLOSED";
         String OPEN = "OPEN";
-        String CHAT_READY = "CHAT_READY";
+        String ASYNC_READY = "ASYNC_READY";
     }
 }

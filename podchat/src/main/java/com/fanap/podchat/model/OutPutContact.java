@@ -5,7 +5,6 @@ public class OutPutContact {
     private String errorMessage;
     private long errorCode;
     private ResultContact result;
-    private long contentCount;
 
     public boolean isHasError() {
         return hasError;
@@ -29,14 +28,6 @@ public class OutPutContact {
 
     public void setErrorCode(long errorCode) {
         this.errorCode = errorCode;
-    }
-
-    public long getContentCount() {
-        return contentCount;
-    }
-
-    public void setContentCount(long contentCount) {
-        this.contentCount = contentCount;
     }
 
     public ResultContact getResult() {

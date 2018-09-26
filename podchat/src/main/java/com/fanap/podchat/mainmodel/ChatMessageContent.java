@@ -13,7 +13,7 @@ public class ChatMessageContent {
     private boolean New;
     private int firstMessageId;
     private int lastMessageId;
-    private int offset;
+    private long offset;
     private String order;
     private List<Integer> threadIds;
 
@@ -33,11 +33,11 @@ public class ChatMessageContent {
         this.firstMessageId = firstMessageId;
     }
 
-    public int getOffset() {
+    public long getOffset() {
         return offset;
     }
 
-    public void setOffset(int offset) {
+    public void setOffset(long offset) {
         this.offset = offset;
     }
 

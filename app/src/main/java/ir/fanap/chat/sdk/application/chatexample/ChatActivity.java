@@ -16,6 +16,8 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.fanap.podasync.util.JsonUtil;
+import com.fanap.podchat.chat.Chat;
+import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.Inviter;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
@@ -50,9 +52,9 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
             "create thread",
             "get thread history",
             "mute thread",
-            "un mute thread"
-            , "get contacts"
-            , "edit message"
+            "un mute thread",
+            "get contacts",
+            "edit message"
             , "add contact"
             , "remove contact"
             , "update contact"
@@ -89,16 +91,16 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 //    private String name = "Fifi";
 //    private static String TOKEN = "5fb88da4c6914d07a501a76d68a62363";
 
-//    private String name = "jiji";
-//    private static String TOKEN = "f53f39a1893e4c4da18e59822290a552";
+    private String name = "jiji";
+    private static String TOKEN = "fbd4ecedb898426394646e65c6b1d5d1";
 //    private String name = "zizi";
 //    private static String TOKEN = "7cba09ff83554fc98726430c30afcfc6";
     //Token Alexi
 //    private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
 //    private static String name = "Alexi";
     private String fileUri;
-    private static String name = "SandBox";
-    private static String TOKEN = "dbf1b417a64240299decc7ca11ead072";
+//    private static String name = "SandBox";
+//    private static String TOKEN = "d57010813e744e5fb1d12ce986209b86";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -391,21 +393,26 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 // {**REQUIRED**} Socket Address platformHost: "//https://sandbox.pod.land:8043/srv/basic-platform", fileServer: "
         http:
 //sandbox.fanapium.com:8080", serverName: "chat-server", // {**REQUIRED**} Server to to register on
-//        presenter.connect("ws://172.16.106.26:8003/ws",
-//                "POD-Chat", "chat-server", TOKEN, "http://172.16.110.76",
-//                "http://172.16.106.26:8080/hamsam/", "http://172.16.106.26:8080/hamsam/");
+        presenter.connect("ws://172.16.106.26:8003/ws",
+                "POD-Chat", "chat-server", TOKEN, "http://172.16.110.76",
+                "http://172.16.106.26:8080/hamsam/", "http://172.16.106.26:8080/hamsam/");
 
-        presenter.connect("ws://chat-sandbox.pod.land/ws",
-                "POD-Chat", "chat-server", TOKEN, "https://accounts.pod.land",
-                "https://sandbox.pod.land:8043/srv/basic-platform/","http://sandbox.fanapium.com:8080/");
+//        presenter.connect("ws://chat-sandbox.pod.land/ws",
+//                "POD-Chat", "chat-server", TOKEN, "https://accounts.pod.land",
+//                "https://sandbox.pod.land:8043/srv/basic-platform/","http://sandbox.fanapium.com:8080/");
     }
 
     public void sendMessage(View view) {
         Inviter inviter = new Inviter();
         inviter.setName("sina");
         String meta = JsonUtil.getJson(inviter);
-        presenter.sendTextMessage("test at" + " " + new Date().getTime() + name
-                , 351, meta);
+//        presenter.sendTextMessage("test at" + " " + new Date().getTime() + name
+//                , 312, meta, new Chat.SendTextMessageHandler() {
+//                    @Override
+//                    public void onSent(String uniqueId, long threadId) {
+//
+//                    }
+//                });
 
 
 // String text = editText.getText().toString();
@@ -428,7 +435,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 ArrayList<Integer> threadIds = new ArrayList<>();
 //                threadIds.add(22);
                 threadIds.add(1031);
-                presenter.getThread(20, 0, null, null);
+                presenter.getThread(2, null, null, null);
                 break;
             case 2:
                 //"rename thread",
@@ -445,16 +452,17 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
             case 5:
                 /**forward message */
                 ArrayList<Long> messageIds = new ArrayList<>();
-                messageIds.add(470L);
-                messageIds.add(1353L);
-                presenter.forwardMessage(381, messageIds);
+                messageIds.add(15255L);
+                messageIds.add(15256L);
+                messageIds.add(15257L);
+                presenter.forwardMessage(293, messageIds);
                 break;
             case 6:
                 //"send text message",
                 break;
             case 7:
                 //"get thread participant",
-                presenter.getThreadParticipant(10, 0, 22);
+                presenter.getThreadParticipant(10, null, 22);
                 break;
             case 8:
                 /**
@@ -462,6 +470,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                  * int TO_BE_USER_CONTACT_ID = 2;
                  * int TO_BE_USER_CELLPHONE_NUMBER = 3;
                  * int TO_BE_USER_USERNAME = 4;
+                 * int TO_BE_USER_ID = 5;
                  */
                 /**"create thread"
                  * This is Invitee object
@@ -471,16 +480,17 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                  */
                 //alexi 570
                 //felfeli 571
-                Invitee[] invite = new Invitee[]{new Invitee(563, 2)
-                        , new Invitee(577, 2)
+                Invitee[] invite = new Invitee[]{new Invitee(123, 5)
+//                        , new Invitee(565, 2)
 //                        , new Invitee(578, 2)
 //                        , new Invitee(824, 2)
                 };
-                presenter.createThread(4, invite, null);
+                presenter.createThread(0, invite, null);
                 break;
             case 9:
                 //get thread history
-                presenter.getHistory(10, 0, null, 22);
+                History history = new History.Builder().build();
+                presenter.getHistory(history, 312);
                 break;
             case 10:
                 //"mute thread",
@@ -492,7 +502,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
             case 12:
                 //"get contacts"
-                presenter.getContact(50, 0);
+                presenter.getContact(2, 0L);
                 break;
             case 13:
                 //"edit message"

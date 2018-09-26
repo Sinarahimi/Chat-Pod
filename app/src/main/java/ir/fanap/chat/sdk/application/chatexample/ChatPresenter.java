@@ -9,6 +9,7 @@ import android.widget.Toast;
 import com.fanap.podasync.util.JsonUtil;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
+import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.Participant;
@@ -53,7 +54,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void getThread(int count, int offset, ArrayList<Integer> threadIds, String threadName) {
+    public void getThread(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName) {
         chat.getThreads(count, offset, threadIds, threadName);
     }
 
@@ -63,8 +64,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void getHistory(int count, int offset, String order, long subjectId) {
-        chat.getHistory(count, offset, order, subjectId);
+    public void getHistory(History history, long threadId) {
+        chat.getHistory( history, threadId);
     }
 
     @Override
@@ -73,7 +74,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void getContact(int count, int offset) {
+    public void getContact(Integer count, Long offset) {
         chat.getContacts(count, offset);
     }
 
@@ -83,8 +84,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void sendTextMessage(String textMessage, long threadId, String metaData) {
-        chat.sendTextMessage(textMessage, threadId, metaData);
+    public void sendTextMessage(String textMessage, long threadId, String metaData, Chat.SendTextMessageHandler handler) {
+        chat.sendTextMessage(textMessage, threadId, metaData, handler );
     }
 
     @Override
@@ -118,7 +119,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void getThreadParticipant(int count, int offset, long threadId) {
+    public void getThreadParticipant(int count, Long offset, long threadId) {
         chat.getThreadParticipants(count, offset, threadId);
     }
 
@@ -410,4 +411,5 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         super.onSearchContact(content);
         view.onSearchContact();
     }
+
 }

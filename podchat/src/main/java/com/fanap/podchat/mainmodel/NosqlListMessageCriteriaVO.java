@@ -8,7 +8,7 @@ public class NosqlListMessageCriteriaVO {
     private Long id;
     private String query;
     private NosqlSearchMetadataCriteria metadataCriteria;
-    private int offset;
+    private long offset;
     private int count;
     private String order;
 
@@ -33,7 +33,7 @@ public class NosqlListMessageCriteriaVO {
         private Long id;
         private String query;
         private NosqlSearchMetadataCriteria metadataCriteria;
-        private int offset;
+        private long offset;
         private int count;
         private String order;
 
@@ -56,7 +56,7 @@ public class NosqlListMessageCriteriaVO {
             return this;
         }
 
-        public Builder offset(int offset) {
+        public Builder offset(long offset) {
             this.offset = offset;
             return this;
         }
@@ -147,11 +147,11 @@ public class NosqlListMessageCriteriaVO {
         this.metadataCriteria = metadataCriteria;
     }
 
-    public int getOffset() {
+    public long getOffset() {
         return offset;
     }
 
-    public void setOffset(int offset) {
+    public void setOffset(long offset) {
         this.offset = offset;
     }
 

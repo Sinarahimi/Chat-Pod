@@ -14,8 +14,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.fanap.podasync.util.JsonUtil;
+import com.fanap.podchat.chat.Chat;
+import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.Inviter;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
@@ -89,7 +92,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 //    private String name = "Fifi";
 //    private static String TOKEN = "5fb88da4c6914d07a501a76d68a62363";
 
-//    private String name = "jiji";
+    //    private String name = "jiji";
 //    private static String TOKEN = "f53f39a1893e4c4da18e59822290a552";
 //    private String name = "zizi";
 //    private static String TOKEN = "7cba09ff83554fc98726430c30afcfc6";
@@ -98,7 +101,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 //    private static String name = "Alexi";
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "d20054317466441ab5f1998cc1f1b9b8";
+    private static String TOKEN = "c5bd4735594e45e0a55f59161bbda483";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -344,12 +347,12 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                     case 6:
                         List<Long> participantIds = new ArrayList<>();
                         participantIds.add(485L);
-                        participantIds.add(577L);
-                        participantIds.add(824L);
-                        presenter.addParticipants(691, participantIds);
+//                        participantIds.add(577L);
+//                        participantIds.add(824L);
+                        presenter.addParticipants(661, participantIds);
                         break;
                     case 7:
-                        presenter.leaveThread(691);
+                        presenter.leaveThread(661);
                         break;
                     case 8:
                         presenter.deleteMessage(1921, true);
@@ -397,7 +400,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 
         presenter.connect("ws://chat-sandbox.pod.land/ws",
                 "POD-Chat", "chat-server", TOKEN, "https://accounts.pod.land",
-                "https://sandbox.pod.land:8043/srv/basic-platform/","http://sandbox.fanapium.com:8080/");
+                "https://sandbox.pod.land:8043/srv/basic-platform/", "http://sandbox.fanapium.com:8080/");
     }
 
     public void sendMessage(View view) {
@@ -405,7 +408,12 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         inviter.setName("sina");
         String meta = JsonUtil.getJson(inviter);
         presenter.sendTextMessage("test at" + " " + new Date().getTime() + name
-                , 351, meta);
+                , 543, meta, new Chat.SendTextMessageHandler() {
+                    @Override
+                    public void onSent(String uniqueId, long threadId) {
+                        Toast.makeText(ChatSandBoxActivity.this,uniqueId +""+ threadId,Toast.LENGTH_LONG).show();
+                    }
+                });
 
 
 // String text = editText.getText().toString();
@@ -426,13 +434,14 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
             case 1:
                 //"get thread"
                 ArrayList<Integer> threadIds = new ArrayList<>();
-//                threadIds.add(22);
-                threadIds.add(1031);
-                presenter.getThread(20, 0, null, null);
+                threadIds.add(661);
+//                threadIds.add(1031);
+//                presenter.getThread(2, 0, null, null);
+                presenter.getThread(null, null, threadIds, null);
                 break;
             case 2:
                 //"rename thread",
-                presenter.renameThread(634, "***new group amiri *");
+                presenter.renameThread(543, "***new group amiri*");
                 break;
             case 3:
                 //"get user info",
@@ -454,7 +463,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                 break;
             case 7:
                 //"get thread participant",
-                presenter.getThreadParticipant(10, 0, 22);
+                presenter.getThreadParticipant(10, 0L, 661);
                 break;
             case 8:
                 /**
@@ -471,28 +480,29 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                  */
                 //alexi 570
                 //felfeli 571
-                Invitee[] invite = new Invitee[]{new Invitee(563, 2)
-                        , new Invitee(577, 2)
+                Invitee[] invite = new Invitee[]{new Invitee(589, 2)
+//                        , new Invitee(577, 2)
 //                        , new Invitee(578, 2)
 //                        , new Invitee(824, 2)
                 };
-                presenter.createThread(4, invite, null);
+                presenter.createThread(0, invite, null);
                 break;
             case 9:
                 //get thread history
-                presenter.getHistory(10, 0, null, 22);
+                History history = new History.Builder().count(2).build();
+                presenter.getHistory(history, 543);
                 break;
             case 10:
                 //"mute thread",
-                presenter.muteThread(22);
+                presenter.muteThread(543);
                 break;
             case 11:
                 //"un mute thread"
-                presenter.unMuteThread(22);
+                presenter.unMuteThread(543);
                 break;
             case 12:
                 //"get contacts"
-                presenter.getContact(50, 0);
+                presenter.getContact(2, null);
                 break;
             case 13:
                 //"edit message"
@@ -500,15 +510,15 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                 break;
             case 14:
                 // add contact
-                presenter.addContact("masodi", "ra", "09128054535", "");
+                presenter.addContact("hani", "ra", "09128854535", "");
                 break;
             case 15:
                 // remove contact
-                presenter.removeContact(890);
+                presenter.removeContact(821);
                 break;
             case 16:
                 /**UPDATE CONTACTS*/
-                presenter.updateContact(571, "Fel", "", "", "devfelfel@gmail.com"
+                presenter.updateContact(588, "masoudian", "", "", ""
                 );
         }
     }

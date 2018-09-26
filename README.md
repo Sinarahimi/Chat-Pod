@@ -108,7 +108,7 @@ chat.unmuteThread(232);
 
 |Num|Message Method           | Description                                                                            |
 |:--|:------------------------------|:---------------------------------------------------------------------------------------|
-|1|`sendTextMessage(String textMessage, long threadId, String metaData)`       | Send text message to thread.           |
+|1|`sendTextMessage(String textMessage, long threadId, String metaData,SendTextMessageHandler handler)`       | Send text message to thread.           |
 |2|`forwardMessage(long threadId, ArrayList<Long> messageIds)`                 | Forward the message or messages.        |
 |3|`replyMessage(String messageContent, long threadId, long messageId)`         | Reply the message in the thread       |
 |4|`editMessage(int messageId, String messageContent)`         | Edit the message      |
@@ -130,7 +130,12 @@ chat.editMessage(533, "edited_at" + new Date().getTime());
 ```
 ### sendTextMessage
 ```java
-chat.sendTextMessage("This is test", 235);
+chat.sendTextMessage(TEXT MESSAGE, THREAD_ID, META_DATA, new Chat.SendTextMessageHandler() {
+ @Override
+ public void onSent(String uniqueId, long threadId) {
+ 
+ }
+ });
 ```
 
 ### forwardMessage

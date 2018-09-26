@@ -26,6 +26,7 @@ public class Thread {
     private long time;
     private String lastMessage;
     private String lastParticipantName;
+    private String lastParticipantImage;
     private boolean group;
     private long partner;
     @ColumnInfo(name = "thread_image")
@@ -216,5 +217,13 @@ public class Thread {
 
     public void setMetadata(String metadata) {
         this.metadata = metadata;
+    }
+
+    public String getLastParticipantImage() {
+        return lastParticipantImage;
+    }
+
+    public void setLastParticipantImage(String lastParticipantImage) {
+        this.lastParticipantImage = lastParticipantImage;
     }
 }
