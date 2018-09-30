@@ -1,6 +1,7 @@
 # Chat-Pod
 A Chat helepr that works with Fanap's POD Chat service.
 
+# Change Log
 All notable changes to this project will be documented [here](https://github.com/Sinarahimi/Chat-Pod/blob/develop/CHANGELOG.md).
 
 ### Prerequisites
