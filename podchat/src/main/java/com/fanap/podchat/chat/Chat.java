@@ -8,9 +8,11 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Handler;
+import android.os.Looper;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.content.CursorLoader;
 import android.util.Log;
 
@@ -110,6 +112,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.orhanobut.logger.AndroidLogAdapter;
 import com.orhanobut.logger.Logger;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
@@ -152,6 +155,8 @@ public class Chat extends AsyncAdapter {
     private ContactApi contactApi;
     private static HashMap<String, Callback> messageCallbacks;
     private static HashMap<Long, ArrayList<Callback>> threadCallbacks;
+    private static HashMap<String, ChatHandler> handlerSend;
+
     private boolean syncContact = false;
     private boolean state = false;
     private long lastSentMessageTime;
@@ -161,6 +166,7 @@ public class Chat extends AsyncAdapter {
     private boolean cache = false;
     private static final int TOKEN_ISSUER = 1;
     private Handler pingHandler;
+    private static final Handler sUIThreadHandler;
     private Context context;
     private boolean currentDeviceExist;
     private String fileServer;
@@ -182,6 +188,15 @@ public class Chat extends AsyncAdapter {
         return instance;
     }
 
+    public void isLoggable(boolean log) {
+        Logger.addLogAdapter(new AndroidLogAdapter() {
+            @Override
+            public boolean isLoggable(int priority, @Nullable String tag) {
+                return log;
+            }
+        });
+    }
+
     /**
      * Connect to the Async .
      *
@@ -200,6 +215,7 @@ public class Chat extends AsyncAdapter {
             pingHandler = new Handler();
             messageCallbacks = new HashMap<>();
             threadCallbacks = new HashMap<>();
+            handlerSend = new HashMap<>();
             async.addListener(this);
             RetrofitHelperPlatformHost retrofitHelperPlatformHost = new RetrofitHelperPlatformHost(platformHost);
             contactApi = retrofitHelperPlatformHost.getService(ContactApi.class);
@@ -213,6 +229,7 @@ public class Chat extends AsyncAdapter {
             if (BuildConfig.DEBUG) Logger.e(jsonError);
         }
     }
+
 
     /**
      * When state of the Async changed then the chat ping is stopped buy (chatState)flag
@@ -371,7 +388,7 @@ public class Chat extends AsyncAdapter {
      * @param threadId     Id of the destination thread
      * @param JsonMetaData It should be Json,if you don't have metaData you can set it to "null"
      */
-    public void sendTextMessage(String textMessage, long threadId, String JsonMetaData, SendTextMessageHandler handler) {
+    public void sendTextMessage(String textMessage, long threadId, String JsonMetaData, ChatHandler handler) {
 
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setContent(textMessage);
@@ -390,9 +407,13 @@ public class Chat extends AsyncAdapter {
 
         JsonAdapter<ChatMessage> chatMessageJsonAdapter = moshi.adapter(ChatMessage.class);
         String asyncContent = chatMessageJsonAdapter.toJson(chatMessage);
-
         setThreadCallbacks(threadId, uniqueId);
+
+//        handler.onSent(uniqueId, threadId, null);
         handler.onSent(uniqueId, threadId);
+        handler.onSentResult(null);
+        handlerSend.put(uniqueId, handler);
+
         sendAsyncMessage(asyncContent, 4, "SEND_TEXT_MESSAGE");
     }
 
@@ -472,7 +493,7 @@ public class Chat extends AsyncAdapter {
                     if (BuildConfig.DEBUG) Logger.e(jsonError);
                 }
             } else {
-                String jsonError = getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE);
+                String jsonError = getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION);
                 if (BuildConfig.DEBUG) Logger.e(jsonError);
             }
         } else {
@@ -518,7 +539,7 @@ public class Chat extends AsyncAdapter {
             }
 
         } else {
-            String jsonError = getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE);
+            String jsonError = getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION);
             if (BuildConfig.DEBUG) Logger.e(jsonError);
         }
     }
@@ -723,7 +744,7 @@ public class Chat extends AsyncAdapter {
         setCallBacks(null, null, null, true, Constants.DELETE_MESSAGE, null, uniqueId);
     }
 
-    //TODO implement cache
+    //TODO implement isCacheable
 
     /**
      * Get the list of threads or you can just pass the thread id that you want
@@ -825,7 +846,6 @@ public class Chat extends AsyncAdapter {
             jObj.remove("firstMessageId");
         }
 
-//        String content = gson.toJson();
         String uniqueId = getUniqueId();
 
         ChatMessage chatMessage = new ChatMessage();
@@ -1382,6 +1402,14 @@ public class Chat extends AsyncAdapter {
         return async.getStateLiveData();
     }
 
+    /*
+     * If you want to disable cache Set isCacheable to false
+     * */
+    public boolean isCacheable(boolean cache) {
+        this.cache = cache;
+        return cache;
+    }
+
     /**
      * Ping for staying chat alive
      */
@@ -1454,7 +1482,18 @@ public class Chat extends AsyncAdapter {
                 if (messageUniqueId.equals(callback.getUniqueId())) {
                     int indexUnique = callbacks.indexOf(callback);
                     if (callbacks.get(indexUnique).isSent()) {
+
+//                        ChatHandler channel = new ChatHandler() {};
+//                        channel.onSent(messageUniqueId,threadId,chatMessage.getContent());
                         listenerManager.callOnSentMessage(chatMessage.getContent());
+
+                        runOnUIThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                handlerSend.get(callback.getUniqueId()).onSentResult(chatMessage.getContent());
+                            }
+                        });
+
 
                         Callback callbackUpdateSent = new Callback();
                         callbackUpdateSent.setSent(false);
@@ -1470,6 +1509,19 @@ public class Chat extends AsyncAdapter {
                 }
             }
         }
+    }
+
+    static {
+        sUIThreadHandler = new Handler(Looper.getMainLooper());
+    }
+
+    protected static void runOnUIThread(Runnable runnable) {
+        if (sUIThreadHandler != null) {
+            sUIThreadHandler.post(runnable);
+        } else {
+            runnable.run();
+        }
+
     }
 
     private void handleSeen(ChatMessage chatMessage, String messageUniqueId, long threadId) {
@@ -1560,6 +1612,7 @@ public class Chat extends AsyncAdapter {
         JsonAdapter<List<Contact>> adapter = moshi.adapter(type);
         ArrayList<String> firstNames = new ArrayList<>();
         ArrayList<String> cellphoneNumbers = new ArrayList<>();
+        ArrayList<String> lastNames = new ArrayList<>();
         try {
             List<Contact> serverContacts = adapter.fromJson(chatMessage.getContent());
             if (serverContacts != null) {
@@ -1572,6 +1625,7 @@ public class Chat extends AsyncAdapter {
                     if (!mapServerContact.containsKey(phoneContacts.get(j).getCellphoneNumber())) {
                         firstNames.add(phoneContacts.get(j).getFirstName());
                         cellphoneNumbers.add(phoneContacts.get(j).getCellphoneNumber());
+                        lastNames.add(phoneContacts.get(j).getLastName());
                     }
                 }
             }
@@ -1646,7 +1700,7 @@ public class Chat extends AsyncAdapter {
 
                 if (callback.isResult()) {
                     String threadJson = reformatGetThreadsResponse(chatMessage, outPutThreads, callback);
-                    listenerManager.callOnGetThread(threadJson);
+                    listenerManager.callOnGetThread(threadJson, outPutThreads);
                     messageCallbacks.remove(messageUniqueId);
                     if (BuildConfig.DEBUG) Logger.i("RECEIVE_GET_THREAD");
                     if (BuildConfig.DEBUG) Logger.json(threadJson);
@@ -1973,16 +2027,22 @@ public class Chat extends AsyncAdapter {
      * Get the list of the Device Contact
      */
     private List<Contact> getPhoneContact(Context context) {
-        String name, phoneNumber;
+        String name, phoneNumber, lastName;
         Cursor cursor = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, null);
         if (cursor == null) throw new AssertionError();
         ArrayList<Contact> storeContacts = new ArrayList<>();
         while (cursor.moveToNext()) {
             name = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+            lastName = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.StructuredName.FAMILY_NAME));
             phoneNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
             Contact contact = new Contact();
+            char ch1 = phoneNumber.charAt(0);
+            if (Character.toString(ch1) != "+") {
+                contact.setCellphoneNumber(phoneNumber.replaceAll(Character.toString(ch1), "+98"));
+            }
             contact.setCellphoneNumber(phoneNumber.replaceAll(" ", ""));
             contact.setFirstName(name.replaceAll(" ", ""));
+            contact.setLastName(lastName.replaceAll(" ", ""));
             storeContacts.add(contact);
         }
         cursor.close();
@@ -2046,7 +2106,7 @@ public class Chat extends AsyncAdapter {
                 if (BuildConfig.DEBUG) Logger.e("FileServer url Is null");
             }
         } else {
-            String jsonError = getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE);
+            String jsonError = getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION);
             if (BuildConfig.DEBUG) Logger.e(jsonError);
         }
     }
@@ -2101,7 +2161,7 @@ public class Chat extends AsyncAdapter {
                 }, throwable -> Logger.e(throwable.getMessage()));
 
             } else {
-                String jsonError = getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE);
+                String jsonError = getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION);
                 if (BuildConfig.DEBUG) Logger.e(jsonError);
             }
         } else {
@@ -2234,7 +2294,7 @@ public class Chat extends AsyncAdapter {
         ResultThread resultThread = new ResultThread();
 
         Gson gson = new Gson();
-        Thread thread = gson.fromJson(chatMessage.getContent(),Thread.class);
+        Thread thread = gson.fromJson(chatMessage.getContent(), Thread.class);
 
         resultThread.setThread(thread);
         outPutThread.setHasError(false);
@@ -2423,5 +2483,7 @@ public class Chat extends AsyncAdapter {
 
     public interface SendTextMessageHandler {
         void onSent(String uniqueId, long threadId);
+
+        void onSentResult(String content);
     }
 }

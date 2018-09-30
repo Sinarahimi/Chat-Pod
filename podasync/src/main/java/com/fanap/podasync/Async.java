@@ -90,7 +90,7 @@ public class Async extends WebSocketAdapter {
             moshi = new Moshi.Builder().build();
             instance = new Async();
             asyncListenerManager = new AsyncListenerManager();
-            Logger.addLogAdapter(new AndroidLogAdapter());
+//            Logger.addLogAdapter(new AndroidLogAdapter());
         }
         return instance;
     }
@@ -111,7 +111,6 @@ public class Async extends WebSocketAdapter {
             type = clientMessage.getType();
         }
 
-//        scheduleCloseSocket();
         @AsyncMessageType.MessageType int currentMessageType = type;
         switch (currentMessageType) {
             case AsyncMessageType.MessageType.ACK:
@@ -253,6 +252,12 @@ public class Async extends WebSocketAdapter {
         }
     }
 
+    public void isLoggable(boolean log) {
+        if (log) {
+            Logger.addLogAdapter(new AndroidLogAdapter());
+        }
+    }
+
     public void connect(String socketServerAddress, final String appId, String serverName,
                         String token, String ssoHost, String deviceID) {
 
@@ -293,12 +298,6 @@ public class Async extends WebSocketAdapter {
                 return null;
             }
         };
-//        webSocketFactory.setSSLSocketFactory()
-//        SSLContext context =
-//
-////                NaiveSSLContext.getInstance("TLS");
-////        webSocketFactory.setSSLContext(context);
-////        webSocketFactory.setVerifyHostname(false);
         SSLSocketFactory.getDefault();
         saveDeviceId(deviceID);
         setAppId(appId);
@@ -313,6 +312,7 @@ public class Async extends WebSocketAdapter {
             webSocket.setMaxPayloadSize(100);
             webSocket.addExtension(WebSocketExtension.PERMESSAGE_DEFLATE);
             webSocket.connectAsynchronously();
+
         } catch (IOException e) {
             if (BuildConfig.DEBUG) Logger.e("Async: connect", e.getMessage());
         }
@@ -376,7 +376,7 @@ public class Async extends WebSocketAdapter {
         return stateLiveData;
     }
 
-    public void setStateLiveData(String state){
+    public void setStateLiveData(String state) {
         stateLiveData.postValue(state);
     }
 

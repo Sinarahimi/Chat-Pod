@@ -1,5 +1,8 @@
 package com.fanap.podchat.chat;
 
+import com.fanap.podchat.model.OutPutThread;
+import com.fanap.podchat.model.OutPutThreads;
+
 public class ChatAdapter implements ChatListener {
     @Override
     public void onDeliver(String content) {
@@ -21,7 +24,7 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onGetThread(String content) {
+    public void onGetThread(String content, OutPutThreads thread) {
 
     }
 

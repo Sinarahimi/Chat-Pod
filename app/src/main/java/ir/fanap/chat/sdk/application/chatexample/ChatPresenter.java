@@ -9,6 +9,7 @@ import android.widget.Toast;
 import com.fanap.podasync.util.JsonUtil;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatAdapter;
+import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
@@ -17,12 +18,12 @@ import com.fanap.podchat.mainmodel.SearchContact;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.model.MessageVO;
 import com.fanap.podchat.model.OutPutNewMessage;
+import com.fanap.podchat.model.OutPutThread;
+import com.fanap.podchat.model.OutPutThreads;
 import com.orhanobut.logger.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import ir.fanap.chat.sdk.R;
 
 public class ChatPresenter extends ChatAdapter implements ChatContract.presenter {
 
@@ -33,6 +34,19 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     public ChatPresenter(Context context, ChatContract.view view) {
         chat = Chat.init(context);
         chat.addListener(this);
+        chat.isCacheable(false);
+        chat.isLoggable(true);
+
+        chat.addListener(new ChatAdapter(){
+
+            @Override
+            public void onBlock(String content) {
+                super.onBlock(content);
+
+            }
+        });
+
+
         this.context = context;
         this.view = view;
     }
@@ -84,7 +98,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void sendTextMessage(String textMessage, long threadId, String metaData, Chat.SendTextMessageHandler handler) {
+    public void sendTextMessage(String textMessage, long threadId, String metaData, ChatHandler handler) {
         chat.sendTextMessage(textMessage, threadId, metaData, handler );
     }
 
@@ -225,8 +239,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void onGetThread(String content) {
-        super.onGetThread(content);
+    public void onGetThread(String content, OutPutThreads thread) {
+        super.onGetThread(content,thread);
         view.onGetThreadList();
     }
 

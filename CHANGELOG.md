@@ -22,11 +22,12 @@ All notable changes to this project will be documented here.
      to *CHAT_READY* when respond of the *getUserInfo* is received.
 -   [BugFix]  Add some field that added to the respond of the create thread
 -   [Add]  Now u can get instance unique id when u send text message.
+-   [Add]  If you want to disable/hide logs for output set *isLoggable* false.
+-   [Add]  If you want to disable *cache* set *cache* false.
 
 ## Version [0.1.2.4] -2018-09-15
 -   [BugFix]OnError Listener
 -   [BugFix]Create Thread 
-
 
 ## Version [0.1.2.3] -2018-09-03
 -   [Add]Implement Cache for get Contact
@@ -34,7 +35,6 @@ All notable changes to this project will be documented here.
 -   [Add]Get file
 -   [Add]Get Image
 -   [BugFix]You can get CHAT_READY on Live State
-
 
 ## Version [0.1.2.1] -2018-08-19
 -   [Add]Map Routing
@@ -44,7 +44,6 @@ All notable changes to this project will be documented here.
 -   [Add]GetBlockList
 -   [Add]Search Contact
 -   [Add]Search History
-
 
 ## Version [0.0.7.1] -2018-07-30
 

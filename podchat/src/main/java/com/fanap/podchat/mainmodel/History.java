@@ -93,5 +93,3 @@ public class History {
         this.lastMessageId = lastMessageId;
     }
 }
-
-//{"type":15,"token":"7cba09ff83554fc98726430c30afcfc6","tokenIssuer":1,"subjectId":293,"content":"{\"count\":50,\"offset\":0,\"\":15113,\"lastMessageId\":15150}","uniqueId":"f1bf0790-a96f-48c3-b5d0-2b019f1a50ad"}

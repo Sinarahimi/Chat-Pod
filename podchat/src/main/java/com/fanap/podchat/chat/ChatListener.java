@@ -1,5 +1,8 @@
 package com.fanap.podchat.chat;
 
+import com.fanap.podchat.model.OutPutThread;
+import com.fanap.podchat.model.OutPutThreads;
+
 public interface ChatListener {
 
     void onDeliver(String content);
@@ -10,7 +13,7 @@ public interface ChatListener {
 
     void onGetHistory(String content);
 
-    void onGetThread(String content);
+    void onGetThread(String content, OutPutThreads thread);
 
     void onThreadInfoUpdated(String content);
 

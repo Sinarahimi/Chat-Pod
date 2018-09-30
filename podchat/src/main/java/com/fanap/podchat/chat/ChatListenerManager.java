@@ -1,5 +1,8 @@
 package com.fanap.podchat.chat;
 
+import com.fanap.podchat.model.OutPutThread;
+import com.fanap.podchat.model.OutPutThreads;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -103,9 +106,9 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnGetThread(String content) {
+    public void callOnGetThread(String content, OutPutThreads thread) {
         for (ChatListener listener : getSynchronizedListeners()) {
-            listener.onGetThread(content);
+            listener.onGetThread(content, thread);
         }
     }
 

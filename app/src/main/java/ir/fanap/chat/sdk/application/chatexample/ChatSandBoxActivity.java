@@ -101,7 +101,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 //    private static String name = "Alexi";
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "c5bd4735594e45e0a55f59161bbda483";
+    private static String TOKEN = "e5b1ada31f994db19482fbdc5d55886e";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -407,13 +407,13 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
         Inviter inviter = new Inviter();
         inviter.setName("sina");
         String meta = JsonUtil.getJson(inviter);
-        presenter.sendTextMessage("test at" + " " + new Date().getTime() + name
-                , 543, meta, new Chat.SendTextMessageHandler() {
-                    @Override
-                    public void onSent(String uniqueId, long threadId) {
-                        Toast.makeText(ChatSandBoxActivity.this,uniqueId +""+ threadId,Toast.LENGTH_LONG).show();
-                    }
-                });
+//        presenter.sendTextMessage("test at" + " " + new Date().getTime() + name
+//                , 543, meta, new Chat.SendTextMessageHandler() {
+//                    @Override
+//                    public void onSent(String uniqueId, long threadId) {
+//                        Toast.makeText(ChatSandBoxActivity.this,uniqueId +""+ threadId,Toast.LENGTH_LONG).show();
+//                    }
+//                });
 
 
 // String text = editText.getText().toString();

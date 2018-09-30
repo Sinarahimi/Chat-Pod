@@ -6,6 +6,7 @@ import android.content.Context;
 import android.net.Uri;
 
 import com.fanap.podchat.chat.Chat;
+import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
@@ -98,7 +99,7 @@ public interface ChatContract {
 
         void createThread(int threadType, Invitee[] invitee, String threadTitle);
 
-        void sendTextMessage(String textMessage, long threadId, String metaData,Chat.SendTextMessageHandler handler);
+        void sendTextMessage(String textMessage, long threadId, String metaData, ChatHandler handler);
 
         void replyMessage(String messageContent, long threadId, long messageId);
 

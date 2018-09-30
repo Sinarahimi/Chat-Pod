@@ -14,9 +14,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.fanap.podasync.util.JsonUtil;
 import com.fanap.podchat.chat.Chat;
+import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.Inviter;
@@ -91,10 +93,10 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 //    private String name = "Fifi";
 //    private static String TOKEN = "5fb88da4c6914d07a501a76d68a62363";
 
-    private String name = "jiji";
-    private static String TOKEN = "fbd4ecedb898426394646e65c6b1d5d1";
-//    private String name = "zizi";
-//    private static String TOKEN = "7cba09ff83554fc98726430c30afcfc6";
+//    private String name = "jiji";
+//    private static String TOKEN = "fbd4ecedb898426394646e65c6b1d5d1";
+    private String name = "zizi";
+    private static String TOKEN = "7cba09ff83554fc98726430c30afcfc6";
     //Token Alexi
 //    private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
 //    private static String name = "Alexi";
@@ -406,6 +408,25 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
         Inviter inviter = new Inviter();
         inviter.setName("sina");
         String meta = JsonUtil.getJson(inviter);
+
+        presenter.sendTextMessage("test at" + " " + new Date().getTime() + name
+                , 312, meta, new ChatHandler() {
+                    @Override
+                    public void onSent(String uniqueId, long threadId) {
+                        super.onSent(uniqueId, threadId);
+                        Toast.makeText(ChatActivity.this,"its worked",Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onSentResult(String content) {
+                        super.onSentResult(content);
+                        if (content != null) {
+                            Toast.makeText(ChatActivity.this,"no null",Toast.LENGTH_SHORT).show();
+
+                        }
+                    }
+                });
+
 //        presenter.sendTextMessage("test at" + " " + new Date().getTime() + name
 //                , 312, meta, new Chat.SendTextMessageHandler() {
 //                    @Override

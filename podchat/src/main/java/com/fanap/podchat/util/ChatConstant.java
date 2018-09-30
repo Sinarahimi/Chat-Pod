@@ -7,7 +7,7 @@ public class ChatConstant {
     public static final int ERROR_CODE_CURRENT_DEVICE = 6004;
     public static final int ERROR_CODE_CHECK_URL = 6005;
     public static final int ERROR_CODE_READ_CONTACT_PERMISSION = 6006;
-    public static final int ERROR_CODE_READ_EXTERNAL_STORAGE = 6007;
+    public static final int ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION = 6007;
     public static final int ERROR_CODE_CANT_GET_USER_INFO = 6100;
     public static final int ERROR_CODE_CONNECTION_NOT_ESTABLISHED = 6101;
     public static final int ERROR_CODE_NETWORK_ERROR = 6200;
