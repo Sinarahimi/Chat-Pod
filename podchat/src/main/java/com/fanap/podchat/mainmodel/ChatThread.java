@@ -1,5 +1,6 @@
 package com.fanap.podchat.mainmodel;
 
+import java.io.Serializable;
 import java.util.List;
 /**
  * + CreateThreadRequest    {object}
@@ -10,7 +11,7 @@ import java.util.List;
  *    - title               {string}
  *    - type                {int} ** createThreadTypes
  */
-public class ChatThread {
+public class ChatThread implements Serializable {
 
     private int type;
     private String ownerSsoId;

@@ -3,7 +3,9 @@ package com.fanap.podchat.mainmodel;
 import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.PrimaryKey;
 
-public class Participant {
+import java.io.Serializable;
+
+public class Participant implements Serializable {
     @PrimaryKey
     private long id;
     @Embedded(prefix = "participant_")

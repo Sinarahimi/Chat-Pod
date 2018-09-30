@@ -8,7 +8,9 @@ import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.model.ForwardInfo;
 import com.fanap.podchat.model.ReplyInfoVO;
 
-public class LastMessageVO {
+import java.io.Serializable;
+
+public class LastMessageVO implements Serializable {
     @ColumnInfo(name = "last_message_vo_id")
     private long id;
     private String uniqueId;

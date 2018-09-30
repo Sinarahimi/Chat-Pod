@@ -2,7 +2,9 @@ package com.fanap.podchat.mainmodel;
 
 import android.arch.persistence.room.ColumnInfo;
 
-public class LinkedUser {
+import java.io.Serializable;
+
+public class LinkedUser implements Serializable {
     @ColumnInfo(name = "linkedUser_id")
     private long id;
     private String username;

@@ -1,7 +1,20 @@
 package com.fanap.podchat.chat;
 
+import com.fanap.podchat.model.ErrorOutPut;
+import com.fanap.podchat.model.OutPutAddParticipant;
+import com.fanap.podchat.model.OutPutBlock;
+import com.fanap.podchat.model.OutPutBlockList;
+import com.fanap.podchat.model.OutPutContact;
+import com.fanap.podchat.model.OutPutDeleteMessage;
+import com.fanap.podchat.model.OutPutHistory;
+import com.fanap.podchat.model.OutPutLeaveThread;
+import com.fanap.podchat.model.OutPutMapNeshan;
+import com.fanap.podchat.model.OutPutMute;
+import com.fanap.podchat.model.OutPutNewMessage;
+import com.fanap.podchat.model.OutPutParticipant;
 import com.fanap.podchat.model.OutPutThread;
 import com.fanap.podchat.model.OutPutThreads;
+import com.fanap.podchat.model.OutPutUserInfo;
 
 public class ChatAdapter implements ChatListener {
     @Override
@@ -10,16 +23,16 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onError(String content) {
+    public void onError(String content,ErrorOutPut errorOutPut) {
     }
 
     @Override
-    public void onGetContacts(String content) {
+    public void onGetContacts(String contentm, OutPutContact outPutContact) {
 
     }
 
     @Override
-    public void onGetHistory(String content) {
+    public void onGetHistory(String content, OutPutHistory history) {
 
     }
 
@@ -34,12 +47,12 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onBlock(String content) {
+    public void onBlock(String content,OutPutBlock outPutBlock) {
 
     }
 
     @Override
-    public void onUnBlock(String content) {
+    public void onUnBlock(String content,OutPutBlock outPutBlock) {
 
     }
 
@@ -49,17 +62,17 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onMuteThread(String content) {
+    public void onMuteThread(String content, OutPutMute outPutMute) {
 
     }
 
     @Override
-    public void onUnmuteThread(String content) {
+    public void onUnmuteThread(String content, OutPutMute outPutUnMute) {
 
     }
 
     @Override
-    public void onUserInfo(String content) {
+    public void onUserInfo(String content, OutPutUserInfo outPutUserInfo) {
 
     }
 
@@ -69,12 +82,12 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onCreateThread(String content) {
+    public void onCreateThread(String content, OutPutThread outPutThread) {
 
     }
 
     @Override
-    public void onGetThreadParticipant(String content) {
+    public void onGetThreadParticipant(String content, OutPutParticipant outPutParticipant) {
 
     }
 
@@ -99,12 +112,12 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onRenameThread(String content) {
+    public void onRenameThread(String content, OutPutThread outPutThread) {
 
     }
 
     @Override
-    public void onMapSearch(String content) {
+    public void onMapSearch(String content, OutPutMapNeshan outPutMapNeshan) {
 
     }
 
@@ -114,12 +127,12 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onNewMessage(String content) {
+    public void onNewMessage(String content,OutPutNewMessage outPutNewMessage) {
 
     }
 
     @Override
-    public void onDeleteMessage(String content) {
+    public void onDeleteMessage(String content, OutPutDeleteMessage outPutDeleteMessage) {
 
     }
 
@@ -144,17 +157,17 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onThreadAddParticipant(String content) {
+    public void onThreadAddParticipant(String content, OutPutAddParticipant outPutAddParticipant) {
 
     }
 
     @Override
-    public void onThreadRemoveParticipant(String content) {
+    public void onThreadRemoveParticipant(String content, OutPutParticipant outPutParticipant) {
 
     }
 
     @Override
-    public void onThreadLeaveParticipant(String content) {
+    public void onThreadLeaveParticipant(String content, OutPutLeaveThread outPutLeaveThread) {
 
     }
 
@@ -169,7 +182,7 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onGetBlockList(String content) {
+    public void onGetBlockList(String content,OutPutBlockList outPutBlockList) {
 
     }
 

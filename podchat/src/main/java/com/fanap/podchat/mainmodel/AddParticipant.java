@@ -1,6 +1,8 @@
 package com.fanap.podchat.mainmodel;
 
-public class AddParticipant {
+import java.io.Serializable;
+
+public class AddParticipant implements Serializable {
     private long subjectId;
     private String uniqueId;
     private String content;

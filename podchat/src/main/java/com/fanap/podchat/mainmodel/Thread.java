@@ -8,10 +8,11 @@ import android.arch.persistence.room.TypeConverters;
 
 import com.fanap.podchat.util.DataTypeConverter;
 
+import java.io.Serializable;
 import java.util.List;
 
 @Entity
-public class Thread {
+public class Thread implements Serializable {
     @PrimaryKey
     private long id;
     private long joinDate;

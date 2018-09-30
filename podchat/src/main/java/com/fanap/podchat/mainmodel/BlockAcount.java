@@ -1,6 +1,8 @@
 package com.fanap.podchat.mainmodel;
 
-public class BlockAcount {
+import java.io.Serializable;
+
+public class BlockAcount implements Serializable {
     private long contactId;
     private long threadId;
 

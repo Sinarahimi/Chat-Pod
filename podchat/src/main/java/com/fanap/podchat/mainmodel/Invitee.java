@@ -1,6 +1,8 @@
 package com.fanap.podchat.mainmodel;
 
-public class Invitee {
+import java.io.Serializable;
+
+public class Invitee implements Serializable {
 
     private long id;
     private int idType;

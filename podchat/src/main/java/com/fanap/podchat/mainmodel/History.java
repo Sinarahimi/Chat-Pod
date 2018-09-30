@@ -1,6 +1,8 @@
 package com.fanap.podchat.mainmodel;
 
-public class History {
+import java.io.Serializable;
+
+public class History implements Serializable {
     private long offset;
     private long count;
     private String order;

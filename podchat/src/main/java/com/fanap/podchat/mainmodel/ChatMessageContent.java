@@ -2,11 +2,12 @@ package com.fanap.podchat.mainmodel;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /** [ asc | desc ] change sort of order message. default is desc */
-public class ChatMessageContent {
+public class ChatMessageContent implements Serializable {
     private long count;
     private String name;
     @SerializedName("new")

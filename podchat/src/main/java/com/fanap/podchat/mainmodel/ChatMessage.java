@@ -1,6 +1,8 @@
 package com.fanap.podchat.mainmodel;
 
-public class ChatMessage {
+import java.io.Serializable;
+
+public class ChatMessage implements Serializable {
     private String token;
     private String tokenIssuer;
     private int type;

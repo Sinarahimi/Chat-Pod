@@ -1,6 +1,8 @@
 package com.fanap.podchat.mainmodel;
 
-public class UserInfo {
+import java.io.Serializable;
+
+public class UserInfo implements Serializable {
     private long id;
     private boolean sendEnable;
     private boolean receiveEnable;

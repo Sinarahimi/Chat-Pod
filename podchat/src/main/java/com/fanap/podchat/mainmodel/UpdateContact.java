@@ -2,9 +2,10 @@ package com.fanap.podchat.mainmodel;
 
 import com.fanap.podchat.model.ResultContacts;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class UpdateContact {
+public class UpdateContact implements Serializable {
     private Boolean hasError;
     private String referenceNumber;
     private String message;

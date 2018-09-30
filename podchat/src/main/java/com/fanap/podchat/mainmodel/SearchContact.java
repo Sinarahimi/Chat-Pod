@@ -2,7 +2,9 @@ package com.fanap.podchat.mainmodel;
 
 import com.google.gson.annotations.SerializedName;
 
-public class SearchContact {
+import java.io.Serializable;
+
+public class SearchContact implements Serializable {
     private String firstName;
     private String lastName;
     private String cellphoneNumber;

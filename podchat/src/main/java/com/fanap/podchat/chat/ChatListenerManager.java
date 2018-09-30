@@ -1,7 +1,20 @@
 package com.fanap.podchat.chat;
 
+import com.fanap.podchat.model.ErrorOutPut;
+import com.fanap.podchat.model.OutPutAddParticipant;
+import com.fanap.podchat.model.OutPutBlock;
+import com.fanap.podchat.model.OutPutBlockList;
+import com.fanap.podchat.model.OutPutContact;
+import com.fanap.podchat.model.OutPutDeleteMessage;
+import com.fanap.podchat.model.OutPutHistory;
+import com.fanap.podchat.model.OutPutLeaveThread;
+import com.fanap.podchat.model.OutPutMapNeshan;
+import com.fanap.podchat.model.OutPutMute;
+import com.fanap.podchat.model.OutPutNewMessage;
+import com.fanap.podchat.model.OutPutParticipant;
 import com.fanap.podchat.model.OutPutThread;
 import com.fanap.podchat.model.OutPutThreads;
+import com.fanap.podchat.model.OutPutUserInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -108,19 +121,33 @@ public class ChatListenerManager {
 
     public void callOnGetThread(String content, OutPutThreads thread) {
         for (ChatListener listener : getSynchronizedListeners()) {
-            listener.onGetThread(content, thread);
+            try {
+                listener.onGetThread(content, thread);
+
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
         }
     }
 
-    public void callOnGetThreadHistory(String content) {
+    public void callOnGetThreadHistory(String content, OutPutHistory history) {
         for (ChatListener listener : getSynchronizedListeners()) {
-            listener.onGetHistory(content);
+            try {
+                listener.onGetHistory(content, history);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
         }
     }
 
-    public void callOnGetContacts(String content) {
+    public void callOnGetContacts(String content, OutPutContact outPutContact) {
         for (ChatListener listener : getSynchronizedListeners()) {
-            listener.onGetContacts(content);
+            try {
+
+                listener.onGetContacts(content, outPutContact);
+            } catch (Throwable t) {
+                callHandleCallbackError(listener, t);
+            }
         }
     }
 
@@ -154,20 +181,20 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnError(String content) {
+    public void callOnError(String content, ErrorOutPut errorOutPut) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onError(content);
+                listener.onError(content, errorOutPut);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
         }
     }
 
-    public void callOnGetThreadParticipant(String content) {
+    public void callOnGetThreadParticipant(String content, OutPutParticipant outPutParticipant) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onGetThreadParticipant(content);
+                listener.onGetThreadParticipant(content, outPutParticipant);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
@@ -211,40 +238,40 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnMuteThread(String content) {
+    public void callOnMuteThread(String content, OutPutMute outPut) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onMuteThread(content);
+                listener.onMuteThread(content, outPut);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
         }
     }
 
-    public void callOnUnmuteThread(String content) {
+    public void callOnUnmuteThread(String content, OutPutMute outPut) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onUnmuteThread(content);
+                listener.onUnmuteThread(content, outPut);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
         }
     }
 
-    public void callOnUserInfo(String content) {
+    public void callOnUserInfo(String content, OutPutUserInfo outPutUserInfo) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onUserInfo(content);
+                listener.onUserInfo(content, outPutUserInfo);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
         }
     }
 
-    public void callOnCreateThread(String content) {
+    public void callOnCreateThread(String content, OutPutThread outPutThread) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onCreateThread(content);
+                listener.onCreateThread(content, outPutThread);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
@@ -261,20 +288,20 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnRenameThread(String content) {
+    public void callOnRenameThread(String content, OutPutThread outPutThread) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onRenameThread(content);
+                listener.onRenameThread(content, outPutThread);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
         }
     }
 
-    public void callOnNewMessage(String content) {
+    public void callOnNewMessage(String content, OutPutNewMessage outPutNewMessage) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onNewMessage(content);
+                listener.onNewMessage(content, outPutNewMessage);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
@@ -311,40 +338,40 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnThreadAddParticipant(String content) {
+    public void callOnThreadAddParticipant(String content, OutPutAddParticipant outPutAddParticipant) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onThreadAddParticipant(content);
+                listener.onThreadAddParticipant(content, outPutAddParticipant);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
         }
     }
 
-    public void callOnThreadRemoveParticipant(String content) {
+    public void callOnThreadRemoveParticipant(String content, OutPutParticipant outPutParticipant) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onThreadRemoveParticipant(content);
+                listener.onThreadRemoveParticipant(content, outPutParticipant);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
         }
     }
 
-    public void callOnThreadLeaveParticipant(String content) {
+    public void callOnThreadLeaveParticipant(String content, OutPutLeaveThread outPutLeaveThread) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onThreadLeaveParticipant(content);
+                listener.onThreadLeaveParticipant(content, outPutLeaveThread);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
         }
     }
 
-    public void callOnDeleteMessage(String content) {
+    public void callOnDeleteMessage(String content, OutPutDeleteMessage outPutDeleteMessage) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onDeleteMessage(content);
+                listener.onDeleteMessage(content, outPutDeleteMessage);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
@@ -381,10 +408,10 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnMapSearch(String content) {
+    public void callOnMapSearch(String content, OutPutMapNeshan outPutMapNeshan) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onMapSearch(content);
+                listener.onMapSearch(content, outPutMapNeshan);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
@@ -401,30 +428,30 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnBlock(String content) {
+    public void callOnBlock(String content, OutPutBlock outPutBlock) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onBlock(content);
+                listener.onBlock(content, outPutBlock);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
         }
     }
 
-    public void callOnUnBlock(String content) {
+    public void callOnUnBlock(String content, OutPutBlock outPutBlock) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onUnBlock(content);
+                listener.onUnBlock(content, outPutBlock);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
         }
     }
 
-    public void callOnGetBlockList(String content) {
+    public void callOnGetBlockList(String content, OutPutBlockList outPutBlockList) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onGetBlockList(content);
+                listener.onGetBlockList(content, outPutBlockList);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }

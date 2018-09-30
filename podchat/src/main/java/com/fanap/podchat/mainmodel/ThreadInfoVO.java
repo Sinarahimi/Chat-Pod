@@ -1,6 +1,8 @@
 package com.fanap.podchat.mainmodel;
 
-public class ThreadInfoVO {
+import java.io.Serializable;
+
+public class ThreadInfoVO implements Serializable {
     private String image;
     private String description;
     private String metadata;

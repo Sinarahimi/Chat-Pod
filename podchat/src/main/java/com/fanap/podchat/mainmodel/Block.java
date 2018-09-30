@@ -1,6 +1,8 @@
 package com.fanap.podchat.mainmodel;
 
-public class Block {
+import java.io.Serializable;
+
+public class Block implements Serializable {
     private long id;
     private String name;
     private String profileImage;

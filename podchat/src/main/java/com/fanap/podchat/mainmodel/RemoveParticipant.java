@@ -1,6 +1,8 @@
 package com.fanap.podchat.mainmodel;
 
-public class RemoveParticipant{
+import java.io.Serializable;
+
+public class RemoveParticipant implements Serializable{
 
     private String content;
     private String token;

@@ -4,8 +4,10 @@ import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 
+import java.io.Serializable;
+
 @Entity
-public class Contact {
+public class Contact implements Serializable {
     @PrimaryKey
     private long id;
     private String firstName;

@@ -4,7 +4,9 @@ import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.PrimaryKey;
 
-public class Inviter {
+import java.io.Serializable;
+
+public class Inviter implements Serializable {
     @ColumnInfo(name = "inviter_id")
     private long id;
     private String name;

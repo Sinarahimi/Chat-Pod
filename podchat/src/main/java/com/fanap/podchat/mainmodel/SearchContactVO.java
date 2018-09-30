@@ -1,8 +1,9 @@
 package com.fanap.podchat.mainmodel;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class SearchContactVO {
+public class SearchContactVO implements Serializable {
     private Boolean hasError;
     private String referenceNumber;
     private Integer errorCode;

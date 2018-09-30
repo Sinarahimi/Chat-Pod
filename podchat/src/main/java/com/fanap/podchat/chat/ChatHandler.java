@@ -9,4 +9,6 @@ public abstract class ChatHandler {
     }
 
     public void onDelivered(String i){}
+
+    public void onGetThread(String uniqueId){}
 }
