@@ -1,6 +1,8 @@
 # Chat-Pod
 A Chat helepr that works with Fanap's POD Chat service.
 
+All notable changes to this project will be documented [here](https://github.com/Sinarahimi/Chat-Pod/blob/develop/CHANGELOG.md).
+
 ### Prerequisites
 
 You need to Add this module to your project and after that set the `internet` permission in the manifest.
