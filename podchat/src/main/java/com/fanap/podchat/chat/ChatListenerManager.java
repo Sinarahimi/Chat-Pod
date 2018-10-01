@@ -67,7 +67,6 @@ public class ChatListenerManager {
         }
     }
 
-
     public void removeListeners(List<ChatListener> listeners) {
         if (listeners == null) {
             return;
@@ -85,7 +84,6 @@ public class ChatListenerManager {
             }
         }
     }
-
 
     public void clearListeners() {
         synchronized (mListeners) {

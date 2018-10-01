@@ -24,6 +24,7 @@ All notable changes to this project will be documented here.
 -   [Add]  Now you can get instant unique id when you send text messages
 -   [Add]  If you want to disable/hide logs for output set *isLoggable* false.
 -   [Add]  If you want to disable *cache* set *cache* attribute as false.
+-   [Deprecated] The `renameThread` is going to deprecated in the next version.
 
 ## Version [0.1.2.4] -2018-09-15
 -   [BugFix]OnError Listener

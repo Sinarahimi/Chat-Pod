@@ -19,69 +19,131 @@ import com.fanap.podchat.model.OutPutUserInfo;
 public interface ChatListener {
 
 
-    void onError(String content, ErrorOutPut errorOutPut);
+    void onError(String content, ErrorOutPut OutPutError);
 
-    void onGetContacts(String content, OutPutContact outPutContact);
+    default void onGetContacts(String content, OutPutContact outPutContact) {
 
-    void onGetHistory(String content, OutPutHistory history);
+    }
 
-    void onGetThread(String content, OutPutThreads thread);
+    default void onGetHistory(String content, OutPutHistory history) {
 
-    void onThreadInfoUpdated(String content);
+    }
 
-    void onBlock(String content, OutPutBlock outPutBlock);
+    default void onGetThread(String content, OutPutThreads thread) {
 
-    void onUnBlock(String content, OutPutBlock outPutBlock);
+    }
 
-    void onSeen(String content);
+    default void onThreadInfoUpdated(String content) {
 
-    void onDeliver(String content);
+    }
 
-    void onSent(String content);
+    default void onBlock(String content, OutPutBlock outPutBlock) {
 
-    void onMuteThread(String content, OutPutMute outPutMute);
+    }
 
-    void onUnmuteThread(String content, OutPutMute outPutUnMute);
+    default void onUnBlock(String content, OutPutBlock outPutBlock) {
 
-    void onUserInfo(String content, OutPutUserInfo outPutUserInfo);
+    }
 
-    void onCreateThread(String content, OutPutThread outPutThread);
+    default void onSeen(String content) {
 
-    void onGetThreadParticipant(String content, OutPutParticipant outPutParticipant);
+    }
 
-    void onEditedMessage(String content);
+    default void onDeliver(String content) {
 
-    void onContactAdded(String content);
+    }
 
-    void handleCallbackError(Throwable cause) throws Exception;
+    default void onSent(String content) {
 
-    void onRemoveContact(String content);
+    }
 
-    void onRenameThread(String content, OutPutThread outPutThread);
+    default void onMuteThread(String content, OutPutMute outPutMute) {
 
-    void onMapSearch(String content, OutPutMapNeshan outPutMapNeshan);
+    }
 
-    void onMapRouting(String content);
+    default void onUnmuteThread(String content, OutPutMute outPutUnMute) {
 
-    void onNewMessage(String content, OutPutNewMessage outPutNewMessage);
+    }
 
-    void onDeleteMessage(String content, OutPutDeleteMessage outPutDeleteMessage);
+    default void onUserInfo(String content, OutPutUserInfo outPutUserInfo) {
 
-    void onUpdateContact(String content);
+    }
 
-    void onUploadFile(String content);
+    default void onCreateThread(String content, OutPutThread outPutThread) {
 
-    void onUploadImageFile(String content);
+    }
 
-    void onSyncContact(String content);
+    default void onGetThreadParticipant(String content, OutPutParticipant outPutParticipant) {
 
-    void onSearchContact(String content);
+    }
 
-    void onThreadAddParticipant(String content, OutPutAddParticipant outPutAddParticipant);
+    default void onEditedMessage(String content) {
 
-    void onThreadRemoveParticipant(String content, OutPutParticipant outPutParticipant);
+    }
 
-    void onThreadLeaveParticipant(String content, OutPutLeaveThread outPutLeaveThread);
+    default void onContactAdded(String content) {
+
+    }
+
+    default void handleCallbackError(Throwable cause) throws Exception {
+
+    }
+
+    default void onRemoveContact(String content) {
+
+    }
+
+    default void onRenameThread(String content, OutPutThread outPutThread) {
+
+    }
+
+    default void onMapSearch(String content, OutPutMapNeshan outPutMapNeshan) {
+
+    }
+
+    default void onMapRouting(String content) {
+
+    }
+
+    default void onNewMessage(String content, OutPutNewMessage outPutNewMessage) {
+
+    }
+
+    default void onDeleteMessage(String content, OutPutDeleteMessage outPutDeleteMessage) {
+
+    }
+
+    default void onUpdateContact(String content) {
+
+    }
+
+    default void onUploadFile(String content) {
+
+    }
+
+    default void onUploadImageFile(String content) {
+
+    }
+
+    default void onSyncContact(String content) {
+
+    }
+
+    default void onSearchContact(String content) {
+
+    }
+
+    default void onThreadAddParticipant(String content, OutPutAddParticipant outPutAddParticipant) {
+
+    }
+
+    default void onThreadRemoveParticipant(String content, OutPutParticipant outPutParticipant) {
+
+    }
+
+    default void onThreadLeaveParticipant(String content, OutPutLeaveThread outPutLeaveThread) {
+
+    }
 
     void onLastSeenUpdated(String content);
 

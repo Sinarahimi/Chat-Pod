@@ -3,13 +3,13 @@ package com.fanap.podchat.mainmodel;
 import com.fanap.podchat.model.DeleteMessageContent;
 
 public class ResultDeleteMessage {
-    private DeleteMessageContent deleteMessage;
+    private DeleteMessageContent deletedMessage;
 
-    public DeleteMessageContent getDeleteMessageContent() {
-        return deleteMessage;
+    public DeleteMessageContent getDeletedMessage() {
+        return deletedMessage;
     }
 
-    public void setDeleteMessageContent(DeleteMessageContent deleteMessageContent) {
-        this.deleteMessage = deleteMessageContent;
+    public void setDeletedMessage(DeleteMessageContent deleteMessageContent) {
+        this.deletedMessage = deleteMessageContent;
     }
 }

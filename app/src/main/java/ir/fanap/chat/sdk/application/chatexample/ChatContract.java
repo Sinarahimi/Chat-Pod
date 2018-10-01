@@ -12,6 +12,7 @@ import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.SearchContact;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
+import com.fanap.podchat.model.ErrorOutPut;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +20,9 @@ import java.util.List;
 public interface ChatContract {
     interface view {
 
-        void onGetUserInfo();
+        default void onGetUserInfo() {
+
+        }
 
         void onGetThreadList();
 
@@ -76,6 +79,8 @@ public interface ChatContract {
         void onMapSearch();
 
         void onMapRouting();
+
+        void onError();
     }
 
     interface presenter {
@@ -87,33 +92,33 @@ public interface ChatContract {
 
         void mapRouting(String origin, String destination);
 
-        void getThread(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName);
+        void getThread(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName,ChatHandler handler);
 
-        void getUserInfo();
+        void getUserInfo(ChatHandler handler);
 
-        void getHistory(History history, long threadId);
+        void getHistory(History history, long threadId,ChatHandler handler);
 
-        void searchHistory(NosqlListMessageCriteriaVO messageCriteriaVO);
+        void searchHistory(NosqlListMessageCriteriaVO messageCriteriaVO,ChatHandler handler);
 
-        void getContact(Integer count, Long offset);
+        void getContact(Integer count, Long offset,ChatHandler handler);
 
-        void createThread(int threadType, Invitee[] invitee, String threadTitle);
+        void createThread(int threadType, Invitee[] invitee, String threadTitle,ChatHandler handler);
 
         void sendTextMessage(String textMessage, long threadId, String metaData, ChatHandler handler);
 
-        void replyMessage(String messageContent, long threadId, long messageId);
+        void replyMessage(String messageContent, long threadId, long messageId,ChatHandler handler);
 
         LiveData<String> getLiveState();
 
-        void muteThread(int threadId);
+        void muteThread(int threadId,ChatHandler handler);
 
-        void renameThread(long threadId, String title);
+        void renameThread(long threadId, String title,ChatHandler handler);
 
-        void unMuteThread(int threadId);
+        void unMuteThread(int threadId,ChatHandler handler);
 
-        void editMessage(int messageId, String messageContent);
+        void editMessage(int messageId, String messageContent,ChatHandler handler);
 
-        void getThreadParticipant(int count, Long offset, long threadId);
+        void getThreadParticipant(int count, Long offset, long threadId,ChatHandler handler);
 
         void addContact(String firstName, String lastName, String cellphoneNumber, String email);
 
@@ -121,11 +126,11 @@ public interface ChatContract {
 
         void searchContact(SearchContact searchContact);
 
-        void block(Long contactId);
+        void block(Long contactId,ChatHandler handler);
 
-        void unBlock(long contactId);
+        void unBlock(long contactId,ChatHandler handler);
 
-        void getBlockList(Integer count, Integer offset);
+        void getBlockList(Integer count, Integer offset,ChatHandler handler);
 
         void sendFileMessage(Context context, Activity activity, String description, long threadId, Uri fileUri, String metaData);
 
@@ -139,19 +144,19 @@ public interface ChatContract {
 
         void uploadFile(Context context, Activity activity, String fileUri, Uri uri);
 
-        void seenMessage(int messageId, long ownerId);
+        void seenMessage(int messageId, long ownerId,ChatHandler handler);
 
         void logOut();
 
-        void removeParticipants(long threadId, List<Long> participantIds);
+        void removeParticipants(long threadId, List<Long> participantIds,ChatHandler handler);
 
-        void addParticipants(long threadId, List<Long> contactIds);
+        void addParticipants(long threadId, List<Long> contactIds,ChatHandler handler);
 
-        void leaveThread(long threadId);
+        void leaveThread(long threadId,ChatHandler handler);
 
-        void updateThreadInfo(long threadId, ThreadInfoVO threadInfoVO);
+        void updateThreadInfo(long threadId, ThreadInfoVO threadInfoVO,ChatHandler handler);
 
-        void deleteMessage(long messageId, Boolean deleteForAll);
+        void deleteMessage(long messageId, Boolean deleteForAll,ChatHandler handler);
 
     }
 }

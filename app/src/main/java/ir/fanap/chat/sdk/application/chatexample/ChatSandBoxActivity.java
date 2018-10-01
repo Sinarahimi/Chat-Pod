@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.fanap.podasync.util.JsonUtil;
 import com.fanap.podchat.chat.Chat;
+import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
 import com.fanap.podchat.mainmodel.Inviter;
@@ -101,7 +102,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 //    private static String name = "Alexi";
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "e5b1ada31f994db19482fbdc5d55886e";
+    private static String TOKEN = "454bb0cb8a3e4135a34094d32b0da5e2";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -264,6 +265,11 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
             public void onMapRouting() {
 
             }
+
+            @Override
+            public void onError() {
+
+            }
         };
         presenter = new ChatPresenter(this, view);
         presenter.getLiveState().observe(this, textViewState::setText);
@@ -291,17 +297,41 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                         presenter.mapRouting("35.7003510,51.3376472", "35.7343510,50.3376472");
                         break;
                     case 3:
-                        presenter.block(1063L);
+                        presenter.block(1063L, new ChatHandler() {
+                            @Override
+                            public void onBlock(String uniqueId) {
+                                super.onBlock(uniqueId);
+                            }
+                        });
+
                         break;
                     case 4:
-                        presenter.unBlock(25L);
+                        presenter.unBlock(25L, new ChatHandler() {
+                            @Override
+                            public void onUnBlock(String uniqueId) {
+                                super.onUnBlock(uniqueId);
+                            }
+                        });
+
                         break;
                     case 5:
-                        presenter.getBlockList(null, null);
+                        presenter.getBlockList(null, null, new ChatHandler() {
+                            @Override
+                            public void onGetBlockList(String uniqueId) {
+                                super.onGetBlockList(uniqueId);
+                            }
+                        });
+
                         break;
                     case 6:
                         ThreadInfoVO threadInfoVO = new ThreadInfoVO.Builder().description("this is test description").build();
-                        presenter.updateThreadInfo(1031, threadInfoVO);
+                        presenter.updateThreadInfo(1031, threadInfoVO, new ChatHandler() {
+                            @Override
+                            public void onUpdateThreadInfo(String uniqueId) {
+                                super.onUpdateThreadInfo(uniqueId);
+                            }
+                        });
+                        break;
                 }
             }
 
@@ -342,20 +372,44 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                         List<Long> contactIds = new ArrayList<>();
                         contactIds.add(123L);
 //                       contactIds.add(121L);
-                        presenter.removeParticipants(691, contactIds);
+                        presenter.removeParticipants(691, contactIds, new ChatHandler() {
+                            @Override
+                            public void onRemoveParticipants(String uniqueId) {
+                                super.onRemoveParticipants(uniqueId);
+                            }
+                        });
+
                         break;
                     case 6:
                         List<Long> participantIds = new ArrayList<>();
                         participantIds.add(485L);
 //                        participantIds.add(577L);
 //                        participantIds.add(824L);
-                        presenter.addParticipants(661, participantIds);
+                        presenter.addParticipants(661, participantIds, new ChatHandler() {
+                            @Override
+                            public void onAddParticipants(String uniqueId) {
+                                super.onAddParticipants(uniqueId);
+                            }
+                        });
+
                         break;
                     case 7:
-                        presenter.leaveThread(661);
+                        presenter.leaveThread(661, new ChatHandler() {
+                            @Override
+                            public void onLeaveThread(String uniqueId) {
+                                super.onLeaveThread(uniqueId);
+                            }
+                        });
+
                         break;
                     case 8:
-                        presenter.deleteMessage(1921, true);
+                        presenter.deleteMessage(1921, true, new ChatHandler() {
+                            @Override
+                            public void onDeleteMessage(String uniqueId) {
+                                super.onDeleteMessage(uniqueId);
+                            }
+                        });
+
                         break;
                     case 9:
                         SearchContact searchContact = new SearchContact.Builder("0", "2").id("1063").build();
@@ -365,7 +419,13 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                         NosqlSearchMetadataCriteria builderMeta = new NosqlSearchMetadataCriteria.Builder("name").is("sina").build();
                         NosqlListMessageCriteriaVO criteriaVO = new NosqlListMessageCriteriaVO.Builder(231)
                                 .count(10).metadataCriteria(builderMeta).build();
-                        presenter.searchHistory(criteriaVO);
+                        presenter.searchHistory(criteriaVO, new ChatHandler() {
+                            @Override
+                            public void onSearchHistory(String uniqueId) {
+                                super.onSearchHistory(uniqueId);
+                            }
+                        });
+
                         break;
                 }
             }
@@ -434,22 +494,46 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
             case 1:
                 //"get thread"
                 ArrayList<Integer> threadIds = new ArrayList<>();
-                threadIds.add(661);
+//                threadIds.add(661);
 //                threadIds.add(1031);
 //                presenter.getThread(2, 0, null, null);
-                presenter.getThread(null, null, threadIds, null);
+                presenter.getThread(2, null, null, null, new ChatHandler() {
+                    @Override
+                    public void onGetThread(String uniqueId) {
+                        super.onGetThread(uniqueId);
+                    }
+                });
+
                 break;
             case 2:
                 //"rename thread",
-                presenter.renameThread(543, "***new group amiri*");
+                presenter.renameThread(543, "***new group amiri*", new ChatHandler() {
+                    @Override
+                    public void onRenameThread(String uniqueId) {
+                        super.onRenameThread(uniqueId);
+                    }
+                });
+
                 break;
             case 3:
                 //"get user info",
-                presenter.getUserInfo();
+                presenter.getUserInfo(new ChatHandler() {
+                    @Override
+                    public void onGetUserInfo(String uniqueId) {
+                        super.onGetUserInfo(uniqueId);
+                    }
+                });
+
                 break;
             case 4:
                 //"reply message",
-                presenter.replyMessage("this is reply from john", 381, 14103);
+                presenter.replyMessage("this is reply from john", 381, 14103, new ChatHandler() {
+                    @Override
+                    public void onReplyMessage(String uniqueId) {
+                        super.onReplyMessage(uniqueId);
+                    }
+                });
+
                 break;
             case 5:
                 /**forward message */
@@ -463,7 +547,13 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                 break;
             case 7:
                 //"get thread participant",
-                presenter.getThreadParticipant(10, 0L, 661);
+                presenter.getThreadParticipant(10, 0L, 661, new ChatHandler() {
+                    @Override
+                    public void onGetThreadParticipant(String uniqueId) {
+                        super.onGetThreadParticipant(uniqueId);
+                    }
+                });
+
                 break;
             case 8:
                 /**
@@ -485,28 +575,65 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 //                        , new Invitee(578, 2)
 //                        , new Invitee(824, 2)
                 };
-                presenter.createThread(0, invite, null);
+                presenter.createThread(0, invite, null, new ChatHandler() {
+                    @Override
+                    public void onCreateThread(String uniqueId) {
+                        super.onCreateThread(uniqueId);
+                    }
+                });
+
                 break;
             case 9:
                 //get thread history
                 History history = new History.Builder().count(2).build();
-                presenter.getHistory(history, 543);
+                presenter.getHistory(history, 543, new ChatHandler() {
+                    @Override
+                    public void onGetHistory(String uniqueId) {
+                        super.onGetHistory(uniqueId);
+                    }
+                });
+
                 break;
             case 10:
                 //"mute thread",
-                presenter.muteThread(543);
+                presenter.muteThread(543, new ChatHandler() {
+                    @Override
+                    public void onMuteThread(String uniqueId) {
+                        super.onMuteThread(uniqueId);
+                    }
+                });
+
                 break;
             case 11:
                 //"un mute thread"
-                presenter.unMuteThread(543);
+                presenter.unMuteThread(543, new ChatHandler() {
+                    @Override
+                    public void onUnMuteThread(String uniqueId) {
+                        super.onUnMuteThread(uniqueId);
+                    }
+                });
+
                 break;
             case 12:
                 //"get contacts"
-                presenter.getContact(2, null);
+                presenter.getContact(2, null, new ChatHandler() {
+                    @Override
+                    public void onGetContact(String uniqueId) {
+                        super.onGetContact(uniqueId);
+                    }
+                });
+
                 break;
             case 13:
                 //"edit message"
-                presenter.editMessage(13530, "hi this is edit at" + new Date().getTime() + "by" + name);
+                presenter.editMessage(13530,
+                        "hi this is edit at" + new Date().getTime() + "by" + name, new ChatHandler() {
+                            @Override
+                            public void onEditMessage(String uniqueId) {
+                                super.onEditMessage(uniqueId);
+                            }
+                        });
+
                 break;
             case 14:
                 // add contact
