@@ -1986,7 +1986,7 @@ public class Chat extends AsyncAdapter {
         } catch (IOException e) {
             if (BuildConfig.DEBUG) Logger.e(e.getMessage());
         }
-        resultsHistory.setNextOffset(callback.getOffset() + chatMessage.getContentCount());
+        resultsHistory.setNextOffset(callback.getOffset() + messageVOS.size());
         resultsHistory.setContentCount(chatMessage.getContentCount());
         if (messageVOS.size() + callback.getOffset() < chatMessage.getContentCount()) {
             resultsHistory.setHasNext(true);
@@ -2036,7 +2036,7 @@ public class Chat extends AsyncAdapter {
 
         resultParticipant.setParticipants(participants);
         outPutParticipant.setResult(resultParticipant);
-        resultParticipant.setNextOffset(callback.getOffset() + chatMessage.getContentCount());
+        resultParticipant.setNextOffset(callback.getOffset() + participants.size());
         return outPutParticipant;
     }
 
