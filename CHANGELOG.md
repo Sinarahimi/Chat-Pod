@@ -5,30 +5,25 @@
 # Changelog
 All notable changes to this project will be documented here.
 
-## Future Version [*****] -2018-00-00
+## Future Version [*] -2018-00-00
 -   [Add] Support SSL for Pre Android 4.4 for socket and Request
 -   [Add] Implement Cache for Message
 -   [Add] Spam
 -   [Add] Add project to Maven
--   [Add] Checking network and connection status
--   [BugFix] *Sync_Contact* on getting all of the contact. 
--   [BugFix] *Sync_Contact* lastName and firstName are separated. 
--   [Add] *Sync_Contact* add country code to all of the cellPhone number before
-    adding to the pod
+-   [BugFix] Sync Contact
 
 ##  Version [0.1.2.5] -09/26/2018
--   [BugFix]OnError Listener
--   [BugFix] Bug is fixed when client want to set count for *GetContact*
--   [Add] Async has *ASYNC_READY* state
--   [Add] Add lastMessageId and firstMessageId to the *GetHistory*
+-   [BugFix] OnError Listener's bug has been fixed.
+-   [BugFix] The bug of setting `count` parameter in `GetContact` function has been fixed.
+-   [Add] Async has *ASYNC_READY* state now.
+-   [Add] Add `lastMessageId` and `firstMessageId` to the *GetHistory*
 -   [Replace] Replace most of the *integer* params to *long*.
--   [Removed] CHAT_READY state was removed from Async and added to Chat and state changes 
-     to *CHAT_READY* when respond of the *getUserInfo* is received.
--   [BugFix]  Add some field that added to the respond of the create thread
--   [Add]  Now u can get instance unique id when u send text message.
+-   [Removed] CHAT_READY state removed from Async and added to Chat and state changes 
+     to *CHAT_READY* when response of the *getUserInfo* arrives.
+-   [BugFix]  Some fields has beed added to `createThread`'s response
+-   [Add]  Now you can get instant unique id when you send text messages
 -   [Add]  If you want to disable/hide logs for output set *isLoggable* false.
--   [Add]  If you want to disable *cache* set *cache* false.
--   [Add]  You Can get *outPut model* in most of the listeners.
+-   [Add]  If you want to disable *cache* set *cache* attribute as false.
 
 ## Version [0.1.2.4] -2018-09-15
 -   [BugFix]OnError Listener
