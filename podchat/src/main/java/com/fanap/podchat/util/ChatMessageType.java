@@ -44,6 +44,7 @@ public class ChatMessageType {
             Constants.LAST_SEEN_UPDATED,
             Constants.DELETE_MESSAGE,
             Constants.ERROR,
+            Constants.SPAM_PV_THREAD,
     })
 
     @Retention(RetentionPolicy.SOURCE)
@@ -77,8 +78,9 @@ public class ChatMessageType {
         int THREAD_PARTICIPANTS = 27;
         int EDIT_MESSAGE = 28;
         int DELETE_MESSAGE = 29;
-        int THREAD_INFO_UPDATED= 30;
-        int LAST_SEEN_UPDATED= 31;
+        int THREAD_INFO_UPDATED = 30;
+        int LAST_SEEN_UPDATED = 31;
+        int SPAM_PV_THREAD = 41;
         int ERROR = 999;
     }
 }

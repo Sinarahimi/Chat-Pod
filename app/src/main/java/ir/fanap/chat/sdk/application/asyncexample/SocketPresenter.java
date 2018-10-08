@@ -4,8 +4,9 @@ import android.arch.lifecycle.LiveData;
 import android.content.Context;
 
 import com.fanap.podasync.Async;
+import com.fanap.podasync.AsyncAdapter;
 
-public class SocketPresenter implements SocketContract.presenter {
+public class SocketPresenter extends AsyncAdapter implements SocketContract.presenter {
 
     private Async async;
     private SocketContract.view view;
@@ -13,6 +14,8 @@ public class SocketPresenter implements SocketContract.presenter {
     public SocketPresenter(SocketContract.view view, Context context) {
         this.view = view;
         async = Async.getInstance(context);
+        async.isLoggable(true);
+        async.addListener(this);
     }
 
     @Override

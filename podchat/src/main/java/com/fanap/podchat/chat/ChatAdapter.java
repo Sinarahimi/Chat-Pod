@@ -1,6 +1,7 @@
 package com.fanap.podchat.chat;
 
 import com.fanap.podchat.model.ErrorOutPut;
+import com.fanap.podchat.model.FileImageUpload;
 import com.fanap.podchat.model.OutPutAddParticipant;
 import com.fanap.podchat.model.OutPutBlock;
 import com.fanap.podchat.model.OutPutBlockList;
@@ -147,7 +148,7 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onUploadImageFile(String content) {
+    public void onUploadImageFile(String content, FileImageUpload fileImageUpload) {
 
     }
 

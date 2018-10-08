@@ -1,6 +1,7 @@
 package com.fanap.podchat.chat;
 
 import com.fanap.podchat.model.ErrorOutPut;
+import com.fanap.podchat.model.FileImageUpload;
 import com.fanap.podchat.model.OutPutAddParticipant;
 import com.fanap.podchat.model.OutPutBlock;
 import com.fanap.podchat.model.OutPutBlockList;
@@ -306,10 +307,10 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnUploadImageFile(String content) {
+    public void callOnUploadImageFile(String content,FileImageUpload fileImageUpload) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onUploadImageFile(content);
+                listener.onUploadImageFile(content,fileImageUpload);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }

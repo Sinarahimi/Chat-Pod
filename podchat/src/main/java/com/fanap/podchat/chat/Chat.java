@@ -56,13 +56,13 @@ import com.fanap.podchat.model.FileMetaDataContent;
 import com.fanap.podchat.model.MessageVO;
 import com.fanap.podchat.model.MetaDataFile;
 import com.fanap.podchat.model.MetaDataImageFile;
-import com.fanap.podchat.model.OutPutHistory;
 import com.fanap.podchat.model.OutPutAddContact;
 import com.fanap.podchat.model.OutPutAddParticipant;
 import com.fanap.podchat.model.OutPutBlock;
 import com.fanap.podchat.model.OutPutBlockList;
 import com.fanap.podchat.model.OutPutContact;
 import com.fanap.podchat.model.OutPutDeleteMessage;
+import com.fanap.podchat.model.OutPutHistory;
 import com.fanap.podchat.model.OutPutInfoThread;
 import com.fanap.podchat.model.OutPutLeaveThread;
 import com.fanap.podchat.model.OutPutMapNeshan;
@@ -88,14 +88,14 @@ import com.fanap.podchat.model.ResultThreads;
 import com.fanap.podchat.model.ResultUpdateContact;
 import com.fanap.podchat.model.ResultUserInfo;
 import com.fanap.podchat.model.ResultsHistory;
-import com.fanap.podchat.networking.retrofithelper.RetrofitHelperFileServer;
-import com.fanap.podchat.networking.retrofithelper.RetrofitHelperMap;
-import com.fanap.podchat.networking.retrofithelper.RetrofitHelperPlatformHost;
-import com.fanap.podchat.networking.retrofithelper.RetrofitHelperSsoHost;
 import com.fanap.podchat.networking.api.ContactApi;
 import com.fanap.podchat.networking.api.FileApi;
 import com.fanap.podchat.networking.api.MapApi;
 import com.fanap.podchat.networking.api.TokenApi;
+import com.fanap.podchat.networking.retrofithelper.RetrofitHelperFileServer;
+import com.fanap.podchat.networking.retrofithelper.RetrofitHelperMap;
+import com.fanap.podchat.networking.retrofithelper.RetrofitHelperPlatformHost;
+import com.fanap.podchat.networking.retrofithelper.RetrofitHelperSsoHost;
 import com.fanap.podchat.persistance.MessageDatabaseHelper;
 import com.fanap.podchat.util.Callback;
 import com.fanap.podchat.util.ChatConstant;
@@ -475,14 +475,14 @@ public class Chat extends AsyncAdapter {
                             if (fileUploadResponse.isSuccessful()) {
                                 boolean hasError = fileUploadResponse.body().isHasError();
                                 if (hasError) {
-                                    String errorMessage = fileUploadResponse.body().getMessage();
+                                    String errorMessage = fileUploadResponse.body().getErrorMessage();
                                     int errorCode = fileUploadResponse.body().getErrorCode();
                                     String jsonError = getErrorOutPut(errorMessage, errorCode);
                                     if (BuildConfig.DEBUG) Logger.e(jsonError);
                                 } else {
                                     FileImageUpload fileImageUpload = fileUploadResponse.body();
                                     String imageJson = JsonUtil.getJson(fileImageUpload);
-                                    listenerManager.callOnUploadImageFile(imageJson);
+                                    listenerManager.callOnUploadImageFile(imageJson, fileImageUpload);
                                     if (BuildConfig.DEBUG) Logger.json(imageJson);
                                 }
                             }
@@ -550,7 +550,7 @@ public class Chat extends AsyncAdapter {
     }
 
     public String getImage(int imageId, String hashCode, boolean downloadable) {
-        String url = getPlatformHost() + "nzh/uploadImage" + "?imageId=" + imageId + "&downloadable=" + downloadable + "&hashCode=" + hashCode;
+        String url = fileServer + "nzh/image/" + "?imageId=" + imageId + "&downloadable=" + downloadable + "&hashCode=" + hashCode;
         return url;
     }
 
@@ -813,7 +813,9 @@ public class Chat extends AsyncAdapter {
         }
 
         sendAsyncMessage(asyncContent, 3, "Get thread send");
-        handler.onGetThread(uniqueId);
+        if (handler != null) {
+            handler.onGetThread(uniqueId);
+        }
     }
 
     /**
@@ -866,7 +868,9 @@ public class Chat extends AsyncAdapter {
         String asyncContent = chatMessageJsonAdapter.toJson(chatMessage);
         setCallBacks(null, null, null, true, Constants.GET_HISTORY, offsets, uniqueId);
         sendAsyncMessage(asyncContent, 3, "SEND GET THREAD HISTORY");
-        handler.onGetHistory(uniqueId);
+        if (handler != null) {
+            handler.onGetHistory(uniqueId);
+        }
     }
 
     public void searchHistory(NosqlListMessageCriteriaVO messageCriteriaVO, ChatHandler handler) {
@@ -887,7 +891,9 @@ public class Chat extends AsyncAdapter {
         String asyncContent = chatMessageJsonAdapter.toJson(chatMessage);
         setCallBacks(null, null, null, true, Constants.GET_HISTORY, messageCriteriaVO.getOffset(), uniqueId);
         sendAsyncMessage(asyncContent, 3, "SEND SEARCH0. HISTORY");
+        if (handler != null) {
         handler.onSearchHistory(uniqueId);
+        }
     }
 
     /**
@@ -948,7 +954,9 @@ public class Chat extends AsyncAdapter {
             String asyncContent = chatMessageJsonAdapter.toJson(chatMessage);
             setCallBacks(null, null, null, true, Constants.GET_CONTACTS, offsets, uniqueId);
             sendAsyncMessage(asyncContent, 3, "GET_CONTACT_SEND");
+            if (handler != null) {
             handler.onGetContact(uniqueId);
+            }
         }
     }
 
@@ -1180,6 +1188,20 @@ public class Chat extends AsyncAdapter {
         handler.onUnBlock(uniqueId);
     }
 
+    public void spam(long threadId) {
+
+        String uniqueId = getUniqueId();
+        ChatMessage chatMessage = new ChatMessage();
+        chatMessage.setType(Constants.SPAM_PV_THREAD);
+        chatMessage.setTokenIssuer("1");
+        chatMessage.setToken(getToken());
+        chatMessage.setUniqueId(uniqueId);
+        chatMessage.setSubjectId(threadId);
+        setCallBacks(null, null, null, true, Constants.SPAM_PV_THREAD, null, uniqueId);
+        String asyncContent = JsonUtil.getJson(chatMessage);
+        sendAsyncMessage(asyncContent, 4, "SEND_REPORT_SPAM");
+    }
+
     //TODO change params to long
     public void getBlockList(Integer count, Integer offset, ChatHandler handler) {
 
@@ -1202,7 +1224,9 @@ public class Chat extends AsyncAdapter {
         setCallBacks(null, null, null, true, Constants.GET_BLOCKED, null, uniqueId);
         String asyncContent = JsonUtil.getJson(chatMessage);
         sendAsyncMessage(asyncContent, 4, "SEND_BLOCK_List");
+        if (handler != null) {
         handler.onGetBlockList(uniqueId);
+        }
     }
 
     private class BlockContactId {
@@ -1239,7 +1263,9 @@ public class Chat extends AsyncAdapter {
         setCallBacks(null, null, null, true, Constants.INVITATION, null, uniqueId);
         String asyncContent = JsonUtil.getJson(chatMessage);
         sendAsyncMessage(asyncContent, 4, "SEND_CREATE_THREAD");
+        if (handler != null) {
         handler.onCreateThread(uniqueId);
+        }
     }
 
     public void updateThreadInfo(long threadId, ThreadInfoVO threadInfoVO, ChatHandler handler) {
@@ -1258,7 +1284,9 @@ public class Chat extends AsyncAdapter {
         String asyncContent = JsonUtil.getJson(chatMessage);
         setCallBacks(null, null, null, true, Constants.UPDATE_THREAD_INFO, null, uniqueId);
         sendAsyncMessage(asyncContent, 4, "UPDATE_THREAD_INFO");
+        if (handler != null) {
         handler.onUpdateThreadInfo(uniqueId);
+        }
     }
 
     /**
@@ -1296,7 +1324,9 @@ public class Chat extends AsyncAdapter {
         String asyncContent = chatMessageJsonAdapter.toJson(chatMessage);
         setCallBacks(null, null, null, true, Constants.THREAD_PARTICIPANTS, offset, uniqueId);
         sendAsyncMessage(asyncContent, 3, "SEND_THREAD_PARTICIPANT");
+        if (handler != null) {
         handler.onGetThreadParticipant(uniqueId);
+        }
     }
 
     public void seenMessage(long messageId, long ownerId, ChatHandler handler) {
@@ -1314,7 +1344,9 @@ public class Chat extends AsyncAdapter {
             JsonAdapter<ChatMessage> chatMessageJsonAdapter = moshi.adapter(ChatMessage.class);
             String asyncContent = chatMessageJsonAdapter.toJson(message);
             sendAsyncMessage(asyncContent, 4, "SEND_SEEN_MESSAGE");
+            if (handler != null) {
             handler.onSeen(uniqueId);
+            }
         }
     }
 
@@ -1337,7 +1369,9 @@ public class Chat extends AsyncAdapter {
             if (BuildConfig.DEBUG) Logger.json(asyncContent);
             async.sendMessage(asyncContent, 3);
 
+            if (handler != null) {
             handler.onGetUserInfo(uniqueId);
+            }
 
             long lastSentMessageTimeout = 9 * 1000;
             lastSentMessageTime = new Date().getTime();
@@ -1374,7 +1408,9 @@ public class Chat extends AsyncAdapter {
 
         String asyncContent = JsonUtil.getJson(chatMessage);
         sendAsyncMessage(asyncContent, 4, "SEND_MUTE_THREAD");
+        if (handler != null) {
         handler.onMuteThread(uniqueId);
+        }
     }
 
     /**
@@ -1392,7 +1428,9 @@ public class Chat extends AsyncAdapter {
         setCallBacks(null, null, null, true, Constants.UN_MUTE_THREAD, null, uniqueId);
         String asyncContent = JsonUtil.getJson(chatMessage);
         sendAsyncMessage(asyncContent, 4, "SEND_UN_MUTE_THREAD");
+        if (handler != null) {
         handler.onUnMuteThread(uniqueId);
+        }
     }
 
     /**
@@ -1413,7 +1451,9 @@ public class Chat extends AsyncAdapter {
         String asyncContent = JsonUtil.getJson(chatMessage);
         setCallBacks(null, null, null, true, Constants.EDIT_MESSAGE, null, uniqueId);
         sendAsyncMessage(asyncContent, 4, "SEND_EDIT_MESSAGE");
+        if (handler != null) {
         handler.onEditMessage(uniqueId);
+        }
     }
 
     /**
@@ -2033,7 +2073,6 @@ public class Chat extends AsyncAdapter {
             resultParticipant.setHasNext(false);
         }
 
-
         resultParticipant.setParticipants(participants);
         outPutParticipant.setResult(resultParticipant);
         resultParticipant.setNextOffset(callback.getOffset() + participants.size());
@@ -2221,7 +2260,7 @@ public class Chat extends AsyncAdapter {
                         if (fileUploadResponse.isSuccessful()) {
                             boolean error = fileUploadResponse.body().isHasError();
                             if (error) {
-                                String errorMessage = fileUploadResponse.body().getMessage();
+                                String errorMessage = fileUploadResponse.body().getErrorMessage();
                                 Logger.e(errorMessage);
                             } else {
 
@@ -2245,7 +2284,7 @@ public class Chat extends AsyncAdapter {
 
                                 FileImageUpload fileImageUpload = fileUploadResponse.body();
                                 String imageJson = JsonUtil.getJson(fileImageUpload);
-                                listenerManager.callOnUploadImageFile(imageJson);
+                                listenerManager.callOnUploadImageFile(imageJson, fileImageUpload);
                                 if (BuildConfig.DEBUG) Logger.json(imageJson);
                             }
                         }

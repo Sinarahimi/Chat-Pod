@@ -1,4 +1,4 @@
-package com.fanap.podchat.util;
+package com.fanap.podasync.util;
 
 import android.Manifest;
 import android.app.Activity;
@@ -12,12 +12,17 @@ public class Permission {
     public static void Request_STORAGE(Activity act, int code) {
 
         ActivityCompat.requestPermissions(act, new
-                String[]{android.Manifest.permission.WRITE_EXTERNAL_STORAGE}, code);
+                String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, code);
     }
 
     public static void Request_CAMERA(Activity act, int code) {
         ActivityCompat.requestPermissions(act, new
                 String[]{Manifest.permission.CAMERA}, code);
+    }
+
+    public static boolean Check_INTERNET(Activity act) {
+        int result = ContextCompat.checkSelfPermission(act, Manifest.permission.INTERNET);
+        return result == PackageManager.PERMISSION_GRANTED;
     }
 
     public static void Request_FINE_LOCATION(Activity act, int code) {
@@ -47,11 +52,7 @@ public class Permission {
 
     //Check Permisson
     public static boolean Check_READ_STORAGE(Activity act) {
-        int result = ContextCompat.checkSelfPermission(act, android.Manifest.permission.READ_EXTERNAL_STORAGE);
-        return result == PackageManager.PERMISSION_GRANTED;
-    }
-    public static boolean Check_INTERNET(Activity act) {
-        int result = ContextCompat.checkSelfPermission(act, Manifest.permission.INTERNET);
+        int result = ContextCompat.checkSelfPermission(act, Manifest.permission.READ_EXTERNAL_STORAGE);
         return result == PackageManager.PERMISSION_GRANTED;
     }
 

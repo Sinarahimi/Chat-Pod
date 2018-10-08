@@ -16,7 +16,6 @@ public abstract class ChatHandler {
 
     public void onAddParticipants(String uniqueId){}
 
-
     public void onRemoveParticipants(String uniqueId) {
 
     }

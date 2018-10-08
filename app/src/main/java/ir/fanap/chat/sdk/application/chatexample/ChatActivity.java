@@ -509,12 +509,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 ArrayList<Integer> threadIds = new ArrayList<>();
 //                threadIds.add(22);
                 threadIds.add(1031);
-                presenter.getThread(2, null, null, null, new ChatHandler() {
-                    @Override
-                    public void onGetThread(String uniqueId) {
-                        super.onGetThread(uniqueId);
-                    }
-                });
+                presenter.getThread(2, null, null, null,null);
                 break;
             case 2:
                 //"rename thread",

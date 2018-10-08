@@ -6,11 +6,17 @@
 All notable changes to this project will be documented here.
 
 ## Future Version [*] -2018-00-00
--   [Add] Support SSL for Pre Android 4.4 for socket and Request
+-   [Add] Support SSL for Pre Android 4.4 for socket and Request(All api)
 -   [Add] Implement Cache for Message
 -   [Add] Spam
--   [Add] Add project to Maven
+-   [Add] Add Progress to FileUpload
+-   [Add] Add Progress to ImageUpload
 -   [BugFix] Sync Contact
+
+## Future Version [0.1.2.5] -2018-10-08
+-   [Add] The project has been added to Maven
+-   [Add] Unique id was added to Most of the functions as return. 
+-   [Add] Unique id was added to Most responses.
 
 ##  Version [0.1.2.5] -09/26/2018
 -   [BugFix] OnError Listener's bug has been fixed.
@@ -20,7 +26,7 @@ All notable changes to this project will be documented here.
 -   [Replace] Replace most of the *integer* params to *long*.
 -   [Removed] CHAT_READY state removed from Async and added to Chat and state changes 
      to *CHAT_READY* when response of the *getUserInfo* arrives.
--   [BugFix]  Some fields has beed added to `createThread`'s response
+-   [BugFix]  Some fields has been added to `createThread`'s response
 -   [Add]  Now you can get instant unique id when you send text messages
 -   [Add]  If you want to disable/hide logs for output set *isLoggable* false.
 -   [Add]  If you want to disable *cache* set *cache* attribute as false.

@@ -1,10 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'com.jfrog.bintray'
-apply plugin: 'maven-publish'
-apply plugin: 'com.github.dcendents.android-maven' // ADD THIS
-
-group = 'com.fanap.podasync'
-version = '0.0.8.0'
+apply plugin: 'com.github.dcendents.android-maven'
 
 android {
     compileSdkVersion 27
@@ -12,7 +8,7 @@ android {
         minSdkVersion 17
         targetSdkVersion 27
         versionCode 2
-        versionName '0.0.8.1'
+        versionName '0.0.8.2'
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -29,91 +25,30 @@ android {
     buildToolsVersion '27.0.3'
 }
 
-buildscript {
-    repositories {
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:2.1'
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
-    }
-}
-
 ext {
-    bintrayRepo = 'maven'
-    bintrayName = 'Async-pod'
+    bintrayRepo = "maven"
+    bintrayName = "com.fanap.podasync"
+
+    libraryName = 'podasync'
 
     publishedGroupId = 'com.fanap.podasync'
-    libraryName = 'podaasync'
-    artifact = 'podaasync'
+    artifact = 'podasync'
+    libraryVersion = '0.0.8.2'
 
     libraryDescription = 'Fanaps POD Async service (DIRANA)'
-
-    gitUrl = 'https://github.com/devPaw/Async-pod'
-    siteUrl = 'https://fanap.ir'
-
-    libraryVersion = '0.0.8.0'
-
+    gitUrl = 'https://github.com/Sinarahimi/Chat-Pod.git'
+    siteUrl = 'https://github.com/Sinarahimi/Chat-Pod'
     developerId = 'sinara'
     developerName = 'Sina Rahimi'
-    developerEmail = 'Develop.rahimi95@gmail.com'
+    developerEmail = 'develop.rahimi95@gmail.com'
 
     licenseName = 'The Apache Software License, Version 2.0'
     licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
     allLicenses = ["Apache-2.0"]
 }
 
-publishing {
-    publications {
-        Production(MavenPublication) {
-            artifact("build/outputs/aar/podasync-release.aar")
-            groupId publishedGroupId
-            artifactId artifact
-            version libraryVersion
-
-            //The publication doesn't know about our dependencies, so we have to manually add them to the pom
-            pom.withXml {
-                def dependenciesNode = asNode().appendNode('dependencies')
-
-                //Iterate over the compile dependencies (we don't want the test ones), adding a <dependency> node for each
-                configurations.compile.allDependencies.withType(ModuleDependency) {ModuleDependency dp
-                    def dependencyNode = dependenciesNode.appendNode('dependency')
-                    dependencyNode.appendNode('groupId', dp.group)
-                    dependencyNode.appendNode('artifactId', dp.name)
-                    dependencyNode.appendNode('version', dp.version)
-                }
-            }
-        }
-    }
-}
-
-bintray {
-
-    Properties properties = new Properties()
-    properties.load(project.rootProject.file('local.properties').newDataInputStream())
-    user = properties.getProperty('bintray.user')
-    key = properties.getProperty('bintray.apikey')
-
-    publications = ['Production']
-    override = true
-    pkg {
-        repo = bintrayRepo
-        name = project.name
-        userOrg = 'sinara'
-        licenses = allLicenses
-        desc = libraryDescription
-        websiteUrl = siteUrl
-        vcsUrl = gitUrl
-        version {
-            name = libraryVersion
-        }
-        publish = true
-    }
-}
-
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'com.android.support:appcompat-v7:27.1.1'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
@@ -133,3 +68,11 @@ dependencies {
     api 'com.fasterxml.jackson.core:jackson-annotations:2.8.5'
     implementation 'com.orhanobut:logger:2.2.0'
 }
+
+if (project.rootProject.file('local.properties').exists()) {
+    apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/bintrayv1.gradle'
+    apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/installv1.gradle'
+}
+
+
+

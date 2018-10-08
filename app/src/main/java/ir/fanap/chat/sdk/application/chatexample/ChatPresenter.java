@@ -17,6 +17,7 @@ import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.SearchContact;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.model.ErrorOutPut;
+import com.fanap.podchat.model.FileImageUpload;
 import com.fanap.podchat.model.MessageVO;
 import com.fanap.podchat.model.OutPutAddParticipant;
 import com.fanap.podchat.model.OutPutBlock;
@@ -344,8 +345,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void onUploadImageFile(String content) {
-        super.onUploadImageFile(content);
+    public void onUploadImageFile(String content, FileImageUpload fileImageUpload) {
+        super.onUploadImageFile(content, fileImageUpload);
         view.onUploadImageFile();
     }
 
@@ -434,5 +435,6 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         super.onSearchContact(content);
         view.onSearchContact();
     }
+
 
 }

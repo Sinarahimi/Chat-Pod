@@ -102,7 +102,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 //    private static String name = "Alexi";
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "97488264233c4248831778a5237ca7c4";
+    private static String TOKEN = "984e844203fb4ad88a99056c66a62598";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -366,7 +366,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                     case 3:
                         presenter.uploadImage(ChatSandBoxActivity.this, ChatSandBoxActivity.this, getUri());
                     case 4:
-                        presenter.uploadFile(ChatSandBoxActivity.this, ChatSandBoxActivity.this, getFileUri(), getUri());
+//                        presenter.uploadFile(ChatSandBoxActivity.this, ChatSandBoxActivity.this, getFileUri(), getUri());
                         break;
                     case 5:
                         List<Long> contactIds = new ArrayList<>();
@@ -497,12 +497,14 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 //                threadIds.add(661);
 //                threadIds.add(1031);
 //                presenter.getThread(2, 0, null, null);
-                presenter.getThread(2, null, null, null, new ChatHandler() {
-                    @Override
-                    public void onGetThread(String uniqueId) {
-                        super.onGetThread(uniqueId);
-                    }
-                });
+                presenter.getThread(2, null, null, null, null);
+//                        new ChatHandler() {
+//                    @Override
+//                    public void onGetThread(String uniqueId) {
+//                        super.onGetThread(uniqueId);
+//                        Toast.makeText(ChatSandBoxActivity.this,uniqueId,Toast.LENGTH_SHORT).show();
+//                    }
+//                });
 
                 break;
             case 2:
@@ -521,6 +523,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                     @Override
                     public void onGetUserInfo(String uniqueId) {
                         super.onGetUserInfo(uniqueId);
+                        Toast.makeText(ChatSandBoxActivity.this, uniqueId, Toast.LENGTH_SHORT).show();
                     }
                 });
 
@@ -579,6 +582,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                     @Override
                     public void onCreateThread(String uniqueId) {
                         super.onCreateThread(uniqueId);
+                        Toast.makeText(ChatSandBoxActivity.this, uniqueId, Toast.LENGTH_SHORT).show();
                     }
                 });
 
@@ -590,6 +594,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                     @Override
                     public void onGetHistory(String uniqueId) {
                         super.onGetHistory(uniqueId);
+                        Toast.makeText(ChatSandBoxActivity.this, uniqueId, Toast.LENGTH_SHORT).show();
                     }
                 });
 
@@ -600,6 +605,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                     @Override
                     public void onMuteThread(String uniqueId) {
                         super.onMuteThread(uniqueId);
+                        Toast.makeText(ChatSandBoxActivity.this, uniqueId, Toast.LENGTH_SHORT).show();
                     }
                 });
 
@@ -610,6 +616,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                     @Override
                     public void onUnMuteThread(String uniqueId) {
                         super.onUnMuteThread(uniqueId);
+                        Toast.makeText(ChatSandBoxActivity.this, uniqueId, Toast.LENGTH_SHORT).show();
                     }
                 });
 
@@ -620,6 +627,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                     @Override
                     public void onGetContact(String uniqueId) {
                         super.onGetContact(uniqueId);
+                        Toast.makeText(ChatSandBoxActivity.this, uniqueId, Toast.LENGTH_SHORT).show();
                     }
                 });
 
@@ -631,6 +639,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                             @Override
                             public void onEditMessage(String uniqueId) {
                                 super.onEditMessage(uniqueId);
+                                Toast.makeText(ChatSandBoxActivity.this, uniqueId, Toast.LENGTH_SHORT).show();
                             }
                         });
 

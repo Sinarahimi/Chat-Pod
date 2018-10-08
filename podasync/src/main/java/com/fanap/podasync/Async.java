@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.fanap.podasync.model.AsyncConstant;
@@ -164,7 +165,7 @@ public class Async extends WebSocketAdapter {
         asyncListenerManager.callOnStateChanged(newState.toString());
         stateLiveData.postValue(newState.toString());
         setState(newState.toString());
-        if (BuildConfig.DEBUG) Logger.d("onStateChanged", newState.toString());
+        if (BuildConfig.DEBUG) Logger.d("State" + " Is Now " + newState.toString());
     }
 
     @Override
@@ -254,7 +255,12 @@ public class Async extends WebSocketAdapter {
 
     public void isLoggable(boolean log) {
         if (log) {
-            Logger.addLogAdapter(new AndroidLogAdapter());
+            Logger.addLogAdapter(new AndroidLogAdapter() {
+                @Override
+                public boolean isLoggable(int priority, @Nullable String tag) {
+                    return log;
+                }
+            });
         }
     }
 
