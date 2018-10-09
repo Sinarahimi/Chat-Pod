@@ -2,29 +2,42 @@ package com.fanap.podchat.mainmodel;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Embedded;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.ForeignKey;
+import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 
-import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.model.ForwardInfo;
 import com.fanap.podchat.model.ReplyInfoVO;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 
-import java.io.Serializable;
-
-public class LastMessageVO implements Serializable {
-    @ColumnInfo(name = "last_message_vo_id")
+@Entity
+public class LastMessageVO {
+    @PrimaryKey
     private long id;
     private String uniqueId;
     private String message;
     private boolean edited;
     private boolean editable;
-    @ColumnInfo(name = "last_message_vo_time")
     private long time;
-    @Embedded
+
+    @Ignore
     private Participant participant;
-    @Embedded
+
+    @ForeignKey(entity = Participant.class,parentColumns = "id",childColumns = "participantId")
+    private transient long participantId;
+
+    @Ignore
     private ReplyInfoVO replyInfoVO;
-    @Embedded
+
+    @ForeignKey(entity = ReplyInfoVO.class,parentColumns = "ReplyInfoVO_Id",childColumns = "replyInfoVOId")
+    private transient long replyInfoVOId;
+
+    @Ignore
     private ForwardInfo forwardInfo;
+
+    @ForeignKey(entity = ReplyInfoVO.class,parentColumns = "forwardInfo_Id",childColumns = "forwardInfoId")
+    private transient long forwardInfoId;
 
     public Participant getParticipant() {
         return participant;
@@ -96,5 +109,29 @@ public class LastMessageVO implements Serializable {
 
     public void setForwardInfo(ForwardInfo forwardInfo) {
         this.forwardInfo = forwardInfo;
+    }
+
+    public long getParticipantId() {
+        return participantId;
+    }
+
+    public void setParticipantId(long participantId) {
+        this.participantId = participantId;
+    }
+
+    public long getReplyInfoVOId() {
+        return replyInfoVOId;
+    }
+
+    public void setReplyInfoVOId(long replyInfoVOId) {
+        this.replyInfoVOId = replyInfoVOId;
+    }
+
+    public long getForwardInfoId() {
+        return forwardInfoId;
+    }
+
+    public void setForwardInfoId(long forwardInfoId) {
+        this.forwardInfoId = forwardInfoId;
     }
 }

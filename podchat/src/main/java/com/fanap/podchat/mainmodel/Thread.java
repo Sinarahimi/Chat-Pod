@@ -3,34 +3,45 @@ package com.fanap.podchat.mainmodel;
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.ForeignKey;
+import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 import android.arch.persistence.room.TypeConverters;
 
 import com.fanap.podchat.util.DataTypeConverter;
 
-import java.io.Serializable;
 import java.util.List;
 
 @Entity
-public class Thread implements Serializable {
+public class Thread {
     @PrimaryKey
     private long id;
     private long joinDate;
-    @Embedded
+
+    @Ignore
     private Inviter inviter;
-    @Embedded
+
+    @ForeignKey(entity = Inviter.class, parentColumns = "id", childColumns = "inviter_id")
+    @ColumnInfo(name = "inviter_id")
+    private transient Long inviterId;
+
+    @Ignore
     private LastMessageVO lastMessageVO;
-    @ColumnInfo(name = "thread_title")
+
+    @ForeignKey(entity = LastMessageVO.class,parentColumns = "id", childColumns = "last_message_vo_id")
+    @ColumnInfo(name = "lastMessageVO_id")
+    private transient Long lastMessageVOId;
+
     private String title;
+
     @TypeConverters(DataTypeConverter.class)
     private List<Participant> participants;
+
     private long time;
     private String lastMessage;
     private String lastParticipantName;
-    private String lastParticipantImage;
     private boolean group;
     private long partner;
-    @ColumnInfo(name = "thread_image")
     private String image;
     private long unreadCount;
     private long lastSeenMessageId;
@@ -220,11 +231,19 @@ public class Thread implements Serializable {
         this.metadata = metadata;
     }
 
-    public String getLastParticipantImage() {
-        return lastParticipantImage;
+    public Long getInviterId() {
+        return inviterId;
     }
 
-    public void setLastParticipantImage(String lastParticipantImage) {
-        this.lastParticipantImage = lastParticipantImage;
+    public void setInviterId(Long inviterId) {
+        this.inviterId = inviterId;
+    }
+
+    public Long getLastMessageVOId() {
+        return lastMessageVOId;
+    }
+
+    public void setLastMessageVOId(Long lastMessageVOId) {
+        this.lastMessageVOId = lastMessageVOId;
     }
 }

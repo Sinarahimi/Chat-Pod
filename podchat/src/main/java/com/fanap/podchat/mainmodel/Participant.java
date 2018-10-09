@@ -1,22 +1,22 @@
 package com.fanap.podchat.mainmodel;
 
-import android.arch.persistence.room.Embedded;
+import android.arch.persistence.room.ColumnInfo;
+import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.PrimaryKey;
 
 import java.io.Serializable;
 
+@Entity
 public class Participant implements Serializable {
     @PrimaryKey
     private long id;
-    @Embedded(prefix = "participant_")
     private String name;
-    @Embedded(prefix = "participant_")
+    @ColumnInfo(name = "first_name")
     private String firstName;
-    @Embedded(prefix = "participant_")
+    @ColumnInfo(name = "last_name")
     private String lastName;
-    @Embedded(prefix = "participant_")
     private String image;
-    @Embedded(prefix = "participant_")
+    @ColumnInfo(name = "not_seen_duration")
     private long notSeenDuration;
 
     public long getId() {

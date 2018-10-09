@@ -112,6 +112,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import com.orhanobut.logger.AndroidLogAdapter;
 import com.orhanobut.logger.Logger;
 import com.squareup.moshi.JsonAdapter;
@@ -760,19 +761,33 @@ public class Chat extends AsyncAdapter {
      */
     public void getThreads(Integer count, Long offset, ArrayList<Integer> threadIds, String threadName, ChatHandler handler) {
 
-//        OutPutThreads outPutThreads = new OutPutThreads();
-//        ResultThreads resultThreads = new ResultThreads();
-//        resultThreads.setThreads(messageDatabaseHelper.getThread());
-//        outPutThreads.setContentCount(messageDatabaseHelper.getThread().size());
-//        outPutThreads.setErrorCode(0);
-//        outPutThreads.setErrorMessage("");
-//        outPutThreads.setHasError(false);
-//        outPutThreads.setResult(resultThreads);
-//
-//        String threadJson = JsonUtil.getJson(outPutThreads);
-//        listenerManager.callOnGetThread(threadJson);
         String uniqueId = null;
         String asyncContent = null;
+
+        if (cache) {
+
+            List<Thread> threads =messageDatabaseHelper.getThreads();
+            OutPutThreads outPutThreads = new OutPutThreads();
+
+            ResultThreads resultThreads = new ResultThreads();
+            resultThreads.setThreads(threads);
+            resultThreads.setContentCount(threads.size());
+            outPutThreads.setErrorCode(0);
+            outPutThreads.setErrorMessage("");
+            outPutThreads.setHasError(false);
+
+//            if (threads.size() + callback.getOffset() < chatMessage.getContentCount()) {
+//                resultThreads.setHasNext(true);
+//            } else {
+//                resultThreads.setHasNext(false);
+//            }
+//            resultThreads.setNextOffset(callback.getOffset() + threads.size());
+            outPutThreads.setResult(resultThreads);
+
+            if (BuildConfig.DEBUG) Logger.json(JsonUtil.getJson(outPutThreads));
+            listenerManager.callOnGetThread(JsonUtil.getJson(outPutThreads),outPutThreads);
+        }
+
         if (chatReady) {
             ChatMessageContent chatMessageContent = new ChatMessageContent();
 
@@ -1753,6 +1768,7 @@ public class Chat extends AsyncAdapter {
 
                 if (callback.isResult()) {
                     String threadJson = reformatGetThreadsResponse(chatMessage, outPutThreads, callback);
+
                     listenerManager.callOnGetThread(threadJson, outPutThreads);
                     messageCallbacks.remove(messageUniqueId);
                     if (BuildConfig.DEBUG) Logger.i("RECEIVE_GET_THREAD");
@@ -2473,14 +2489,25 @@ public class Chat extends AsyncAdapter {
      */
     private String reformatGetThreadsResponse(ChatMessage chatMessage, OutPutThreads outPutThreads, Callback callback) {
         if (BuildConfig.DEBUG) Logger.json(chatMessage.getContent());
-        List<Thread> threads = new ArrayList<>();
-        Type type = Types.newParameterizedType(List.class, Thread.class);
-        JsonAdapter<List<Thread>> adapter = moshi.adapter(type);
-        try {
-            threads = adapter.fromJson(chatMessage.getContent());
-        } catch (IOException e) {
-            if (BuildConfig.DEBUG) Logger.e(e.getMessage() + e.getCause());
+//        List<Thread> threads = new ArrayList<>();
+
+        Type listType = new TypeToken<List<Thread>>() {}.getType();
+
+        List<Thread> threads = new Gson().fromJson(chatMessage.getContent(), listType);
+
+
+//        Type type = Types.newParameterizedType(List.class, Thread.class);
+//        JsonAdapter<List<Thread>> adapter = moshi.adapter(type);
+//        try {
+//            threads = adapter.fromJson(chatMessage.getContent());
+//        } catch (IOException e) {
+//            if (BuildConfig.DEBUG) Logger.e(e.getMessage() + e.getCause());
+//        }
+
+        if (cache) {
+            messageDatabaseHelper.saveThreads(threads);
         }
+
         ResultThreads resultThreads = new ResultThreads();
         resultThreads.setThreads(threads);
         resultThreads.setContentCount(chatMessage.getContentCount());

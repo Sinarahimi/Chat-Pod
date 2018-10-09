@@ -17,7 +17,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.fanap.podasync.util.JsonUtil;
-import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.mainmodel.History;
 import com.fanap.podchat.mainmodel.Invitee;
@@ -32,6 +31,7 @@ import java.util.Date;
 import java.util.List;
 
 import ir.fanap.chat.sdk.R;
+
 
 public class ChatSandBoxActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener, View.OnClickListener {
     private static final int FILE_REQUEST_CODE = 2;
@@ -102,7 +102,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 //    private static String name = "Alexi";
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "984e844203fb4ad88a99056c66a62598";
+    private static String TOKEN = "239976da17694844933375daa775c2f4";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

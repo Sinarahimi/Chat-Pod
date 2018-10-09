@@ -65,14 +65,13 @@ dependencies {
     //Rx
     implementation 'io.reactivex:rxjava:1.1.6'
     implementation 'io.reactivex:rxandroid:1.2.1'
-
     implementation 'android.arch.persistence.room:runtime:1.1.1'
     annotationProcessor 'android.arch.persistence.room:compiler:1.1.1'
-
     //logger
     api 'com.orhanobut:logger:2.2.0'
-
-    implementation  'com.fanap.podasync:podasync:0.0.8.2'
+    implementation 'com.fanap.podasync:podasync:0.0.8.2'
+    implementation 'com.android.support:support-v4:27.1.1'
+    implementation 'com.android.support:support-v4:27.1.1'
 }
 
 if (project.rootProject.file('local.properties').exists()) {
