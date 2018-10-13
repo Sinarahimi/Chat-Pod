@@ -34,11 +34,11 @@ All notable changes to this project will be documented here.
 
 ## Version [0.1.2.4] -2018-09-15
 -   [BugFix]OnError Listener
--   [BugFix]Create Thread 
+-   [BugFix]Create ThreadVo 
 
 ## Version [0.1.2.3] -2018-09-03
 -   [Add]Implement Cache for get Contact
--   [Add]Update Thread Info
+-   [Add]Update ThreadVo Info
 -   [Add]Get file
 -   [Add]Get Image
 -   [BugFix]You can get CHAT_READY on Live State
@@ -57,8 +57,8 @@ All notable changes to this project will be documented here.
 -   [Add]Delete Message
 -   [Add]onThreadInfoUpdated listener
 -   [Add]onLastSeenUpdated listener
--   [Add]Search in threads with name:
-    We sdd a new param to the getThread so you can search through threads by their name. 
+-   [Add]Search in threadVos with name:
+    We sdd a new param to the getThread so you can search through threadVos by their name. 
 -   [Add]Remove participant
 -   [Add]Add participant
 -   [Add]Sync Contact listener

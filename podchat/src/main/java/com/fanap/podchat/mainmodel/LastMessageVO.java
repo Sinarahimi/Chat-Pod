@@ -1,17 +1,18 @@
 package com.fanap.podchat.mainmodel;
 
-import android.arch.persistence.room.ColumnInfo;
-import android.arch.persistence.room.Embedded;
+
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.Nullable;
 
 import com.fanap.podchat.model.ForwardInfo;
 import com.fanap.podchat.model.ReplyInfoVO;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 
-@Entity
+@Entity(foreignKeys = {@ForeignKey(entity = Participant.class, parentColumns = "id", childColumns = "participantId"),
+        @ForeignKey(entity = ReplyInfoVO.class, parentColumns = "replyInfoVO_Id", childColumns = "replyInfoVOId"),
+        @ForeignKey(entity = ForwardInfo.class, parentColumns = "forwardInfo_Id", childColumns = "forwardInfoId")})
 public class LastMessageVO {
     @PrimaryKey
     private long id;
@@ -24,20 +25,22 @@ public class LastMessageVO {
     @Ignore
     private Participant participant;
 
-    @ForeignKey(entity = Participant.class,parentColumns = "id",childColumns = "participantId")
-    private transient long participantId;
+    @ForeignKey(entity = Participant.class, parentColumns = "id", childColumns = "participantId")
+    private Long participantId;
 
     @Ignore
+    @Nullable
     private ReplyInfoVO replyInfoVO;
 
-    @ForeignKey(entity = ReplyInfoVO.class,parentColumns = "ReplyInfoVO_Id",childColumns = "replyInfoVOId")
-    private transient long replyInfoVOId;
+    @ForeignKey(entity = ReplyInfoVO.class, parentColumns = "ReplyInfoVO_Id", childColumns = "replyInfoVOId")
+    private Long replyInfoVOId;
 
     @Ignore
     private ForwardInfo forwardInfo;
 
-    @ForeignKey(entity = ReplyInfoVO.class,parentColumns = "forwardInfo_Id",childColumns = "forwardInfoId")
-    private transient long forwardInfoId;
+    @ForeignKey(entity = ForwardInfo.class, parentColumns = "forwardInfo_Id", childColumns = "forwardInfoId")
+    @Nullable
+    private Long forwardInfoId;
 
     public Participant getParticipant() {
         return participant;
@@ -95,10 +98,12 @@ public class LastMessageVO {
         this.message = message;
     }
 
+    @Nullable
     public ReplyInfoVO getReplyInfoVO() {
         return replyInfoVO;
     }
 
+    @Nullable
     public void setReplyInfoVO(ReplyInfoVO replyInfoVO) {
         this.replyInfoVO = replyInfoVO;
     }
@@ -111,27 +116,33 @@ public class LastMessageVO {
         this.forwardInfo = forwardInfo;
     }
 
-    public long getParticipantId() {
+    @Nullable
+    public Long getParticipantId() {
         return participantId;
     }
 
-    public void setParticipantId(long participantId) {
+    @Nullable
+    public void setParticipantId(Long participantId) {
         this.participantId = participantId;
     }
 
-    public long getReplyInfoVOId() {
+    @Nullable
+    public Long getReplyInfoVOId() {
         return replyInfoVOId;
     }
 
-    public void setReplyInfoVOId(long replyInfoVOId) {
+    @Nullable
+    public void setReplyInfoVOId(Long replyInfoVOId) {
         this.replyInfoVOId = replyInfoVOId;
     }
 
-    public long getForwardInfoId() {
+    @Nullable
+    public Long getForwardInfoId() {
         return forwardInfoId;
     }
 
-    public void setForwardInfoId(long forwardInfoId) {
+    @Nullable
+    public void setForwardInfoId(Long forwardInfoId) {
         this.forwardInfoId = forwardInfoId;
     }
 }

@@ -1,16 +1,16 @@
 package com.fanap.podchat.model;
 
-import com.fanap.podchat.mainmodel.Thread;
+import com.fanap.podchat.mainmodel.ThreadVo;
 
 public class ResultAddParticipant {
-    private Thread thread;
+    private ThreadVo threadVo;
 
 
-    public Thread getThread() {
-        return thread;
+    public ThreadVo getThreadVo() {
+        return threadVo;
     }
 
-    public void setThread(Thread thread) {
-        this.thread = thread;
+    public void setThreadVo(ThreadVo threadVo) {
+        this.threadVo = threadVo;
     }
 }

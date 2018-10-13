@@ -6,25 +6,29 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.Nullable;
 
 import com.fanap.podchat.mainmodel.Participant;
-@Entity
+
+@Entity(foreignKeys = {@ForeignKey(entity = Participant.class, parentColumns = "id", childColumns = "participantId")})
 public class ReplyInfoVO {
 
     //This field is just for using cache
     @PrimaryKey
     @ColumnInfo(name = "replyInfoVO_Id")
-    private transient long id;
+    private Long id;
 
     @Ignore
+    @Nullable
     private Participant participant;
 
-    @ForeignKey(entity = Participant.class,parentColumns = "id",childColumns = "participantId")
-    private transient long participantId;
+    @ForeignKey(entity = Participant.class, parentColumns = "id", childColumns = "participantId")
+    private Long participantId;
 
     private long repliedToMessageId;
     private String repliedToMessage;
 
+    @Nullable
     public Participant getParticipant() {
         return participant;
     }
@@ -49,19 +53,19 @@ public class ReplyInfoVO {
         this.repliedToMessage = repliedToMessage;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public long getParticipantId() {
+    public Long getParticipantId() {
         return participantId;
     }
 
-    public void setParticipantId(long participantId) {
+    public void setParticipantId(Long participantId) {
         this.participantId = participantId;
     }
 }

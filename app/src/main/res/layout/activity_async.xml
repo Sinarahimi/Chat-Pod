@@ -116,7 +116,7 @@
         android:layout_marginStart="10dp"
         android:layout_marginTop="47dp"
         android:onClick="getThread"
-        android:text="Get Thread"
+        android:text="Get ThreadVo"
         android:textSize="10sp"
         app:layout_constraintBottom_toBottomOf="@+id/buttonSendMessage"
         app:layout_constraintEnd_toEndOf="@+id/buttonSendMessage"

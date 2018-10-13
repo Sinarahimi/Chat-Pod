@@ -68,9 +68,9 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
             , "Send file"
             , "Upload Image"
             , "Upload File"
-            , "Remove Thread Participant"
-            , "Add Thread Participant"
-            , "Leave Thread"
+            , "Remove ThreadVo Participant"
+            , "Add ThreadVo Participant"
+            , "Leave ThreadVo"
             , "Delete Message"
             , "Search Contact"
             , "Search History"
@@ -102,7 +102,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 //    private static String name = "Alexi";
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "239976da17694844933375daa775c2f4";
+    private static String TOKEN = "416180f58e634f2a8003322e8935d290";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -496,7 +496,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                 ArrayList<Integer> threadIds = new ArrayList<>();
 //                threadIds.add(661);
 //                threadIds.add(1031);
-//                presenter.getThread(2, 0, null, null);
+//                presenter.getThreadVo(2, 0, null, null);
                 presenter.getThread(2, null, null, null, null);
 //                        new ChatHandler() {
 //                    @Override

@@ -8,9 +8,11 @@ import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.Inviter;
 import com.fanap.podchat.mainmodel.LastMessageVO;
 import com.fanap.podchat.mainmodel.Participant;
-import com.fanap.podchat.mainmodel.Thread;
+import com.fanap.podchat.mainmodel.ThreadVo;
 import com.fanap.podchat.model.ForwardInfo;
+import com.fanap.podchat.model.MessageVO;
 import com.fanap.podchat.model.ReplyInfoVO;
+import com.fanap.podchat.util.ThreadCallbacks;
 
 import java.util.List;
 
@@ -20,19 +22,32 @@ import static android.arch.persistence.room.OnConflictStrategy.REPLACE;
 public interface MessageDao {
 
     @Insert(onConflict = REPLACE)
+    void insertHistory(MessageVO messageVO);
+
+    @Insert(onConflict = REPLACE)
+    void insertHistories(List<MessageVO> messageVOS);
+
+    @Query("select * from MessageVO")
+    List<MessageVO> getHistories();
+
+
+    @Insert(onConflict = REPLACE)
     void insertContact(List<Contact> t);
 
     @Query("select * from Contact")
-    List<Contact> getContact();
+    List<Contact> getContacts();
 
-    @Query("select * from Thread")
-    List<Thread> getThreads();
+    @Query("select * from ThreadVo")
+    List<ThreadVo> getThreads();
+
+    @Query("select  * from ThreadVo where id = :id")
+    ThreadVo getThread(long id);
 
     @Insert(onConflict = REPLACE)
-    void insertThreads(List<Thread> Thread);
+    void insertThreads(List<ThreadVo> ThreadVo);
 
     @Insert(onConflict = REPLACE)
-    void insertThread(Thread thread);
+    void insertThread(ThreadVo threadVo);
 
     @Query("select * from Inviter where id = :inviterId ")
     Inviter getInviter(long inviterId);
@@ -62,6 +77,6 @@ public interface MessageDao {
     void insertForwardInfo(ForwardInfo forwardInfo);
 
     @Query("select * from ForwardInfo where forwardInfo_Id = :forwardInfoId ")
-    ForwardInfo getForwardInfoId(long forwardInfoId);
+    ForwardInfo getForwardInfo(long forwardInfoId);
 
 }

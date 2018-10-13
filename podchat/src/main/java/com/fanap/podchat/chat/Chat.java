@@ -39,7 +39,7 @@ import com.fanap.podchat.mainmodel.RemoveParticipant;
 import com.fanap.podchat.mainmodel.ResultDeleteMessage;
 import com.fanap.podchat.mainmodel.SearchContact;
 import com.fanap.podchat.mainmodel.SearchContactVO;
-import com.fanap.podchat.mainmodel.Thread;
+import com.fanap.podchat.mainmodel.ThreadVo;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
 import com.fanap.podchat.mainmodel.UpdateContact;
 import com.fanap.podchat.mainmodel.UserInfo;
@@ -318,7 +318,7 @@ public class Chat extends AsyncAdapter {
                 handleResponseMessage(callback, chatMessage, messageUniqueId);
                 break;
             case Constants.REMOVED_FROM_THREAD:
-                //TODO removed thread
+                //TODO removed threadVo
                 break;
             case Constants.LEAVE_THREAD:
                 handleResponseMessage(callback, chatMessage, messageUniqueId);
@@ -363,8 +363,8 @@ public class Chat extends AsyncAdapter {
             case Constants.THREAD_INFO_UPDATED:
                 OutPutInfoThread outPutInfoThread = new OutPutInfoThread();
                 ResultThread resultThread = new ResultThread();
-                Thread thread = JsonUtil.fromJSON(chatMessage.getContent(), Thread.class);
-                resultThread.setThread(thread);
+                ThreadVo threadVo = JsonUtil.fromJSON(chatMessage.getContent(), ThreadVo.class);
+                resultThread.setThreadVo(threadVo);
                 outPutInfoThread.setResult(resultThread);
                 listenerManager.callOnThreadInfoUpdated(chatMessage.getContent());
                 if (BuildConfig.DEBUG) Logger.i("THREAD_INFO_UPDATED");
@@ -618,7 +618,7 @@ public class Chat extends AsyncAdapter {
     }
 
     /**
-     * @param participantIds List of PARTICIPANT IDs from Thread's Participants object
+     * @param participantIds List of PARTICIPANT IDs from ThreadVo's Participants object
      * @param threadId       Id of the thread that we wants to remove their participant
      */
     public void removeParticipants(long threadId, List<Long> participantIds, ChatHandler handler) {
@@ -766,22 +766,22 @@ public class Chat extends AsyncAdapter {
 
         if (cache) {
 
-            List<Thread> threads =messageDatabaseHelper.getThreads();
+            List<ThreadVo> threadVos =messageDatabaseHelper.getThreads();
             OutPutThreads outPutThreads = new OutPutThreads();
 
             ResultThreads resultThreads = new ResultThreads();
-            resultThreads.setThreads(threads);
-            resultThreads.setContentCount(threads.size());
+            resultThreads.setThreadVos(threadVos);
+            resultThreads.setContentCount(threadVos.size());
             outPutThreads.setErrorCode(0);
             outPutThreads.setErrorMessage("");
             outPutThreads.setHasError(false);
 
-//            if (threads.size() + callback.getOffset() < chatMessage.getContentCount()) {
+//            if (threadVos.size() + callback.getOffset() < chatMessage.getContentCount()) {
 //                resultThreads.setHasNext(true);
 //            } else {
 //                resultThreads.setHasNext(false);
 //            }
-//            resultThreads.setNextOffset(callback.getOffset() + threads.size());
+//            resultThreads.setNextOffset(callback.getOffset() + threadVos.size());
             outPutThreads.setResult(resultThreads);
 
             if (BuildConfig.DEBUG) Logger.json(JsonUtil.getJson(outPutThreads));
@@ -844,6 +844,41 @@ public class Chat extends AsyncAdapter {
      * @param threadId Id of the thread that we want to get the history
      */
     public void getHistory(History history, long threadId, ChatHandler handler) {
+
+        if (cache) {
+
+            OutPutHistory outPut = new OutPutHistory();
+            ResultsHistory resultsHistory = new ResultsHistory();
+
+            List<MessageVO> messageVOS =  messageDatabaseHelper.getHistories();;
+//            Type type = Types.newParameterizedType(List.class, MessageVO.class);
+//            JsonAdapter<List<MessageVO>> messageVOSAdapter = moshi.adapter(type);
+//            try {
+//                messageVOS = messageVOSAdapter.fromJson(chatMessage.getContent());
+//            } catch (IOException e) {
+//                if (BuildConfig.DEBUG) Logger.e(e.getMessage());
+//            }
+//            resultsHistory.setNextOffset(callback.getOffset() + messageVOS.size());
+//            resultsHistory.setContentCount(chatMessage.getContentCount());
+//            if (messageVOS.size() + callback.getOffset() < chatMessage.getContentCount()) {
+//                resultsHistory.setHasNext(true);
+//            } else {
+//                resultsHistory.setHasNext(false);
+//            }
+
+            resultsHistory.setHistory(messageVOS);
+            outPut.setErrorCode(0);
+            outPut.setHasError(false);
+            outPut.setErrorMessage("");
+            outPut.setResult(resultsHistory);
+
+            String json = JsonUtil.getJson(outPut);
+            listenerManager.callOnGetThreadHistory(json, outPut);
+
+//            messageCallbacks.remove(messageUniqueId);
+            if (BuildConfig.DEBUG) Logger.i("Cache_HISTORY");
+            if (BuildConfig.DEBUG) Logger.json(json);
+        }
 
         long offsets = history.getOffset();
 
@@ -1924,9 +1959,9 @@ public class Chat extends AsyncAdapter {
     }
 
     private void handleAddParticipant(ChatMessage chatMessage, String messageUniqueId) {
-        Thread thread = JsonUtil.fromJSON(chatMessage.getContent(), Thread.class);
+        ThreadVo threadVo = JsonUtil.fromJSON(chatMessage.getContent(), ThreadVo.class);
         ResultAddParticipant resultAddParticipant = new ResultAddParticipant();
-        resultAddParticipant.setThread(thread);
+        resultAddParticipant.setThreadVo(threadVo);
         OutPutAddParticipant outPutAddParticipant = new OutPutAddParticipant();
         outPutAddParticipant.setErrorCode(0);
         outPutAddParticipant.setErrorMessage("");
@@ -2031,6 +2066,9 @@ public class Chat extends AsyncAdapter {
     }
 
     private void handleOutPutGetHistory(Callback callback, ChatMessage chatMessage, String messageUniqueId) {
+
+
+
         OutPutHistory outPut = new OutPutHistory();
         ResultsHistory resultsHistory = new ResultsHistory();
 
@@ -2055,6 +2093,11 @@ public class Chat extends AsyncAdapter {
         outPut.setHasError(false);
         outPut.setErrorMessage("");
         outPut.setResult(resultsHistory);
+
+        if (cache) {
+            messageDatabaseHelper.saveHistory(messageVOS);
+        }
+
 
         String json = JsonUtil.getJson(outPut);
         listenerManager.callOnGetThreadHistory(json, outPut);
@@ -2103,8 +2146,8 @@ public class Chat extends AsyncAdapter {
         outPutThread.setHasError(false);
 
         ResultThread resultThread = new ResultThread();
-        Thread thread = JsonUtil.fromJSON(chatMessage.getContent(), Thread.class);
-        resultThread.setThread(thread);
+        ThreadVo threadVo = JsonUtil.fromJSON(chatMessage.getContent(), ThreadVo.class);
+        resultThread.setThreadVo(threadVo);
         outPutThread.setResult(resultThread);
         return outPutThread;
     }
@@ -2439,9 +2482,9 @@ public class Chat extends AsyncAdapter {
         ResultThread resultThread = new ResultThread();
 
         Gson gson = new Gson();
-        Thread thread = gson.fromJson(chatMessage.getContent(), Thread.class);
+        ThreadVo threadVo = gson.fromJson(chatMessage.getContent(), ThreadVo.class);
 
-        resultThread.setThread(thread);
+        resultThread.setThreadVo(threadVo);
         outPutThread.setHasError(false);
         outPutThread.setErrorCode(0);
         outPutThread.setErrorMessage("");
@@ -2489,38 +2532,38 @@ public class Chat extends AsyncAdapter {
      */
     private String reformatGetThreadsResponse(ChatMessage chatMessage, OutPutThreads outPutThreads, Callback callback) {
         if (BuildConfig.DEBUG) Logger.json(chatMessage.getContent());
-//        List<Thread> threads = new ArrayList<>();
+//        List<ThreadVo> threadVos = new ArrayList<>();
 
-        Type listType = new TypeToken<List<Thread>>() {}.getType();
+        Type listType = new TypeToken<List<ThreadVo>>() {}.getType();
 
-        List<Thread> threads = new Gson().fromJson(chatMessage.getContent(), listType);
+        List<ThreadVo> threadVos = new Gson().fromJson(chatMessage.getContent(), listType);
 
 
-//        Type type = Types.newParameterizedType(List.class, Thread.class);
-//        JsonAdapter<List<Thread>> adapter = moshi.adapter(type);
+//        Type type = Types.newParameterizedType(List.class, ThreadVo.class);
+//        JsonAdapter<List<ThreadVo>> adapter = moshi.adapter(type);
 //        try {
-//            threads = adapter.fromJson(chatMessage.getContent());
+//            threadVos = adapter.fromJson(chatMessage.getContent());
 //        } catch (IOException e) {
 //            if (BuildConfig.DEBUG) Logger.e(e.getMessage() + e.getCause());
 //        }
 
         if (cache) {
-            messageDatabaseHelper.saveThreads(threads);
+            messageDatabaseHelper.saveThreads(threadVos);
         }
 
         ResultThreads resultThreads = new ResultThreads();
-        resultThreads.setThreads(threads);
+        resultThreads.setThreadVos(threadVos);
         resultThreads.setContentCount(chatMessage.getContentCount());
         outPutThreads.setErrorCode(0);
         outPutThreads.setErrorMessage("");
         outPutThreads.setHasError(false);
 
-        if (threads.size() + callback.getOffset() < chatMessage.getContentCount()) {
+        if (threadVos.size() + callback.getOffset() < chatMessage.getContentCount()) {
             resultThreads.setHasNext(true);
         } else {
             resultThreads.setHasNext(false);
         }
-        resultThreads.setNextOffset(callback.getOffset() + threads.size());
+        resultThreads.setNextOffset(callback.getOffset() + threadVos.size());
         outPutThreads.setResult(resultThreads);
         return JsonUtil.getJson(outPutThreads);
     }

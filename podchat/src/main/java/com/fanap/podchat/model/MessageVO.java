@@ -1,24 +1,59 @@
 package com.fanap.podchat.model;
 
-import com.fanap.podchat.mainmodel.Participant;
-import com.fanap.podchat.mainmodel.Thread;
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.ForeignKey;
+import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.Nullable;
 
+import com.fanap.podchat.mainmodel.Participant;
+import com.fanap.podchat.mainmodel.ThreadVo;
+
+@Entity(foreignKeys = {
+        @ForeignKey(entity = Participant.class, parentColumns = "id", childColumns = "participantId"),
+        @ForeignKey(entity = ThreadVo.class, parentColumns = "id", childColumns = "threadVoId"),
+        @ForeignKey(entity = ReplyInfoVO.class, parentColumns = "ReplyInfoVO_Id", childColumns = "replyInfoVOId"),
+        @ForeignKey(entity = ForwardInfo.class, parentColumns = "forwardInfo_Id", childColumns = "forwardInfoId")
+})
 public class MessageVO {
+
+    @PrimaryKey
+    private long id;
+    private long previousId;
+    private long time;
     private boolean edited;
     private boolean editable;
     private boolean delivered;
     private boolean seen;
-    private long id;
     private String uniqueId;
-    private long previousId;
     private String message;
-    private Participant participant;
-    private long time;
     private String metadata;
     private String systemMetadata;
-    private Thread conversation;
+
+    @Ignore
+    private Participant participant;
+
+    @ForeignKey(entity = Participant.class, parentColumns = "id", childColumns = "participantId")
+    private Long participantId;
+
+    @Ignore
+    private ThreadVo conversation;
+
+    @ForeignKey(entity = ThreadVo.class, parentColumns = "id", childColumns = "threadVoId")
+    private Long threadVoId;
+
+    @Ignore
     private ReplyInfoVO replyInfoVO;
+
+    @ForeignKey(entity = ReplyInfoVO.class, parentColumns = "ReplyInfoVO_Id", childColumns = "replyInfoVOId")
+    private Long replyInfoVOId;
+
+    @Ignore
     private ForwardInfo forwardInfo;
+
+    @ForeignKey(entity = ForwardInfo.class, parentColumns = "forwardInfo_Id", childColumns = "forwardInfoId")
+    @Nullable
+    private Long forwardInfoId;
 
     public boolean isEdited() {
         return edited;
@@ -108,11 +143,11 @@ public class MessageVO {
         this.metadata = metadata;
     }
 
-    public Thread getConversation() {
+    public ThreadVo getConversation() {
         return conversation;
     }
 
-    public void setConversation(Thread conversation) {
+    public void setConversation(ThreadVo conversation) {
         this.conversation = conversation;
     }
 
@@ -138,5 +173,38 @@ public class MessageVO {
 
     public void setSystemMetadata(String systemMetadata) {
         this.systemMetadata = systemMetadata;
+    }
+
+    public Long getParticipantId() {
+        return participantId;
+    }
+
+    public void setParticipantId(Long participantId) {
+        this.participantId = participantId;
+    }
+
+    public Long getThreadVoId() {
+        return threadVoId;
+    }
+
+    public void setThreadVoId(Long threadVoId) {
+        this.threadVoId = threadVoId;
+    }
+
+    public Long getReplyInfoVOId() {
+        return replyInfoVOId;
+    }
+
+    public void setReplyInfoVOId(Long replyInfoVOId) {
+        this.replyInfoVOId = replyInfoVOId;
+    }
+
+    @Nullable
+    public Long getForwardInfoId() {
+        return forwardInfoId;
+    }
+
+    public void setForwardInfoId(@Nullable Long forwardInfoId) {
+        this.forwardInfoId = forwardInfoId;
     }
 }

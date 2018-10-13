@@ -1,7 +1,5 @@
 package com.fanap.podchat.mainmodel;
 
-import android.arch.persistence.room.ColumnInfo;
-import android.arch.persistence.room.Embedded;
 import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.Ignore;
@@ -12,8 +10,9 @@ import com.fanap.podchat.util.DataTypeConverter;
 
 import java.util.List;
 
-@Entity
-public class Thread {
+@Entity(foreignKeys = {@ForeignKey(entity = Inviter.class, parentColumns = "id", childColumns = "inviterId"),
+        @ForeignKey(entity = LastMessageVO.class, parentColumns = "id", childColumns = "lastMessageVOId")})
+public class ThreadVo {
     @PrimaryKey
     private long id;
     private long joinDate;
@@ -21,16 +20,14 @@ public class Thread {
     @Ignore
     private Inviter inviter;
 
-    @ForeignKey(entity = Inviter.class, parentColumns = "id", childColumns = "inviter_id")
-    @ColumnInfo(name = "inviter_id")
-    private transient Long inviterId;
+    @ForeignKey(entity = Inviter.class, parentColumns = "id", childColumns = "inviterId")
+    private Long inviterId;
 
     @Ignore
     private LastMessageVO lastMessageVO;
 
-    @ForeignKey(entity = LastMessageVO.class,parentColumns = "id", childColumns = "last_message_vo_id")
-    @ColumnInfo(name = "lastMessageVO_id")
-    private transient Long lastMessageVOId;
+    @ForeignKey(entity = LastMessageVO.class, parentColumns = "id", childColumns = "lastMessageVOId")
+    private Long lastMessageVOId;
 
     private String title;
 
@@ -53,7 +50,6 @@ public class Thread {
     private String metadata;
     private boolean canEditInfo;
     private long participantCount;
-
 
     public long getId() {
         return id;

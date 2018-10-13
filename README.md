@@ -31,19 +31,19 @@ chat.connect("ws://172.16.106.26:8003/ws",
 ```
 And now it's ready for chat .
 
-|Num|Thread & Base Method           | Description                                                                            |
+|Num|ThreadVo & Base Method           | Description                                                                            |
 |:--|:------------------------------|:---------------------------------------------------------------------------------------|
-|1|`createThread(int threadType, Invitee[] invitee, String threadTitle)`                |  Create the thread.                |
-|2|`getHistory(int count, int offset, String order, long threadId)`         | get the history of the specific thread       |
-|3|`getThreads(int count, int offset, ArrayList<Integer> threadIds, String threadName)`         | gets the list of thread       |
-|4|`muteThread(int threadId)`         | Mute the thread      |
-|5|`unmuteThread(int threadId)`         | Un Mute the thread      |
+|1|`createThread(int threadType, Invitee[] invitee, String threadTitle)`                |  Create the threadVo.                |
+|2|`getHistory(int count, int offset, String order, long threadId)`         | get the history of the specific threadVo       |
+|3|`getThreads(int count, int offset, ArrayList<Integer> threadIds, String threadName)`         | gets the list of threadVo       |
+|4|`muteThread(int threadId)`         | Mute the threadVo      |
+|5|`unmuteThread(int threadId)`         | Un Mute the threadVo      |
 |6|`getThreadParticipants(int count, int offset, long threadId)`         | Get the participant list      |
 |7|`addParticipants(long threadId, List<Long> contactIds)`         |  add participant of the group    |
 |8|`removeParticipants(long threadId, List<Long> participantIds)`         |  remove participant of the group    |
-|9|`leaveThread(long threadId)`         | leave any thread you want     |
+|9|`leaveThread(long threadId)`         | leave any threadVo you want     |
 |10|`logOutSocket()`    | log out of the socket.      |
-|11|`renameThread(long threadId, String title)`                |  Rename the thread if you are the owner.                |
+|11|`renameThread(long threadId, String title)`                |  Rename the threadVo if you are the owner.                |
 |12|`getUserInfo()`         | Get information about the current user        |     
 
 ### getUserInfo
@@ -111,9 +111,9 @@ chat.unmuteThread(232);
 
 |Num|Message Method           | Description                                                                            |
 |:--|:------------------------------|:---------------------------------------------------------------------------------------|
-|1|`sendTextMessage(String textMessage, long threadId, String metaData,SendTextMessageHandler handler)`       | Send text message to thread.           |
+|1|`sendTextMessage(String textMessage, long threadId, String metaData,SendTextMessageHandler handler)`       | Send text message to threadVo.           |
 |2|`forwardMessage(long threadId, ArrayList<Long> messageIds)`                 | Forward the message or messages.        |
-|3|`replyMessage(String messageContent, long threadId, long messageId)`         | Reply the message in the thread       |
+|3|`replyMessage(String messageContent, long threadId, long messageId)`         | Reply the message in the threadVo       |
 |4|`editMessage(int messageId, String messageContent)`         | Edit the message      |
 |5|`sendFileMessage(Context context, String description, long threadId, Uri fileUri, String metadata)`         | Send file      |
 |6|`deleteMessage(long messageId, Boolean deleteForAll)`         | delete the message     |
@@ -213,20 +213,20 @@ For getting call back you should extend your class from `ChatAdapter`.
 
 ###The table below is the list of callback methods defined in ChatListener interface.
 
-|Num|Thread & Base Method           | Listener Description       |
+|Num|ThreadVo & Base Method           | Listener Description       |
 |:--|:------------------------------|:---------------------------------------------------------------------------------------|
-|1| `onGetHistory()`| Called when history of the thread is return.      |
-|2| `onGetThread()`       |  Called when get threads is return.          |
-|3| `onMuteThread()`                 |Called when thread is muted.         |
+|1| `onGetHistory()`| Called when history of the threadVo is return.      |
+|2| `onGetThread()`       |  Called when get threadVos is return.          |
+|3| `onMuteThread()`                 |Called when threadVo is muted.         |
 |4| `onUnmuteThread()`         | Called when message is un muted.      |
 |5| `onUserInfo()`         | Called when information of the user is return.     |
-|6| `onCreateThread()`         |Called when thread is created.         |
-|7| `onGetThreadParticipant()`         |Called when you want participants of the specific thread.         |
-|8| `onRenameThread()`         |Called when you rename of the thread that you are admin of that       |
+|6| `onCreateThread()`         |Called when threadVo is created.         |
+|7| `onGetThreadParticipant()`         |Called when you want participants of the specific threadVo.         |
+|8| `onRenameThread()`         |Called when you rename of the threadVo that you are admin of that       |
 |9| `onChatState()`         | Return the last state of the chat      |
-|10| `onThreadInfoUpdated()`         | Called when something change is the thread      |
+|10| `onThreadInfoUpdated()`         | Called when something change is the threadVo      |
 |11| `onThreadRemoveParticipant()`         |Called when remove the participant of the group      |
-|12| `onThreadLeaveParticipant()`         | Called when participant of the group leaves the thread      |
+|12| `onThreadLeaveParticipant()`         | Called when participant of the group leaves the threadVo      |
 |13| `onThreadAddParticipant()`         |Called when contact added as a participant in the group       |
 |14| `onError()`         |Called when something error happend       |
 

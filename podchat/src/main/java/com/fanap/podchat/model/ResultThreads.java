@@ -1,11 +1,11 @@
 package com.fanap.podchat.model;
 
-import com.fanap.podchat.mainmodel.Thread;
+import com.fanap.podchat.mainmodel.ThreadVo;
 
 import java.util.List;
 
 public class ResultThreads {
-    private List<Thread> threads;
+    private List<ThreadVo> threadVos;
     private long contentCount;
     private boolean hasNext;
     private long nextOffset;
@@ -34,11 +34,11 @@ public class ResultThreads {
         this.nextOffset = nextOffset;
     }
 
-    public List<Thread> getThreads() {
-        return threads;
+    public List<ThreadVo> getThreadVos() {
+        return threadVos;
     }
 
-    public void setThreads(List<Thread> threads) {
-        this.threads = threads;
+    public void setThreadVos(List<ThreadVo> threadVos) {
+        this.threadVos = threadVos;
     }
 }

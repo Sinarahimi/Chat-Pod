@@ -70,8 +70,7 @@ dependencies {
     //logger
     api 'com.orhanobut:logger:2.2.0'
     implementation 'com.fanap.podasync:podasync:0.0.8.2'
-    implementation 'com.android.support:support-v4:27.1.1'
-    implementation 'com.android.support:support-v4:27.1.1'
+
 }
 
 if (project.rootProject.file('local.properties').exists()) {

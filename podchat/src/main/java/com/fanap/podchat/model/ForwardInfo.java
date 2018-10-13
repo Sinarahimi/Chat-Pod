@@ -6,21 +6,25 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.Nullable;
 
 import com.fanap.podchat.mainmodel.Participant;
-@Entity
+
+@Entity(foreignKeys = {@ForeignKey(entity = Participant.class, parentColumns = "id", childColumns = "participantId")})
 public class ForwardInfo {
 
     //This field is just for using cache
     @PrimaryKey
     @ColumnInfo(name = "forwardInfo_Id")
-    private transient long id;
+    private long id;
 
     @Ignore
+    @Nullable
     private Participant participant;
 
-    @ForeignKey(entity = Participant.class,parentColumns = "id",childColumns = "participantId")
-    private transient long participantId;
+    @Nullable
+    @ForeignKey(entity = Participant.class, parentColumns = "id", childColumns = "participantId")
+    private Long participantId;
 
     @Ignore
     private ConversationSummery conversation;
@@ -29,6 +33,7 @@ public class ForwardInfo {
         return participant;
     }
 
+    @Nullable
     public void setParticipant(Participant participant) {
         this.participant = participant;
     }
@@ -48,12 +53,12 @@ public class ForwardInfo {
     public void setId(long id) {
         this.id = id;
     }
-
-    public long getParticipantId() {
+    @Nullable
+    public Long getParticipantId() {
         return participantId;
     }
-
-    public void setParticipantId(long participantId) {
+    @Nullable
+    public void setParticipantId(Long participantId) {
         this.participantId = participantId;
     }
 }
