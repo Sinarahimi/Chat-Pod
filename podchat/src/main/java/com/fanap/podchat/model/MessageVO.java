@@ -12,7 +12,7 @@ import com.fanap.podchat.mainmodel.ThreadVo;
 @Entity(foreignKeys = {
         @ForeignKey(entity = Participant.class, parentColumns = "id", childColumns = "participantId"),
         @ForeignKey(entity = ThreadVo.class, parentColumns = "id", childColumns = "threadVoId"),
-        @ForeignKey(entity = ReplyInfoVO.class, parentColumns = "ReplyInfoVO_Id", childColumns = "replyInfoVOId"),
+        @ForeignKey(entity = ReplyInfoVO.class, parentColumns = "replyInfoVO_Id", childColumns = "replyInfoVOId"),
         @ForeignKey(entity = ForwardInfo.class, parentColumns = "forwardInfo_Id", childColumns = "forwardInfoId")
 })
 public class MessageVO {

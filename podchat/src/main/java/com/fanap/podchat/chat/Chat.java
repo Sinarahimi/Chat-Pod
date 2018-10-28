@@ -556,7 +556,7 @@ public class Chat extends AsyncAdapter {
     }
 
     @NonNull
-    private String getErrorOutPut(String errorMessage, int errorCode) {
+    private String getErrorOutPut(String errorMessage, long errorCode) {
         ErrorOutPut error = new ErrorOutPut(true, errorMessage, errorCode);
         String jsonError = JsonUtil.getJson(error);
         listenerManager.callOnError(jsonError, error);
@@ -575,6 +575,7 @@ public class Chat extends AsyncAdapter {
      * Notice : You should consider that this method is for rename group and you have to be the admin
      * to change the thread name if not you don't have the Permission
      */
+    @Deprecated
     public void renameThread(long threadId, String title, ChatHandler handler) {
         String uniqueId = getUniqueId();
         ChatMessage chatMessage = new ChatMessage();
@@ -766,7 +767,7 @@ public class Chat extends AsyncAdapter {
 
         if (cache) {
 
-            List<ThreadVo> threadVos =messageDatabaseHelper.getThreads();
+            List<ThreadVo> threadVos = messageDatabaseHelper.getThreads();
             OutPutThreads outPutThreads = new OutPutThreads();
 
             ResultThreads resultThreads = new ResultThreads();
@@ -785,7 +786,7 @@ public class Chat extends AsyncAdapter {
             outPutThreads.setResult(resultThreads);
 
             if (BuildConfig.DEBUG) Logger.json(JsonUtil.getJson(outPutThreads));
-            listenerManager.callOnGetThread(JsonUtil.getJson(outPutThreads),outPutThreads);
+            listenerManager.callOnGetThread(JsonUtil.getJson(outPutThreads), outPutThreads);
         }
 
         if (chatReady) {
@@ -850,22 +851,7 @@ public class Chat extends AsyncAdapter {
             OutPutHistory outPut = new OutPutHistory();
             ResultsHistory resultsHistory = new ResultsHistory();
 
-            List<MessageVO> messageVOS =  messageDatabaseHelper.getHistories();;
-//            Type type = Types.newParameterizedType(List.class, MessageVO.class);
-//            JsonAdapter<List<MessageVO>> messageVOSAdapter = moshi.adapter(type);
-//            try {
-//                messageVOS = messageVOSAdapter.fromJson(chatMessage.getContent());
-//            } catch (IOException e) {
-//                if (BuildConfig.DEBUG) Logger.e(e.getMessage());
-//            }
-//            resultsHistory.setNextOffset(callback.getOffset() + messageVOS.size());
-//            resultsHistory.setContentCount(chatMessage.getContentCount());
-//            if (messageVOS.size() + callback.getOffset() < chatMessage.getContentCount()) {
-//                resultsHistory.setHasNext(true);
-//            } else {
-//                resultsHistory.setHasNext(false);
-//            }
-
+            List<MessageVO> messageVOS = messageDatabaseHelper.getHistories();
             resultsHistory.setHistory(messageVOS);
             outPut.setErrorCode(0);
             outPut.setHasError(false);
@@ -875,7 +861,6 @@ public class Chat extends AsyncAdapter {
             String json = JsonUtil.getJson(outPut);
             listenerManager.callOnGetThreadHistory(json, outPut);
 
-//            messageCallbacks.remove(messageUniqueId);
             if (BuildConfig.DEBUG) Logger.i("Cache_HISTORY");
             if (BuildConfig.DEBUG) Logger.json(json);
         }
@@ -942,7 +927,7 @@ public class Chat extends AsyncAdapter {
         setCallBacks(null, null, null, true, Constants.GET_HISTORY, messageCriteriaVO.getOffset(), uniqueId);
         sendAsyncMessage(asyncContent, 3, "SEND SEARCH0. HISTORY");
         if (handler != null) {
-        handler.onSearchHistory(uniqueId);
+            handler.onSearchHistory(uniqueId);
         }
     }
 
@@ -1005,7 +990,7 @@ public class Chat extends AsyncAdapter {
             setCallBacks(null, null, null, true, Constants.GET_CONTACTS, offsets, uniqueId);
             sendAsyncMessage(asyncContent, 3, "GET_CONTACT_SEND");
             if (handler != null) {
-            handler.onGetContact(uniqueId);
+                handler.onGetContact(uniqueId);
             }
         }
     }
@@ -1275,7 +1260,7 @@ public class Chat extends AsyncAdapter {
         String asyncContent = JsonUtil.getJson(chatMessage);
         sendAsyncMessage(asyncContent, 4, "SEND_BLOCK_List");
         if (handler != null) {
-        handler.onGetBlockList(uniqueId);
+            handler.onGetBlockList(uniqueId);
         }
     }
 
@@ -1314,7 +1299,7 @@ public class Chat extends AsyncAdapter {
         String asyncContent = JsonUtil.getJson(chatMessage);
         sendAsyncMessage(asyncContent, 4, "SEND_CREATE_THREAD");
         if (handler != null) {
-        handler.onCreateThread(uniqueId);
+            handler.onCreateThread(uniqueId);
         }
     }
 
@@ -1335,7 +1320,7 @@ public class Chat extends AsyncAdapter {
         setCallBacks(null, null, null, true, Constants.UPDATE_THREAD_INFO, null, uniqueId);
         sendAsyncMessage(asyncContent, 4, "UPDATE_THREAD_INFO");
         if (handler != null) {
-        handler.onUpdateThreadInfo(uniqueId);
+            handler.onUpdateThreadInfo(uniqueId);
         }
     }
 
@@ -1375,7 +1360,7 @@ public class Chat extends AsyncAdapter {
         setCallBacks(null, null, null, true, Constants.THREAD_PARTICIPANTS, offset, uniqueId);
         sendAsyncMessage(asyncContent, 3, "SEND_THREAD_PARTICIPANT");
         if (handler != null) {
-        handler.onGetThreadParticipant(uniqueId);
+            handler.onGetThreadParticipant(uniqueId);
         }
     }
 
@@ -1395,7 +1380,7 @@ public class Chat extends AsyncAdapter {
             String asyncContent = chatMessageJsonAdapter.toJson(message);
             sendAsyncMessage(asyncContent, 4, "SEND_SEEN_MESSAGE");
             if (handler != null) {
-            handler.onSeen(uniqueId);
+                handler.onSeen(uniqueId);
             }
         }
     }
@@ -1420,7 +1405,7 @@ public class Chat extends AsyncAdapter {
             async.sendMessage(asyncContent, 3);
 
             if (handler != null) {
-            handler.onGetUserInfo(uniqueId);
+                handler.onGetUserInfo(uniqueId);
             }
 
             long lastSentMessageTimeout = 9 * 1000;
@@ -1459,7 +1444,7 @@ public class Chat extends AsyncAdapter {
         String asyncContent = JsonUtil.getJson(chatMessage);
         sendAsyncMessage(asyncContent, 4, "SEND_MUTE_THREAD");
         if (handler != null) {
-        handler.onMuteThread(uniqueId);
+            handler.onMuteThread(uniqueId);
         }
     }
 
@@ -1479,7 +1464,7 @@ public class Chat extends AsyncAdapter {
         String asyncContent = JsonUtil.getJson(chatMessage);
         sendAsyncMessage(asyncContent, 4, "SEND_UN_MUTE_THREAD");
         if (handler != null) {
-        handler.onUnMuteThread(uniqueId);
+            handler.onUnMuteThread(uniqueId);
         }
     }
 
@@ -1502,7 +1487,7 @@ public class Chat extends AsyncAdapter {
         setCallBacks(null, null, null, true, Constants.EDIT_MESSAGE, null, uniqueId);
         sendAsyncMessage(asyncContent, 4, "SEND_EDIT_MESSAGE");
         if (handler != null) {
-        handler.onEditMessage(uniqueId);
+            handler.onEditMessage(uniqueId);
         }
     }
 
@@ -1565,17 +1550,16 @@ public class Chat extends AsyncAdapter {
     }
 
     private void handleError(ChatMessage chatMessage) {
-        ErrorOutPut outPut = new ErrorOutPut();
         Error error = JsonUtil.fromJSON(chatMessage.getContent(), Error.class);
         if (error.getCode() == 401) {
             pingHandler.removeCallbacksAndMessages(null);
         }
-        outPut.setErrorMessage(error.getMessage());
-        outPut.setErrorCode(error.getCode());
-        String errorJson = JsonUtil.getJson(outPut);
-        listenerManager.callOnError(errorJson, outPut);
-        if (BuildConfig.DEBUG) Logger.e("ErrorMessage:" + error.getMessage());
-        if (BuildConfig.DEBUG) Logger.e("ErrorCode:" + " " + String.valueOf(error.getCode()));
+        String errorMessage = error.getMessage();
+        long errorCode = error.getCode();
+
+        String errorJson = getErrorOutPut(errorMessage, errorCode);
+
+        if (BuildConfig.DEBUG) Logger.json(errorJson);
     }
 
     /**
@@ -2068,7 +2052,6 @@ public class Chat extends AsyncAdapter {
     private void handleOutPutGetHistory(Callback callback, ChatMessage chatMessage, String messageUniqueId) {
 
 
-
         OutPutHistory outPut = new OutPutHistory();
         ResultsHistory resultsHistory = new ResultsHistory();
 
@@ -2534,7 +2517,8 @@ public class Chat extends AsyncAdapter {
         if (BuildConfig.DEBUG) Logger.json(chatMessage.getContent());
 //        List<ThreadVo> threadVos = new ArrayList<>();
 
-        Type listType = new TypeToken<List<ThreadVo>>() {}.getType();
+        Type listType = new TypeToken<List<ThreadVo>>() {
+        }.getType();
 
         List<ThreadVo> threadVos = new Gson().fromJson(chatMessage.getContent(), listType);
 

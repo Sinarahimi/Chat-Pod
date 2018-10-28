@@ -5,7 +5,6 @@ import android.arch.lifecycle.Observer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -22,7 +21,7 @@ import java.util.List;
 
 import ir.fanap.chat.sdk.R;
 
-public class AsyncActivity extends AppCompatActivity implements SocketContract.view {
+public class AsyncSandBoxActivity extends AppCompatActivity implements SocketContract.view {
 
     //("ws://172.16.110.235:8003/ws", "UIAPP")
 //    @Inject
@@ -34,13 +33,7 @@ public class AsyncActivity extends AppCompatActivity implements SocketContract.v
     Button buttonSendMessage;
     TextView textViewPeerId;
     EditText editTextReceiverId;
-    //    private String name = "jiji";
-//    private static String TOKEN = "fbd4ecedb898426394646e65c6b1d5d1";
-    private String name = "zizi";
-    private static String TOKEN = "7cba09ff83554fc98726430c30afcfc6";
-    //Token Alexi
-//    private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
-//    private static String name = "Alexi";
+    private String TOKEN = "ecfee54231e8467b838858e5ae3a66d6";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,16 +45,27 @@ public class AsyncActivity extends AppCompatActivity implements SocketContract.v
         socketPresenter = new SocketPresenter(this, this);
         textViewPeerId.setText(socketPresenter.getPeerId());
 
+        connectButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                socketPresenter.connect("ws://chat-sandbox.pod.land/ws", "POD-Chat", "chat-server",
+                        TOKEN,"https://sandbox.pod.land:8043/srv/basic-platform/","ksf98jhsdf5784");
+
+            }
+        });
+
         buttonSendMessage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 socketPresenter.sendMessage("hello", 3);
+
                 if (isEmpty(editTextReceiverId)) {
                     long receiverId = Long.valueOf(editTextReceiverId.getText().toString().trim());
                     final long[] receiverIdArray = {receiverId};
-                    socketPresenter.sendMessage("hello", 3, receiverIdArray);
-                } else {
-                    Toast.makeText(AsyncActivity.this, "Message is Empty", Toast.LENGTH_SHORT).show();
+                    socketPresenter.sendMessage("hello", 3);
+                }else {
+                    Toast.makeText(AsyncSandBoxActivity.this, "Message is Empty", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -79,7 +83,7 @@ public class AsyncActivity extends AppCompatActivity implements SocketContract.v
                 }, 3000);
             }
 
-        });
+                    });
 
         getStateButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -87,13 +91,7 @@ public class AsyncActivity extends AppCompatActivity implements SocketContract.v
                 socketPresenter.getLiveState();
             }
         });
-        connectButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                socketPresenter.connect("ws://172.16.106.26:8003/ws", "POD-Chat", "chat-server",
-                        "afa51d8291dc4072a0831d3a18cb5030", "http://172.16.110.76", "ksf98jhsdf5784");
-            }
-        });
+
 
         socketPresenter.getLiveData().observe(this, new Observer<String>() {
             @Override
@@ -114,7 +112,7 @@ public class AsyncActivity extends AppCompatActivity implements SocketContract.v
     }
 
     private boolean isEmpty(EditText etText) {
-        if (etText.getText().toString().trim().length() > 0) {
+        if (etText.getText().toString().trim().length() > 0){
             return true;
         }
         return false;

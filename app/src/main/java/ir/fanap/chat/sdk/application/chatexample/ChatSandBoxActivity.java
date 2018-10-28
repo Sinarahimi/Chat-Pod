@@ -102,7 +102,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 //    private static String name = "Alexi";
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "416180f58e634f2a8003322e8935d290";
+    private static String TOKEN = "579cdaa1baba426ea74f9e3388a74381";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
