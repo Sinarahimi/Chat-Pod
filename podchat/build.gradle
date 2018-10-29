@@ -69,7 +69,7 @@ dependencies {
     annotationProcessor 'android.arch.persistence.room:compiler:1.1.1'
     //logger
     api 'com.orhanobut:logger:2.2.0'
-    implementation 'com.fanap.podasync:podasync:0.0.8.2'
+    implementation project(':podasync')
 
 }
 

@@ -34,12 +34,20 @@ public class SocketPresenter extends AsyncAdapter implements SocketContract.pres
 
     @Override
     public void sendMessage(String textMessage, int messageType, long[] receiversId) {
-        async.sendMessage(textMessage, messageType, receiversId);
+        try {
+            async.sendMessage(textMessage, messageType, receiversId);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void sendMessage(String textMessage, int messageType) {
-        async.sendMessage(textMessage, messageType);
+        try {
+            async.sendMessage(textMessage, messageType);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

@@ -2175,7 +2175,11 @@ public class Chat extends AsyncAdapter {
         if (chatReady) {
             if (BuildConfig.DEBUG) Logger.i(logMessage);
             if (BuildConfig.DEBUG) Logger.json(asyncContent);
-            async.sendMessage(asyncContent, asyncMsgType);
+            try {
+                async.sendMessage(asyncContent, asyncMsgType);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             long lastSentMessageTimeout = 9 * 1000;
             lastSentMessageTime = new Date().getTime();
             if (state) {

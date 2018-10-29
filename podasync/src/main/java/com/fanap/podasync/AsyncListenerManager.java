@@ -1,5 +1,8 @@
 package com.fanap.podasync;
 
+import com.fanap.podasync.util.LogHelper;
+import com.orhanobut.logger.Logger;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,12 +16,13 @@ class AsyncListenerManager {
     public AsyncListenerManager() {
     }
 
-    public void addListener(AsyncListener listener) {
+    public void addListener(AsyncListener listener, boolean log) {
         if (listener == null) {
             return;
         }
 
         synchronized (mListeners) {
+            LogHelper.init(log);
             mListeners.add(listener);
             mSyncNeeded = true;
         }
@@ -113,6 +117,7 @@ class AsyncListenerManager {
 
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
+                Logger.e(t, t.getMessage());
             }
         }
     }
@@ -124,29 +129,36 @@ class AsyncListenerManager {
         }
     }
 
-    public void callOnStateChanged(String message) throws IOException {
+    public void callOnStateChanged(String message) {
         for (AsyncListener listener : getSynchronizedListeners()) {
             try {
                 listener.onStateChanged(message);
             } catch (Throwable throwable) {
                 callHandleCallbackError(listener, throwable);
+                Logger.e(throwable, throwable.getMessage());
             }
         }
     }
 
-    public void callOnDisconnected(String message) throws IOException {
+    public void callOnDisconnected(String message) {
         for (AsyncListener listener : getSynchronizedListeners()) {
             try {
                 listener.onDisconnected(message);
             } catch (Throwable throwable) {
                 callHandleCallbackError(listener, throwable);
+                Logger.e(throwable, throwable.getMessage());
             }
         }
     }
 
-    public void callOnError(String message) throws IOException {
+    public void callOnError(String message) {
         for (AsyncListener listener : getSynchronizedListeners()) {
-            listener.onError(message);
+            try {
+                listener.onError(message);
+            } catch (Throwable throwable) {
+                callHandleCallbackError(listener, throwable);
+                Logger.e(throwable, throwable.getMessage());
+            }
         }
     }
 }
