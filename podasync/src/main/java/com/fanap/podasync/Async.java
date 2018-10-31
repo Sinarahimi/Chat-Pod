@@ -35,6 +35,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.security.spec.ECField;
 import java.util.Date;
 import java.util.List;
 
@@ -82,7 +83,7 @@ public class Async extends WebSocketAdapter {
     private long JSTimeLatency = 100;
 
 
-    public Async() {
+    private Async() {
 
     }
 
@@ -239,7 +240,7 @@ public class Async extends WebSocketAdapter {
                     try {
                         reConnect();
                         if (log)
-                            Logger.e("Async: reConnect in " + "retryStep" + retryStep + "s");
+                            Logger.e("Async: reConnect in " + " retryStep " + retryStep + " s ");
                     } catch (WebSocketException e) {
                         asyncListenerManager.callOnError(e.getMessage());
 
@@ -259,51 +260,15 @@ public class Async extends WebSocketAdapter {
     public void connect(String socketServerAddress, final String appId, String serverName,
                         String token, String ssoHost, String deviceID) {
 
-        WebSocketFactory webSocketFactory = new WebSocketFactory();
-        SSLSocketFactory sslSocketFactory = new SSLSocketFactory() {
-            @Override
-            public String[] getDefaultCipherSuites() {
-                return new String[0];
-            }
-
-            @Override
-            public String[] getSupportedCipherSuites() {
-                return new String[0];
-            }
-
-            @Override
-            public Socket createSocket(Socket s, String host, int port, boolean autoClose) throws IOException {
-                return null;
-            }
-
-            @Override
-            public Socket createSocket(String host, int port) throws IOException, UnknownHostException {
-                return null;
-            }
-
-            @Override
-            public Socket createSocket(String host, int port, InetAddress localHost, int localPort) throws IOException, UnknownHostException {
-                return null;
-            }
-
-            @Override
-            public Socket createSocket(InetAddress host, int port) throws IOException {
-                return null;
-            }
-
-            @Override
-            public Socket createSocket(InetAddress address, int port, InetAddress localAddress, int localPort) throws IOException {
-                return null;
-            }
-        };
-        SSLSocketFactory.getDefault();
-//        saveDeviceId(deviceID);
-        setAppId(appId);
-        setServerAddress(socketServerAddress);
-        setToken(token);
-        setServerName(serverName);
-        setSsoHost(ssoHost);
         try {
+            WebSocketFactory webSocketFactory = new WebSocketFactory();
+            SSLSocketFactory.getDefault();
+//        saveDeviceId(deviceID);
+            setAppId(appId);
+            setServerAddress(socketServerAddress);
+            setToken(token);
+            setServerName(serverName);
+            setSsoHost(ssoHost);
             webSocket = webSocketFactory
                     .createSocket(socketServerAddress)
                     .addListener(this);
@@ -313,6 +278,9 @@ public class Async extends WebSocketAdapter {
 
         } catch (IOException e) {
             if (log) Logger.e("Async: connect", e.getMessage());
+        } catch (Exception e) {
+            if (log) Logger.e(e.getCause().getMessage());
+
         }
     }
 
@@ -336,7 +304,6 @@ public class Async extends WebSocketAdapter {
             asyncListenerManager.callOnError(e.getCause().getMessage());
             if (log) Logger.e("Async: connect", e.getCause().getMessage());
         }
-
     }
 
 
@@ -440,49 +407,62 @@ public class Async extends WebSocketAdapter {
      * , server is still registered and we sent a lot of message but
      * they are still in the queue
      */
-    private void handleOnDeviceRegister(WebSocket websocket, ClientMessage clientMessage) throws Exception {
-        isDeviceRegister = true;
-        if (!peerIdExistence()) {
-            String peerId = clientMessage.getContent();
-            savePeerId(peerId);
-        }
-
-        //TODO handle queue message
-        if (isServerRegister && peerId.equals(getPeerId())) {
-            if (websocket.getState() == OPEN) {
-                if (websocket.getFrameQueueSize() > 0) {
-
-                }
+    private void handleOnDeviceRegister(WebSocket websocket, ClientMessage clientMessage) {
+        try {
+            isDeviceRegister = true;
+            if (!peerIdExistence()) {
+                String peerId = clientMessage.getContent();
+                savePeerId(peerId);
             }
 
-        } else {
-            serverRegister(websocket);
+            //TODO handle queue message
+            if (isServerRegister && peerId.equals(getPeerId())) {
+                if (websocket.getState() == OPEN) {
+                    if (websocket.getFrameQueueSize() > 0) {
+
+                    }
+                }
+
+            } else {
+                serverRegister(websocket);
+            }
+        } catch (Exception e) {
+            if (log) Logger.e(e.getCause().getMessage());
         }
+
     }
 
-    private void serverRegister(WebSocket websocket) throws Exception {
-        RegistrationRequest registrationRequest = new RegistrationRequest();
-        registrationRequest.setName(getServerName());
-        JsonAdapter<RegistrationRequest> jsonRegistrationRequestVoAdapter = moshi.adapter(RegistrationRequest.class);
-        String jsonRegistrationRequestVo = jsonRegistrationRequestVoAdapter.toJson(registrationRequest);
-        String jsonMessageWrapperVo = getMessageWrapper(moshi, jsonRegistrationRequestVo, AsyncMessageType.MessageType.SERVER_REGISTER);
-        sendData(websocket, jsonMessageWrapperVo);
+    private void serverRegister(WebSocket websocket) {
+        if (websocket != null) {
+            try {
+                RegistrationRequest registrationRequest = new RegistrationRequest();
+                registrationRequest.setName(getServerName());
+                JsonAdapter<RegistrationRequest> jsonRegistrationRequestVoAdapter = moshi.adapter(RegistrationRequest.class);
+                String jsonRegistrationRequestVo = jsonRegistrationRequestVoAdapter.toJson(registrationRequest);
+                String jsonMessageWrapperVo = getMessageWrapper(moshi, jsonRegistrationRequestVo, AsyncMessageType.MessageType.SERVER_REGISTER);
+                sendData(websocket, jsonMessageWrapperVo);
+            } catch (Exception e) {
+                if (log) Logger.e(TAG + e.getCause().getMessage());
+            }
+        } else {
+            if (log) Logger.e("WebSocket Is Null");
+        }
     }
 
     private void sendData(WebSocket websocket, String jsonMessageWrapperVo) {
-        try {
-            lastSentMessageTime = new Date().getTime();
-            if (jsonMessageWrapperVo != null) {
+        if (websocket != null) {
+            try {
+                lastSentMessageTime = new Date().getTime();
+                if (jsonMessageWrapperVo != null) {
+                    websocket.sendText(jsonMessageWrapperVo);
 
-                websocket.sendText(jsonMessageWrapperVo);
-
-
-            } else {
-                if (log) Logger.e(TAG + "message is Null");
+                } else {
+                    if (log) Logger.e(TAG + "message is Null");
+                }
+                ping();
+            } catch (Exception e) {
+                if (log) Logger.e("Async: connect", e.getCause().getMessage());
             }
-            ping();
-        } catch (Exception e) {
-            if (log) Logger.e("Async: connect", e.getCause().getMessage());
         }
     }
 
@@ -491,10 +471,18 @@ public class Async extends WebSocketAdapter {
         setErrorMessage(clientMessage.getContent());
     }
 
-    private void handleOnMessage(ClientMessage clientMessage) throws IOException {
-        setMessage(clientMessage.getContent());
-        messageLiveData.postValue(clientMessage.getContent());
-        asyncListenerManager.callOnTextMessage(clientMessage.getContent());
+    private void handleOnMessage(ClientMessage clientMessage) {
+        if (clientMessage != null) {
+            try {
+                setMessage(clientMessage.getContent());
+                messageLiveData.postValue(clientMessage.getContent());
+                asyncListenerManager.callOnTextMessage(clientMessage.getContent());
+            } catch (Exception e) {
+                if (log) Logger.e(e.getCause().getMessage());
+            }
+        } else {
+            if (log) Logger.e("Async: clientMessage Is Null");
+        }
     }
 
     private void handleOnPing(WebSocket webSocket, ClientMessage clientMessage) throws Exception {
@@ -516,46 +504,68 @@ public class Async extends WebSocketAdapter {
 
             isServerRegister = true;
         } catch (Exception e) {
-            asyncListenerManager.callOnError(e.getCause().getMessage());
+            if (log) Logger.e(e.getCause().getMessage());
         }
-
     }
 
-    private void handleOnMessageAckNeeded(WebSocket websocket, ClientMessage clientMessage) throws Exception {
-        handleOnMessage(clientMessage);
+    private void handleOnMessageAckNeeded(WebSocket websocket, ClientMessage clientMessage) {
 
-        Message messageSenderAckNeeded = new Message();
-        messageSenderAckNeeded.setMessageId(clientMessage.getSenderMessageId());
+        try {
+            if (websocket != null) {
+                handleOnMessage(clientMessage);
 
-        JsonAdapter<Message> jsonSenderAckNeededAdapter = moshi.adapter(Message.class);
-        String jsonSenderAckNeeded = jsonSenderAckNeededAdapter.toJson(messageSenderAckNeeded);
-        String jsonSenderAckNeededWrapper = getMessageWrapper(moshi, jsonSenderAckNeeded, AsyncMessageType.MessageType.ACK);
-        sendData(websocket, jsonSenderAckNeededWrapper);
+                Message messageSenderAckNeeded = new Message();
+                messageSenderAckNeeded.setMessageId(clientMessage.getSenderMessageId());
+
+                JsonAdapter<Message> jsonSenderAckNeededAdapter = moshi.adapter(Message.class);
+                String jsonSenderAckNeeded = jsonSenderAckNeededAdapter.toJson(messageSenderAckNeeded);
+                String jsonSenderAckNeededWrapper = getMessageWrapper(moshi, jsonSenderAckNeeded, AsyncMessageType.MessageType.ACK);
+                sendData(websocket, jsonSenderAckNeededWrapper);
+            } else {
+                if (log) Logger.e("WebSocket Is Null ");
+            }
+        } catch (Exception e) {
+            if (log) Logger.e(e.getCause().getMessage());
+        }
     }
 
-    private void deviceRegister(WebSocket websocket) throws Exception {
-        PeerInfo peerInfo = new PeerInfo();
-        if (getPeerId() != null) {
-            peerInfo.setRefresh(true);
-        } else {
-            peerInfo.setRenew(true);
-        }
-        peerInfo.setAppId(getAppId());
-        peerInfo.setDeviceId(getDeviceId());
+    private void deviceRegister(WebSocket websocket) {
+        try {
+            if (websocket != null) {
+                PeerInfo peerInfo = new PeerInfo();
+                if (getPeerId() != null) {
+                    peerInfo.setRefresh(true);
+                } else {
+                    peerInfo.setRenew(true);
+                }
+                peerInfo.setAppId(getAppId());
+                peerInfo.setDeviceId(getDeviceId());
 
-        JsonAdapter<PeerInfo> jsonPeerMessageAdapter = moshi.adapter(PeerInfo.class);
-        String peerMessageJson = jsonPeerMessageAdapter.toJson(peerInfo);
-        String jsonPeerInfoWrapper = getMessageWrapper(moshi, peerMessageJson, AsyncMessageType.MessageType.DEVICE_REGISTER);
-        sendData(websocket, jsonPeerInfoWrapper);
+                JsonAdapter<PeerInfo> jsonPeerMessageAdapter = moshi.adapter(PeerInfo.class);
+                String peerMessageJson = jsonPeerMessageAdapter.toJson(peerInfo);
+                String jsonPeerInfoWrapper = getMessageWrapper(moshi, peerMessageJson, AsyncMessageType.MessageType.DEVICE_REGISTER);
+                sendData(websocket, jsonPeerInfoWrapper);
+            } else {
+                if (log) Logger.e("WebSocket Is Null ");
+            }
+
+        } catch (Exception e) {
+            if (log) Logger.e(e.getCause().getMessage());
+        }
     }
 
     @NonNull
     private String getMessageWrapper(Moshi moshi, String json, int messageType) {
-        messageWrapperVo = new MessageWrapperVo();
-        messageWrapperVo.setContent(json);
-        messageWrapperVo.setType(messageType);
-        JsonAdapter<MessageWrapperVo> jsonMessageWrapperVoAdapter = moshi.adapter(MessageWrapperVo.class);
-        return jsonMessageWrapperVoAdapter.toJson(messageWrapperVo);
+        try {
+            messageWrapperVo = new MessageWrapperVo();
+            messageWrapperVo.setContent(json);
+            messageWrapperVo.setType(messageType);
+            JsonAdapter<MessageWrapperVo> jsonMessageWrapperVoAdapter = moshi.adapter(MessageWrapperVo.class);
+            return jsonMessageWrapperVoAdapter.toJson(messageWrapperVo);
+        } catch (Exception e) {
+            if (log) Logger.e(e.getCause().getMessage());
+        }
+        return null;
     }
 
     /**
@@ -564,15 +574,15 @@ public class Async extends WebSocketAdapter {
      * get the new PeerId
      */
     private void reConnect() throws WebSocketException {
-        WebSocketFactory webSocketFactory = new WebSocketFactory();
-        webSocketFactory.setVerifyHostname(false);
         try {
+            WebSocketFactory webSocketFactory = new WebSocketFactory();
+            webSocketFactory.setVerifyHostname(false);
             webSocketReconnect = webSocketFactory
                     .createSocket(getServerAddress())
                     .addListener(this);
             webSocketReconnect.connect();
         } catch (IOException e) {
-            if (log) Logger.e("Async: reConnect", e.toString());
+            if (log) Logger.e("Async: reConnect", e.getMessage());
         }
     }
 
@@ -671,10 +681,14 @@ public class Async extends WebSocketAdapter {
      */
 
     private void stopSocket() {
-        if (webSocket != null) {
-            webSocket.disconnect();
-            webSocket = null;
-            pingHandler.removeCallbacksAndMessages(null);
+        try {
+            if (webSocket != null) {
+                webSocket.disconnect();
+                webSocket = null;
+                pingHandler.removeCallbacksAndMessages(null);
+            }
+        } catch (Exception e) {
+            if (log) Logger.e(e.getMessage());
         }
     }
 

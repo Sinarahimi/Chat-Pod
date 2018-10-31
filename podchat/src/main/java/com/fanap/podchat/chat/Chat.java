@@ -1389,6 +1389,11 @@ public class Chat extends AsyncAdapter {
      * Get the information of the current user
      */
     public void getUserInfo(ChatHandler handler) {
+
+        if (cache) {
+
+        }
+
         ChatMessage chatMessage = new ChatMessage();
         chatMessage.setType(Constants.USER_INFO);
         String uniqueId = getUniqueId();
