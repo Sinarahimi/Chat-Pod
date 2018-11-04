@@ -12,7 +12,6 @@ import com.fanap.podchat.mainmodel.ThreadVo;
 import com.fanap.podchat.model.ForwardInfo;
 import com.fanap.podchat.model.MessageVO;
 import com.fanap.podchat.model.ReplyInfoVO;
-import com.fanap.podchat.util.ThreadCallbacks;
 
 import java.util.List;
 
@@ -30,6 +29,20 @@ public interface MessageDao {
     @Query("select * from MessageVO")
     List<MessageVO> getHistories();
 
+    @Insert(onConflict = REPLACE)
+    void InsertParticipant(Participant participant);
+
+    @Insert(onConflict = REPLACE)
+    void insertParticipants(List<Participant> participants);
+
+    @Query("select COUNT(id) FROM Participant WHERE threadId = :threadId")
+    int getParticipantCount(long threadId);
+
+    @Query("select * from Participant WHERE :threadId ORDER BY name LIMIT :count OFFSET :offset ")
+    List<Participant> geParticipants(long offset, long count, long threadId);
+
+    @Query("select * from Participant WHERE threadId = :threadId")
+    List<Participant> geParticipantsWithThreadId(long threadId);
 
     @Insert(onConflict = REPLACE)
     void insertContact(List<Contact> t);
@@ -78,5 +91,6 @@ public interface MessageDao {
 
     @Query("select * from ForwardInfo where forwardInfo_Id = :forwardInfoId ")
     ForwardInfo getForwardInfo(long forwardInfoId);
+
 
 }

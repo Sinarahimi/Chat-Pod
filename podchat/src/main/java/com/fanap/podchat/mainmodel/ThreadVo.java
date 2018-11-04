@@ -31,7 +31,7 @@ public class ThreadVo {
 
     private String title;
 
-    @TypeConverters(DataTypeConverter.class)
+    @Ignore
     private List<Participant> participants;
 
     private long time;

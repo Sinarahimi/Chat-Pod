@@ -3,10 +3,12 @@ package com.fanap.podchat.persistance;
 import android.content.Context;
 
 import com.fanap.podchat.mainmodel.Contact;
+import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.ThreadVo;
 import com.fanap.podchat.model.MessageVO;
 import com.fanap.podchat.persistance.dao.MessageDao;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MessageDatabaseHelper extends BaseDatabaseHelper {
@@ -21,17 +23,17 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
     public List<MessageVO> getHistories() {
         List<MessageVO> messageVOS = messageDao.getHistories();
         for (MessageVO messageVO : messageVOS) {
-            if (messageVO.getThreadVoId() !=null) {
-            messageVO.setConversation(messageDao.getThread(messageVO.getThreadVoId()));
+            if (messageVO.getThreadVoId() != null) {
+                messageVO.setConversation(messageDao.getThread(messageVO.getThreadVoId()));
             }
-            if (messageVO.getForwardInfoId() !=null) {
-            messageVO.setForwardInfo(messageDao.getForwardInfo(messageVO.getForwardInfoId()));
+            if (messageVO.getForwardInfoId() != null) {
+                messageVO.setForwardInfo(messageDao.getForwardInfo(messageVO.getForwardInfoId()));
             }
-            if (messageVO.getParticipantId() !=null) {
-            messageVO.setParticipant(messageDao.getParticipant(messageVO.getParticipantId()));
+            if (messageVO.getParticipantId() != null) {
+                messageVO.setParticipant(messageDao.getParticipant(messageVO.getParticipantId()));
             }
-            if (messageVO.getReplyInfoVOId() !=null) {
-            messageVO.setReplyInfoVO(messageDao.getReplyInfo(messageVO.getReplyInfoVOId()));
+            if (messageVO.getReplyInfoVOId() != null) {
+                messageVO.setReplyInfoVO(messageDao.getReplyInfo(messageVO.getReplyInfoVOId()));
             }
         }
 
@@ -125,5 +127,22 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
         }
     }
 
+    public void saveParticipants(List<Participant> participants, long threadId) {
+        for (Participant participant : participants) {
+            participant.setThreadId(threadId);
+            messageDao.insertParticipant(participant);
+        }
+    }
 
+    public List<Participant> getThreadParticipant(long offset, long count, long threadId) {
+        if (messageDao.geParticipants(offset, count, threadId) == null) {
+            List<Participant> participants = new ArrayList<>();
+            return participants;
+        }
+        return messageDao.geParticipants(offset, count, threadId);
+    }
+
+    public long getParticipantCount(long threadId){
+        return messageDao.getParticipantCount(threadId);
+    }
 }

@@ -34,7 +34,7 @@ And now it's ready for chat .
 |Num|ThreadVo & Base Method           | Description                                                                            |
 |:--|:------------------------------|:---------------------------------------------------------------------------------------|
 |1|`createThread(int threadType, Invitee[] invitee, String threadTitle)`                |  Create the threadVo.                |
-|2|`getHistory(int count, int offset, String order, long threadId)`         | get the history of the specific threadVo       |
+|2|`getHistory(int count, int offset, String orderId, long threadId)`         | get the history of the specific threadVo       |
 |3|`getThreads(int count, int offset, ArrayList<Integer> threadIds, String threadName)`         | gets the list of threadVo       |
 |4|`muteThread(int threadId)`         | Mute the threadVo      |
 |5|`unmuteThread(int threadId)`         | Un Mute the threadVo      |

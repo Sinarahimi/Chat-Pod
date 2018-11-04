@@ -1331,6 +1331,33 @@ public class Chat extends AsyncAdapter {
      */
     public void getThreadParticipants(Integer count, Long offset, long threadId, ChatHandler handler) {
 
+        offset = offset != null ? offset : 0;
+        count = count != null ? count : 50;
+        if (cache) {
+            List<Participant> participants = messageDatabaseHelper.getThreadParticipant(0, 50, threadId);
+            if (participants != null) {
+                long participantCount = messageDatabaseHelper.getParticipantCount(threadId);
+                OutPutParticipant outPutParticipant = new OutPutParticipant();
+                outPutParticipant.setErrorCode(0);
+                outPutParticipant.setErrorMessage("");
+                outPutParticipant.setHasError(false);
+
+                ResultParticipant resultParticipant = new ResultParticipant();
+
+                resultParticipant.setContentCount(participants.size());
+                if (participants.size() + offset < participantCount) {
+                    resultParticipant.setHasNext(true);
+                } else {
+                    resultParticipant.setHasNext(false);
+                }
+                resultParticipant.setParticipants(participants);
+                outPutParticipant.setResult(resultParticipant);
+                resultParticipant.setNextOffset(offset + participants.size());
+                String jsonParticipant = JsonUtil.getJson(outPutParticipant);
+                listenerManager.callOnGetThreadParticipant(jsonParticipant, outPutParticipant);
+            }
+        }
+
         ChatMessageContent chatMessageContent = new ChatMessageContent();
         if (count == null) {
             chatMessageContent.setCount(50);
@@ -2106,6 +2133,10 @@ public class Chat extends AsyncAdapter {
             if (BuildConfig.DEBUG) Logger.e(e.getMessage() + e.getCause());
         }
 
+        if (cache) {
+            messageDatabaseHelper.saveParticipants(participants, chatMessage.getSubjectId());
+        }
+
         OutPutParticipant outPutParticipant = new OutPutParticipant();
         outPutParticipant.setErrorCode(0);
         outPutParticipant.setErrorMessage("");
@@ -2528,9 +2559,7 @@ public class Chat extends AsyncAdapter {
 
         Type listType = new TypeToken<List<ThreadVo>>() {
         }.getType();
-
         List<ThreadVo> threadVos = new Gson().fromJson(chatMessage.getContent(), listType);
-
 
 //        Type type = Types.newParameterizedType(List.class, ThreadVo.class);
 //        JsonAdapter<List<ThreadVo>> adapter = moshi.adapter(type);
