@@ -1,6 +1,7 @@
 package com.fanap.podchat.mainmodel;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class SearchContactVO implements Serializable {
@@ -9,7 +10,8 @@ public class SearchContactVO implements Serializable {
     private Integer errorCode;
     private Integer count;
     private String ott;
-    private List<Contact> result;
+    private String message;
+    private ArrayList<Contact> result;
 
     public Boolean getHasError() {
         return hasError;
@@ -51,11 +53,19 @@ public class SearchContactVO implements Serializable {
         this.ott = ott;
     }
 
-    public List<Contact> getResult() {
+    public ArrayList<Contact> getResult() {
         return result;
     }
 
-    public void setResult(List<Contact> result) {
+    public void setResult(ArrayList<Contact> result) {
         this.result = result;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

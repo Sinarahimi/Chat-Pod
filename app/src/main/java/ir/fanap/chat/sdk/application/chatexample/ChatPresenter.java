@@ -16,6 +16,7 @@ import com.fanap.podchat.mainmodel.NosqlListMessageCriteriaVO;
 import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.SearchContact;
 import com.fanap.podchat.mainmodel.ThreadInfoVO;
+import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.FileImageUpload;
 import com.fanap.podchat.model.MessageVO;
@@ -33,6 +34,7 @@ import com.fanap.podchat.model.OutPutParticipant;
 import com.fanap.podchat.model.OutPutThread;
 import com.fanap.podchat.model.OutPutThreads;
 import com.fanap.podchat.model.OutPutUserInfo;
+import com.fanap.podchat.model.ResultContact;
 import com.orhanobut.logger.Logger;
 
 import java.util.ArrayList;
@@ -431,8 +433,8 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void onSearchContact(String content) {
-        super.onSearchContact(content);
+    public void onSearchContact(String content,ChatResponse<ResultContact> chatResponse) {
+        super.onSearchContact(content, chatResponse);
         view.onSearchContact();
     }
 

@@ -1,5 +1,6 @@
 package com.fanap.podchat.chat;
 
+import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.FileImageUpload;
 import com.fanap.podchat.model.OutPutAddParticipant;
@@ -16,6 +17,7 @@ import com.fanap.podchat.model.OutPutParticipant;
 import com.fanap.podchat.model.OutPutThread;
 import com.fanap.podchat.model.OutPutThreads;
 import com.fanap.podchat.model.OutPutUserInfo;
+import com.fanap.podchat.model.ResultContact;
 
 public class ChatAdapter implements ChatListener {
     @Override
@@ -24,7 +26,7 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onError(String content,ErrorOutPut errorOutPut) {
+    public void onError(String content, ErrorOutPut errorOutPut) {
     }
 
     @Override
@@ -48,12 +50,12 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onBlock(String content,OutPutBlock outPutBlock) {
+    public void onBlock(String content, OutPutBlock outPutBlock) {
 
     }
 
     @Override
-    public void onUnBlock(String content,OutPutBlock outPutBlock) {
+    public void onUnBlock(String content, OutPutBlock outPutBlock) {
 
     }
 
@@ -128,7 +130,7 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onNewMessage(String content,OutPutNewMessage outPutNewMessage) {
+    public void onNewMessage(String content, OutPutNewMessage outPutNewMessage) {
 
     }
 
@@ -183,12 +185,12 @@ public class ChatAdapter implements ChatListener {
     }
 
     @Override
-    public void onGetBlockList(String content,OutPutBlockList outPutBlockList) {
+    public void onGetBlockList(String content, OutPutBlockList outPutBlockList) {
 
     }
 
     @Override
-    public void onSearchContact(String content) {
+    public void onSearchContact(String content, ChatResponse<ResultContact> chatResponse) {
 
     }
 }

@@ -6,8 +6,7 @@ import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
 
-@Entity(indices = {@Index(value = {"order_id"}, unique = true)},
-        foreignKeys = {@ForeignKey(entity = ThreadVo.class, parentColumns = "id", childColumns = "threadId")})
+@Entity(indices = {@Index(value = {"order_id"}, unique = true)})
 public class Participant {
     @PrimaryKey
     private long id;
@@ -15,7 +14,6 @@ public class Participant {
     @ColumnInfo(name = "order_id")
     private long orderId;
 
-    @ForeignKey(entity = ThreadVo.class, parentColumns = "id", childColumns = "threadId")
     private long threadId;
 
     private String name;

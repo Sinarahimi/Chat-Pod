@@ -16,6 +16,7 @@ public class Contact implements Serializable {
     private String profileImage;
     @Embedded
     private LinkedUser linkedUser;
+    private Boolean blocked;
     private String cellphoneNumber;
     private String email;
     private String uniqueId;
@@ -108,5 +109,13 @@ public class Contact implements Serializable {
 
     public void setUserId(long userId) {
         this.userId = userId;
+    }
+
+    public Boolean getBlocked() {
+        return blocked;
+    }
+
+    public void setBlocked(Boolean blocked) {
+        this.blocked = blocked;
     }
 }

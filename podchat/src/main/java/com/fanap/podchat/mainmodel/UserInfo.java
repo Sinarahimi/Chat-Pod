@@ -9,6 +9,7 @@ public class UserInfo implements Serializable {
     private String name;
     private String cellphoneNumber;
     private String image;
+    private String email;
 
     public long getId() {
         return id;
@@ -56,5 +57,13 @@ public class UserInfo implements Serializable {
 
     public void setImage(String image) {
         this.image = image;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

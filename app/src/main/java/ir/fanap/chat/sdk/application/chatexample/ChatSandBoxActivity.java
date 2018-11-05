@@ -102,7 +102,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 //    private static String name = "Alexi";
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "579cdaa1baba426ea74f9e3388a74381";
+    private static String TOKEN = "5fe42ad06f81424d81c0af6260b3f5a3";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -412,7 +412,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 
                         break;
                     case 9:
-                        SearchContact searchContact = new SearchContact.Builder("0", "2").id("1063").build();
+                        SearchContact searchContact = new SearchContact.Builder("0", "2").id("589").build();
                         presenter.searchContact(searchContact);
                         break;
                     case 10:

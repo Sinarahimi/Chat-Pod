@@ -1,5 +1,6 @@
 package com.fanap.podchat.chat;
 
+import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.FileImageUpload;
 import com.fanap.podchat.model.OutPutAddParticipant;
@@ -16,6 +17,7 @@ import com.fanap.podchat.model.OutPutParticipant;
 import com.fanap.podchat.model.OutPutThread;
 import com.fanap.podchat.model.OutPutThreads;
 import com.fanap.podchat.model.OutPutUserInfo;
+import com.fanap.podchat.model.ResultContact;
 
 public interface ChatListener {
 
@@ -130,7 +132,7 @@ public interface ChatListener {
 
     }
 
-    default void onSearchContact(String content) {
+    default void onSearchContact(String content, ChatResponse<ResultContact> chatResponse) {
 
     }
 

@@ -4,6 +4,8 @@ public abstract class BaseOutPut {
     private boolean hasError;
     private String errorMessage;
     private long errorCode;
+    private String uniqueId;
+    private boolean cache;
 
     public boolean isHasError() {
         return hasError;

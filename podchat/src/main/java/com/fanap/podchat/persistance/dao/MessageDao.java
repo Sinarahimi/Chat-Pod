@@ -92,5 +92,23 @@ public interface MessageDao {
     @Query("select * from ForwardInfo where forwardInfo_Id = :forwardInfoId ")
     ForwardInfo getForwardInfo(long forwardInfoId);
 
+    //Search contact
+    @Query("select * from Contact where id = :id")
+    Contact getContactById(long id);
+
+    @Query("select * from contact where firstName LIKE :firstName ")
+    List<Contact> getContactsByFirst(String firstName);
+
+    @Query("select * from contact where lastName LIKE :lastName ")
+    List<Contact> getContactsByLast(String lastName);
+
+    @Query("select * from contact where firstName LIKE :firstName AND lastName LIKE :lastName")
+    List<Contact> getContactsByFirstAndLast(String firstName, String lastName);
+
+    @Query("select * from Contact where cellphoneNumber LIKE :cellphoneNumber")
+    List<Contact> getContactByCell(String cellphoneNumber);
+
+    @Query("select * from contact where email LIKE :email ")
+    List<Contact> getContactsByEmail(String email);
 
 }

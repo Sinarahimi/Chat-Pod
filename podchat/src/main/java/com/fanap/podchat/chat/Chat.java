@@ -45,6 +45,7 @@ import com.fanap.podchat.mainmodel.UpdateContact;
 import com.fanap.podchat.mainmodel.UserInfo;
 import com.fanap.podchat.model.AddContacts;
 import com.fanap.podchat.model.ChatMessageForward;
+import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ContactRemove;
 import com.fanap.podchat.model.Contacts;
 import com.fanap.podchat.model.DeleteMessageContent;
@@ -157,7 +158,7 @@ public class Chat extends AsyncAdapter {
     private static HashMap<String, Callback> messageCallbacks;
     private static HashMap<Long, ArrayList<Callback>> threadCallbacks;
     private static HashMap<String, ChatHandler> handlerSend;
-
+    private boolean log;
     private boolean syncContact = false;
     private boolean state = false;
     private long lastSentMessageTime;
@@ -939,7 +940,7 @@ public class Chat extends AsyncAdapter {
         Long offsets = offset;
 
         if (cache) {
-            ArrayList<Contact> arrayList = new ArrayList<>(messageDatabaseHelper.getContacts());
+            List<Contact> arrayList = messageDatabaseHelper.getContacts();
             OutPutContact outPutContact = new OutPutContact();
 
             ResultContact resultContact = new ResultContact();
@@ -996,6 +997,41 @@ public class Chat extends AsyncAdapter {
     }
 
     public void searchContact(SearchContact searchContact) {
+
+        if (cache) {
+            List<Contact> contacts = new ArrayList<>();
+            if (searchContact.getId() != null) {
+                Contact contact = messageDatabaseHelper.getContactById(Long.valueOf(searchContact.getId()));
+                contacts.add(contact);
+            } else if (searchContact.getFirstName() != null) {
+                contacts = messageDatabaseHelper.getContactsByFirst(searchContact.getFirstName());
+            } else if (searchContact.getFirstName() != null & searchContact.getLastName() != null) {
+                contacts = messageDatabaseHelper.getContactsByFirstAndLast(searchContact.getFirstName(), searchContact.getLastName());
+            } else if (searchContact.getCellphoneNumber() != null) {
+                contacts = messageDatabaseHelper.getContactsByEmail(searchContact.getEmail());
+            } else if (searchContact.getCellphoneNumber() != null) {
+                contacts = messageDatabaseHelper.getContactByCell(searchContact.getCellphoneNumber());
+            }
+
+            ChatResponse<ResultContact> chatResponse = new ChatResponse<>();
+
+            ResultContact resultContact = new ResultContact();
+//            resultContact.setContentCount(contact.getCount());
+            resultContact.setContacts(contacts);
+
+            chatResponse.setHasError(false);
+            chatResponse.setErrorCode(0);
+            chatResponse.setErrorMessage("");
+            chatResponse.setResult(resultContact);
+
+            String jsonContact = JsonUtil.getJson(chatResponse);
+
+            listenerManager.callOnSearchContact(chatResponse, jsonContact);
+            if (log) Logger.json(jsonContact);
+            if (log) Logger.i("CACHE_SEARCH_CONTACT");
+
+        }
+
         if (chatReady) {
             Observable<Response<SearchContactVO>> observable = contactApi.searchContact(getToken(), TOKEN_ISSUER,
                     searchContact.getId()
@@ -1012,11 +1048,34 @@ public class Chat extends AsyncAdapter {
                 @Override
                 public void call(Response<SearchContactVO> contactResponse) {
 
-                    SearchContactVO contact = contactResponse.body();
-                    String json = JsonUtil.getJson(contact);
-                    listenerManager.callOnSearchContact(json);
-                    if (BuildConfig.DEBUG) Logger.json(json);
-                    if (BuildConfig.DEBUG) Logger.i("RECEIVE_SEARCH_CONTACT");
+                    if (contactResponse.isSuccessful()) {
+                        SearchContactVO contact = contactResponse.body();
+                        ChatResponse<ResultContact> chatResponse = new ChatResponse<>();
+
+                        ResultContact resultContact = new ResultContact();
+                        resultContact.setContentCount(contact.getCount());
+                        resultContact.setContacts(contactResponse.body().getResult());
+
+                        chatResponse.setHasError(contactResponse.body().getHasError());
+                        chatResponse.setErrorCode(contactResponse.body().getErrorCode());
+                        chatResponse.setErrorMessage(contactResponse.body().getMessage());
+                        chatResponse.setResult(resultContact);
+
+                        String jsonContact = JsonUtil.getJson(chatResponse);
+
+                        listenerManager.callOnSearchContact(chatResponse, jsonContact);
+                        if (log) Logger.json(jsonContact);
+                        if (log) Logger.i("RECEIVE_SEARCH_CONTACT");
+                    } else {
+
+                        if (contactResponse.body() != null) {
+                            String errorMessage = contactResponse.body().getMessage() != null ? contactResponse.body().getMessage() : "";
+                            int errorCode = contactResponse.body().getErrorCode() != null ? contactResponse.body().getErrorCode() : 0;
+//                            String error = getErrorOutPut(errorMessage, errorCode, uniqueId);
+//                            if (log) Logger.json(error);
+                        }
+                    }
+
                 }
             }, (Throwable throwable) -> Logger.e(throwable.getMessage()));
         } else {
@@ -1355,6 +1414,7 @@ public class Chat extends AsyncAdapter {
                 resultParticipant.setNextOffset(offset + participants.size());
                 String jsonParticipant = JsonUtil.getJson(outPutParticipant);
                 listenerManager.callOnGetThreadParticipant(jsonParticipant, outPutParticipant);
+                Logger.json(jsonParticipant);
             }
         }
 
@@ -2616,6 +2676,7 @@ public class Chat extends AsyncAdapter {
         } catch (IOException e) {
             Log.e("IOException", e.toString());
         }
+
 
         messageDatabaseHelper.save(contacts);
         ArrayList<Contact> contactsList = new ArrayList<>(messageDatabaseHelper.getContacts());

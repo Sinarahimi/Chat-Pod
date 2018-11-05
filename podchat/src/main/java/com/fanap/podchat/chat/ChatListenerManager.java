@@ -1,5 +1,6 @@
 package com.fanap.podchat.chat;
 
+import com.fanap.podchat.model.ChatResponse;
 import com.fanap.podchat.model.ErrorOutPut;
 import com.fanap.podchat.model.FileImageUpload;
 import com.fanap.podchat.model.OutPutAddParticipant;
@@ -16,6 +17,7 @@ import com.fanap.podchat.model.OutPutParticipant;
 import com.fanap.podchat.model.OutPutThread;
 import com.fanap.podchat.model.OutPutThreads;
 import com.fanap.podchat.model.OutPutUserInfo;
+import com.fanap.podchat.model.ResultContact;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -307,10 +309,10 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnUploadImageFile(String content,FileImageUpload fileImageUpload) {
+    public void callOnUploadImageFile(String content, FileImageUpload fileImageUpload) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onUploadImageFile(content,fileImageUpload);
+                listener.onUploadImageFile(content, fileImageUpload);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
@@ -457,10 +459,10 @@ public class ChatListenerManager {
         }
     }
 
-    public void callOnSearchContact(String content) {
+    public void callOnSearchContact(ChatResponse<ResultContact> chatResponse, String content) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onSearchContact(content);
+                listener.onSearchContact(content, chatResponse);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }
@@ -470,7 +472,7 @@ public class ChatListenerManager {
     public void callOnRemovedFromThread(String content) {
         for (ChatListener listener : getSynchronizedListeners()) {
             try {
-                listener.onSearchContact(content);
+//                listener.onSearchContact(content);
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
             }

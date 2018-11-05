@@ -145,4 +145,30 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
     public long getParticipantCount(long threadId){
         return messageDao.getParticipantCount(threadId);
     }
+
+    public Contact getContactById(long id){
+        return messageDao.getContactById(id);
+    }
+    public List<Contact> getContactsByFirst(String firstName){
+        return messageDao.getContactsByFirst(firstName);
+    }
+
+    public List<Contact> getContactsByLast(String lastName){
+        return messageDao.getContactsByLast(lastName);
+    }
+
+    public List<Contact> getContactsByFirstAndLast(String firstName, String lastName){
+        return messageDao.getContactsByFirstAndLast(firstName, lastName);
+    }
+
+    public List<Contact> getContactByCell(String cellphoneNumber){
+        return messageDao.getContactByCell(cellphoneNumber);
+    }
+
+    public List<Contact> getContactsByEmail(String email){
+        return messageDao.getContactsByEmail(email);
+    }
+
+
+
 }

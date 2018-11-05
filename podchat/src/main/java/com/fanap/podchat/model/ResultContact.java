@@ -3,9 +3,10 @@ package com.fanap.podchat.model;
 import com.fanap.podchat.mainmodel.Contact;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class ResultContact {
-    private ArrayList<Contact> contacts;
+    private List<Contact> contacts;
     private long contentCount;
     private boolean hasNext;
     private long nextOffset;
@@ -34,11 +35,11 @@ public class ResultContact {
         this.nextOffset = nextOffset;
     }
 
-    public ArrayList<Contact> getContacts() {
+    public List<Contact> getContacts() {
         return contacts;
     }
 
-    public void setContacts(ArrayList<Contact> contacts) {
+    public void setContacts(List<Contact> contacts) {
         this.contacts = contacts;
     }
 }

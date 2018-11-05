@@ -406,7 +406,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
 
                         break;
                     case 9:
-                        SearchContact searchContact = new SearchContact.Builder("0", "2").id("1063").build();
+                        SearchContact searchContact = new SearchContact.Builder("0", "2").id("589").build();
                         presenter.searchContact(searchContact);
                         break;
                     case 10:
@@ -554,7 +554,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
             case 7:
                 //"get thread participant",
-                presenter.getThreadParticipant(10, null, 22, new ChatHandler() {
+                presenter.getThreadParticipant(10, null, 351, new ChatHandler() {
                     @Override
                     public void onGetThreadParticipant(String uniqueId) {
                         super.onGetThreadParticipant(uniqueId);
@@ -624,7 +624,7 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                 break;
             case 12:
                 //"get contacts"
-                presenter.getContact(2, 0L, new ChatHandler() {
+                presenter.getContact(50, 0L, new ChatHandler() {
                     @Override
                     public void onGetContact(String uniqueId) {
                         super.onGetContact(uniqueId);
