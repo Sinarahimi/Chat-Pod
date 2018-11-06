@@ -9,6 +9,7 @@ import com.fanap.podchat.mainmodel.Inviter;
 import com.fanap.podchat.mainmodel.LastMessageVO;
 import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.ThreadVo;
+import com.fanap.podchat.model.FileMetaDataContent;
 import com.fanap.podchat.model.ForwardInfo;
 import com.fanap.podchat.model.MessageVO;
 import com.fanap.podchat.model.ReplyInfoVO;
@@ -111,4 +112,10 @@ public interface MessageDao {
     @Query("select * from contact where email LIKE :email ")
     List<Contact> getContactsByEmail(String email);
 
+    //cache file
+    @Insert(onConflict = REPLACE)
+    void insertFile(FileMetaDataContent file);
+
+    @Query("select * from FileMetaDataContent where id = :id")
+    FileMetaDataContent getFile(long id );
 }

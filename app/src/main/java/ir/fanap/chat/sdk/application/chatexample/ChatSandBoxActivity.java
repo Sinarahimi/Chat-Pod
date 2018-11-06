@@ -65,7 +65,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
     private static final String[] funcSecond = {
             "Choose function"
             , "Sync Contact"
-            , "Send file"
+            , "Send file message"
             , "Upload Image"
             , "Upload File"
             , "Remove ThreadVo Participant"
@@ -102,7 +102,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 //    private static String name = "Alexi";
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "5fe42ad06f81424d81c0af6260b3f5a3";
+    private static String TOKEN = "40b4aaf1636e4dea84c500204342b197";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -352,9 +352,10 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 switch (position) {
                     case 0:
-//            "Choose function",
+//            "Choose function second",
                         break;
                     case 1:
+                        //"Sync Contact"
                         presenter.syncContact(ChatSandBoxActivity.this);
                         break;
                     case 2:
@@ -366,7 +367,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                     case 3:
                         presenter.uploadImage(ChatSandBoxActivity.this, ChatSandBoxActivity.this, getUri());
                     case 4:
-//                        presenter.uploadFile(ChatSandBoxActivity.this, ChatSandBoxActivity.this, getFileUri(), getUri());
+                        presenter.uploadFile(ChatSandBoxActivity.this, ChatSandBoxActivity.this, getFileUri(), getUri());
                         break;
                     case 5:
                         List<Long> contactIds = new ArrayList<>();

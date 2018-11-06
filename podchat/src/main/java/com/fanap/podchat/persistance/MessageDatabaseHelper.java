@@ -5,6 +5,7 @@ import android.content.Context;
 import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.ThreadVo;
+import com.fanap.podchat.model.FileMetaDataContent;
 import com.fanap.podchat.model.MessageVO;
 import com.fanap.podchat.persistance.dao.MessageDao;
 
@@ -169,6 +170,11 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
         return messageDao.getContactsByEmail(email);
     }
 
+    public void saveFile(FileMetaDataContent file){
+        messageDao.insertFile(file);
+    }
 
-
+    public FileMetaDataContent getFile(long id){
+        return messageDao.getFile(id);
+    }
 }
