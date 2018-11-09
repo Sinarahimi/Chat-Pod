@@ -170,6 +170,7 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
         return messageDao.getContactsByEmail(email);
     }
 
+    //Cache file
     public void saveFile(FileMetaDataContent file){
         messageDao.insertFile(file);
     }

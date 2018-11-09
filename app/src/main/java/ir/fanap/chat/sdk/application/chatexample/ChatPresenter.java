@@ -237,6 +237,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         chat.deleteMessage(messageId, deleteForAll, handler);
     }
 
+    @Override
+    public void getFile(long fileId, String hashCode, boolean downloadable) {
+        chat.getFile(fileId, hashCode, downloadable);
+    }
+
 
     //View
     @Override
@@ -433,7 +438,7 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
     }
 
     @Override
-    public void onSearchContact(String content,ChatResponse<ResultContact> chatResponse) {
+    public void onSearchContact(String content, ChatResponse<ResultContact> chatResponse) {
         super.onSearchContact(content, chatResponse);
         view.onSearchContact();
     }

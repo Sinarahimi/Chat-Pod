@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.constraint.ConstraintLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
@@ -17,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.fanap.podasync.util.JsonUtil;
+import com.fanap.podasync.util.Permission;
 import com.fanap.podchat.chat.Chat;
 import com.fanap.podchat.chat.ChatHandler;
 import com.fanap.podchat.mainmodel.History;
@@ -352,10 +354,15 @@ public class ChatActivity extends AppCompatActivity implements AdapterView.OnIte
                         presenter.syncContact(ChatActivity.this);
                         break;
                     case 2:
-                        presenter.sendFileMessage(ChatActivity.this, ChatActivity.this,
+                        if (Permission.Check_READ_STORAGE(ChatActivity.this)) {
+                            presenter.sendFileMessage(ChatActivity.this, ChatActivity.this,
                                 "test file message",
                                 381
                                 , getUri(), null);
+                        }else{
+
+                        }
+
                         break;
                     case 3:
                         presenter.uploadImage(ChatActivity.this, ChatActivity.this, getUri());

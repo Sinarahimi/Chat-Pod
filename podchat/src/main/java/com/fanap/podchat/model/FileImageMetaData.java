@@ -1,6 +1,11 @@
 package com.fanap.podchat.model;
 
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
+
+@Entity
 public class FileImageMetaData {
+    @PrimaryKey
     private int id;
     private String originalName;
     private String link;

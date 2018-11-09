@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.ContactsContract;
@@ -107,6 +108,7 @@ import com.fanap.podchat.util.ChatStateType;
 import com.fanap.podchat.util.FilePick;
 import com.fanap.podchat.util.Permission;
 import com.fanap.podchat.util.Util;
+import com.fanap.podchat.util.WriteFileToDisk;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -183,9 +185,11 @@ public class Chat extends AsyncAdapter {
      * Initialize the Chat
      **/
     public static Chat init(Context context) {
+
         if (instance == null) {
             async = Async.getInstance(context);
             instance = new Chat();
+            instance.setContext(context);
             moshi = new Moshi.Builder().build();
             listenerManager = new ChatListenerManager();
             messageDatabaseHelper = new MessageDatabaseHelper(context);
@@ -578,6 +582,8 @@ public class Chat extends AsyncAdapter {
                         @Override
                         public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                             if (response.isSuccessful()) {
+                                WriteFileToDisk writeFileToDisk = new WriteFileToDisk(response.body(), cachedFile.getName(), getContext());
+                                writeFileToDisk.execute();
 
                             }
                         }
@@ -1843,7 +1849,9 @@ public class Chat extends AsyncAdapter {
     private void handleForwardMessage(ChatMessage chatMessage) {
         if (BuildConfig.DEBUG) Logger.i("RECEIVED_FORWARD_MESSAGE");
         if (BuildConfig.DEBUG) Logger.json(chatMessage.getContent());
-        MessageVO jsonMessage = JsonUtil.fromJSON(chatMessage.getContent(), MessageVO.class);
+        Gson gson = new Gson();
+        MessageVO jsonMessage = gson.fromJson(chatMessage.getContent(), MessageVO.class);
+//        MessageVO jsonMessage = JsonUtil.fromJSON(chatMessage.getContent(), MessageVO.class);
         long ownerId = 0;
         if (jsonMessage != null) {
             ownerId = jsonMessage.getParticipant().getId();
@@ -2417,8 +2425,9 @@ public class Chat extends AsyncAdapter {
                                     messageDatabaseHelper.saveFile(metaDataContent);
                                 }
 
-
-                                String jsonMeta = JsonUtil.getJson(metaDataFile);
+                                Gson gson = new Gson();
+                                String jsonMeta = gson.toJson(metaDataFile);
+//                                        JsonUtil.getJson(metaDataFile);
                                 if (BuildConfig.DEBUG) Logger.json(jsonMeta);
                                 sendTextMessageWithFile(description, threadId, jsonMeta, metadata);
                             }
@@ -2471,7 +2480,10 @@ public class Chat extends AsyncAdapter {
                                 fileMetaData.setMimeType(mimeType);
                                 fileMetaData.setLink(getFileServer() + "nzh/uploadImage" + "?imageId=" + imageId + "&downloadable=" + "true" + "&hashCode=" + hashCode);
                                 metaData.setFile(fileMetaData);
+                                if (cache) {
 
+
+                                }
                                 String metaJson = JsonUtil.getJson(metaData);
                                 if (BuildConfig.DEBUG) Logger.json(metaJson);
                                 sendTextMessageWithFile(description, threadId, metaJson, metadata);
@@ -2479,7 +2491,7 @@ public class Chat extends AsyncAdapter {
                                 FileImageUpload fileImageUpload = fileUploadResponse.body();
                                 String imageJson = JsonUtil.getJson(fileImageUpload);
                                 listenerManager.callOnUploadImageFile(imageJson, fileImageUpload);
-                                if (BuildConfig.DEBUG) Logger.json(imageJson);
+                                if (log) Logger.json(imageJson);
                             }
                         }
                     }
@@ -2487,7 +2499,7 @@ public class Chat extends AsyncAdapter {
 
             } else {
                 String jsonError = getErrorOutPut(ChatConstant.ERROR_READ_EXTERNAL_STORAGE_PERMISSION, ChatConstant.ERROR_CODE_READ_EXTERNAL_STORAGE_PERMISSION);
-                if (BuildConfig.DEBUG) Logger.e(jsonError);
+                if (log) Logger.e(jsonError);
             }
         } else {
             if (BuildConfig.DEBUG) Logger.e("FileServer url Is null");

@@ -4,7 +4,6 @@ apply plugin: 'com.github.dcendents.android-maven'
 
 android {
     compileSdkVersion 28
-
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 28
@@ -13,7 +12,6 @@ android {
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
-
     buildTypes {
         release {
             minifyEnabled false
@@ -24,6 +22,7 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    buildToolsVersion '28.0.3'
 }
 
 ext {
@@ -70,7 +69,6 @@ dependencies {
     //logger
     api 'com.orhanobut:logger:2.2.0'
     implementation project(':podasync')
-
 }
 
 if (project.rootProject.file('local.properties').exists()) {

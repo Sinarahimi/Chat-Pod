@@ -83,6 +83,8 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
             , "UnBlock"
             , "GetBlockList"
             , "Update the thread info"
+            , "get File"
+            , "get image"
     };
     private Uri uri;
 
@@ -102,7 +104,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 //    private static String name = "Alexi";
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "40b4aaf1636e4dea84c500204342b197";
+    private static String TOKEN = "ed8976b1b7af4ec28765128dfd9302f8 ";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -331,6 +333,9 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                                 super.onUpdateThreadInfo(uniqueId);
                             }
                         });
+                        break;
+                    case 7 :
+                        presenter.getFile(49405,"166f80b8bbe-0.3354977305272606",true);
                         break;
                 }
             }

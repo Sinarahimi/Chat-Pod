@@ -158,5 +158,7 @@ public interface ChatContract {
 
         void deleteMessage(long messageId, Boolean deleteForAll,ChatHandler handler);
 
+        void getFile(long fileId, String hashCode, boolean downloadable);
+
     }
 }

@@ -118,4 +118,6 @@ public interface MessageDao {
 
     @Query("select * from FileMetaDataContent where id = :id")
     FileMetaDataContent getFile(long id );
+
+    //Cache
 }

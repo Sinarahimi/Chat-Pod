@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 
 public class FilePick {
 
@@ -52,19 +53,25 @@ public class FilePick {
 
                     // TODO handle non-primary volumes
                 }
-                // DownloadsProvider
-                else if (isDownloadsDocument(uri)) {
-                    final String id = DocumentsContract.getDocumentId(uri);
-                    final Uri contentUri = ContentUris.withAppendedId(
-                            Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
 
-                    return getDataColumn(context, contentUri, null, null);
-                }
                 // MediaProvider
                 else if (isMediaDocument(uri)) {
                     final String docId = DocumentsContract.getDocumentId(uri);
                     final String[] split = docId.split(":");
                     final String type = split[0];
+
+                    if (!TextUtils.isEmpty(docId)) {
+                        if (docId.startsWith("raw:")) {
+                            return docId.replaceFirst("raw:", "");
+                        }
+                        try {
+                            final Uri contentUri = ContentUris.withAppendedId(
+                                    Uri.parse("content://downloads/public_downloads"), Long.valueOf(docId));
+                            return getDataColumn(context, contentUri, null, null);
+                        } catch (NumberFormatException e) {
+                            return null;
+                        }
+                    }
 
                     Uri contentUri = null;
                     if ("image".equals(type)) {
@@ -82,6 +89,29 @@ public class FilePick {
 
                     return getDataColumn(context, contentUri, selection, selectionArgs);
                 }
+
+                // DownloadsProvider
+                else if (isDownloadsDocument(uri)) {
+                    final String id = DocumentsContract.getDocumentId(uri);
+
+                    if (!TextUtils.isEmpty(id)) {
+                        if (id.startsWith("raw:")) {
+                            return id.replaceFirst("raw:", "");
+                        }
+                        try {
+                            final Uri contentUri = ContentUris.withAppendedId(
+                                    Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+                            return getDataColumn(context, contentUri, null, null);
+                        } catch (NumberFormatException e) {
+                            return null;
+                        }
+                    }
+//                    final Uri contentUri = ContentUris.withAppendedId(
+//                            Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+
+//                    return getDataColumn(context, contentUri, null, null);
+                }
+
             }
             // MediaStore (and general)
             else if ("content".equalsIgnoreCase(uri.getScheme())) {
