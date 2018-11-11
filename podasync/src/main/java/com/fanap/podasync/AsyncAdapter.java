@@ -15,17 +15,17 @@ public class AsyncAdapter implements AsyncListener {
     }
 
     @Override
-    public void onDisconnected(String textMessage) throws IOException {
+    public void onDisconnected(String textMessage)  {
 
     }
 
     @Override
-    public void onError(String textMessage) throws IOException {
+    public void onError(String textMessage) {
 
     }
 
     @Override
-    public void handleCallbackError(Throwable cause) throws Exception {
+    public void handleCallbackError(Throwable cause)  {
 
     }
 }

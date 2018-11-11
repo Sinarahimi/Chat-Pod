@@ -566,7 +566,7 @@ public class Chat extends AsyncAdapter {
     }
 
     public String getFile(long fileId, String hashCode, boolean downloadable) {
-
+        final String[] url = new String[1];
         if (cache) {
             FileMetaDataContent cachedFile = messageDatabaseHelper.getFile(fileId);
             if (cachedFile.getFileDirectory() != null || !cachedFile.getFileDirectory().equals("")) {
@@ -584,6 +584,7 @@ public class Chat extends AsyncAdapter {
                             if (response.isSuccessful()) {
                                 WriteFileToDisk writeFileToDisk = new WriteFileToDisk(response.body(), cachedFile.getName(), getContext());
                                 writeFileToDisk.execute();
+                                url[0] = writeFileToDisk.getLocalPath();
 
                             }
                         }
@@ -595,12 +596,14 @@ public class Chat extends AsyncAdapter {
                     });
 
                 }
+            } else {
+                url[0] = getFileServer() + "nzh/file/" + "?fileId=" + cachedFile.getId() + "&downloadable=" + downloadable + "&hashCode=" + cachedFile.getHashCode();
             }
+        } else {
+            url[0] = getFileServer() + "nzh/file/" + "?fileId=" + fileId + "&downloadable=" + downloadable + "&hashCode=" + hashCode;
         }
 
-
-        String url = getFileServer() + "nzh/file/" + "?fileId=" + fileId + "&downloadable=" + downloadable + "&hashCode=" + hashCode;
-        return url;
+        return url[0];
     }
 
     public String getImage(int imageId, String hashCode, boolean downloadable) {

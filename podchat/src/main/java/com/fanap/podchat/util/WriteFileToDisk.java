@@ -14,11 +14,12 @@ import okhttp3.ResponseBody;
 
 import static com.fanap.podchat.util.FileUtils.TAG;
 
-public class WriteFileToDisk extends AsyncTask<Boolean, Void, Boolean> {
+public class WriteFileToDisk extends AsyncTask<Boolean, Void, String> {
 
     private ResponseBody body;
     private String fileName;
     private Context context;
+    private String localPath;
 
     public WriteFileToDisk(ResponseBody body, String fileName, Context context) {
         this.fileName = fileName;
@@ -27,7 +28,7 @@ public class WriteFileToDisk extends AsyncTask<Boolean, Void, Boolean> {
     }
 
     //TODO Should Create the Folder once
-    private boolean writeResponseBodyToDisk(ResponseBody body, String fileName) {
+    private String writeResponseBodyToDisk(ResponseBody body, String fileName) {
         try {
             File directory = context.getDir("fChatPlatform", Context.MODE_PRIVATE);
             File file = new File(directory, fileName);
@@ -60,9 +61,10 @@ public class WriteFileToDisk extends AsyncTask<Boolean, Void, Boolean> {
 
                 outputStream.flush();
 
-                return true;
+
+                return file.getPath();
             } catch (IOException e) {
-                return false;
+                return null;
             } finally {
                 if (inputStream != null) {
                     inputStream.close();
@@ -73,12 +75,32 @@ public class WriteFileToDisk extends AsyncTask<Boolean, Void, Boolean> {
                 }
             }
         } catch (IOException e) {
-            return false;
+            return null;
         }
     }
 
+//    @Override
+//    protected Boolean doInBackground(Boolean... booleans) {
+//        return writeResponseBodyToDisk(body, fileName);
+//    }
+
+
     @Override
-    protected Boolean doInBackground(Boolean... booleans) {
+    protected String doInBackground(Boolean... booleans) {
         return writeResponseBodyToDisk(body, fileName);
+    }
+
+    @Override
+    protected void onPostExecute(String s) {
+        super.onPostExecute(s);
+        setLocalPath(s);
+    }
+
+    public String getLocalPath(){
+        return localPath;
+    }
+
+    private void setLocalPath(String localPath){
+        this.localPath = localPath;
     }
 }
