@@ -104,7 +104,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 //    private static String name = "Alexi";
     private String fileUri;
     private static String name = "SandBox";
-    private static String TOKEN = "ed8976b1b7af4ec28765128dfd9302f8 ";
+    private static String TOKEN = "e1df100ba002476ab18acbb5ee4f55ff ";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -334,8 +334,13 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                             }
                         });
                         break;
-                    case 7 :
-                        presenter.getFile(49405,"166f80b8bbe-0.3354977305272606",true);
+                    case 7:
+                        presenter.getFile(49508, "16707022cee-0.590081961055549", true);
+
+                        break;
+                    case 8:
+                        presenter.getImage(49505, "16706ba7aed-0.8904383961473638", true);
+
                         break;
                 }
             }
@@ -418,7 +423,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
 
                         break;
                     case 9:
-                        SearchContact searchContact = new SearchContact.Builder("0", "2").id("589").build();
+                        SearchContact searchContact = new SearchContact.Builder("0", "2").id("1381").build();
                         presenter.searchContact(searchContact);
                         break;
                     case 10:
@@ -556,7 +561,7 @@ public class ChatSandBoxActivity extends AppCompatActivity implements AdapterVie
                 break;
             case 7:
                 //"get thread participant",
-                presenter.getThreadParticipant(10, 0L, 661, new ChatHandler() {
+                presenter.getThreadParticipant(10, 0L, 381, new ChatHandler() {
                     @Override
                     public void onGetThreadParticipant(String uniqueId) {
                         super.onGetThreadParticipant(uniqueId);

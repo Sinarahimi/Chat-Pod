@@ -9,6 +9,7 @@ import com.fanap.podchat.mainmodel.Inviter;
 import com.fanap.podchat.mainmodel.LastMessageVO;
 import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.ThreadVo;
+import com.fanap.podchat.model.FileImageMetaData;
 import com.fanap.podchat.model.FileMetaDataContent;
 import com.fanap.podchat.model.ForwardInfo;
 import com.fanap.podchat.model.MessageVO;
@@ -39,7 +40,7 @@ public interface MessageDao {
     @Query("select COUNT(id) FROM Participant WHERE threadId = :threadId")
     int getParticipantCount(long threadId);
 
-    @Query("select * from Participant WHERE :threadId ORDER BY name LIMIT :count OFFSET :offset ")
+    @Query("select * from Participant WHERE threadId =:threadId ORDER BY name LIMIT :count OFFSET :offset ")
     List<Participant> geParticipants(long offset, long count, long threadId);
 
     @Query("select * from Participant WHERE threadId = :threadId")
@@ -51,11 +52,18 @@ public interface MessageDao {
     @Query("select * from Contact")
     List<Contact> getContacts();
 
+
+    //Cache thread
+
+
     @Query("select * from ThreadVo")
     List<ThreadVo> getThreads();
 
     @Query("select  * from ThreadVo where id = :id")
     ThreadVo getThread(long id);
+
+    @Query("select  * from ThreadVo where id = :id")
+    ThreadVo getThreadByName(long id);
 
     @Insert(onConflict = REPLACE)
     void insertThreads(List<ThreadVo> ThreadVo);
@@ -119,5 +127,10 @@ public interface MessageDao {
     @Query("select * from FileMetaDataContent where id = :id")
     FileMetaDataContent getFile(long id );
 
-    //Cache
+    //Cache image file
+    @Insert(onConflict = REPLACE)
+    void insertImage(FileImageMetaData image);
+
+    @Query("select * from FileImageMetaData where id = :id")
+    FileImageMetaData getImageFile(long id);
 }

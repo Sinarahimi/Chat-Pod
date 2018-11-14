@@ -34,6 +34,12 @@ public class Participant {
     private Boolean blocked;
     private Boolean admin;
 
+    @Override
+    public String toString() {
+        return super.toString();
+
+    }
+
     public long getId() {
         return id;
     }

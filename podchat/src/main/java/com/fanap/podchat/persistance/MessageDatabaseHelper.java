@@ -5,6 +5,7 @@ import android.content.Context;
 import com.fanap.podchat.mainmodel.Contact;
 import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.ThreadVo;
+import com.fanap.podchat.model.FileImageMetaData;
 import com.fanap.podchat.model.FileMetaDataContent;
 import com.fanap.podchat.model.MessageVO;
 import com.fanap.podchat.persistance.dao.MessageDao;
@@ -177,5 +178,14 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
 
     public FileMetaDataContent getFile(long id){
         return messageDao.getFile(id);
+    }
+
+    //Cache image file
+    public void saveImageFile(FileImageMetaData image){
+        messageDao.insertImage(image);
+    }
+
+    public FileImageMetaData getImageFile(long id){
+        return messageDao.getImageFile(id);
     }
 }

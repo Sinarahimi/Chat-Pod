@@ -242,6 +242,11 @@ public class ChatPresenter extends ChatAdapter implements ChatContract.presenter
         chat.getFile(fileId, hashCode, downloadable);
     }
 
+    @Override
+    public void getImage(long fileId, String hashCode, boolean downloadable) {
+        chat.getImage(fileId, hashCode, downloadable);
+    }
+
 
     //View
     @Override

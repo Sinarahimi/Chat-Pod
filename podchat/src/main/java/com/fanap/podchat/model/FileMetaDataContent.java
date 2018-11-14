@@ -47,14 +47,6 @@ public class FileMetaDataContent {
         this.id = id;
     }
 
-    public String getFileDirectory() {
-        return localPath;
-    }
-
-    public void setFileDirectory(String fileDirectory) {
-        this.localPath = fileDirectory;
-    }
-
     public String getOriginalName() {
         return originalName;
     }

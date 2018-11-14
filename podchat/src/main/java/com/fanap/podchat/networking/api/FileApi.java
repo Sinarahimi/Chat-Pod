@@ -43,4 +43,8 @@ public interface FileApi {
     @Streaming
     @GET
     Call<ResponseBody> downloadFile(@Url String fileUrl);
+
+    @Streaming
+    @GET
+    Call<ResponseBody> downloadImage(@Url String fileUrl);
 }

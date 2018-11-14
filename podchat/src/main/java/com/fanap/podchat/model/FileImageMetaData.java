@@ -15,6 +15,7 @@ public class FileImageMetaData {
     private int actualWidth;
     private int size;
     private String mimeType;
+    private String localPath;
 
     public String getOriginalName() {
         return originalName;
@@ -86,5 +87,13 @@ public class FileImageMetaData {
 
     public void setActualWidth(int actualWidth) {
         this.actualWidth = actualWidth;
+    }
+
+    public String getLocalPath() {
+        return localPath;
+    }
+
+    public void setLocalPath(String localPath) {
+        this.localPath = localPath;
     }
 }
