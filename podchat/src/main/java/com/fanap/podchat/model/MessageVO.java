@@ -6,7 +6,9 @@ import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.Nullable;
 
+import com.fanap.podchat.mainmodel.ForwardInfo;
 import com.fanap.podchat.mainmodel.Participant;
+import com.fanap.podchat.mainmodel.ReplyInfoVO;
 import com.fanap.podchat.mainmodel.ThreadVo;
 
 @Entity(foreignKeys = {

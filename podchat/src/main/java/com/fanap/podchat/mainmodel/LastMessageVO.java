@@ -2,17 +2,11 @@ package com.fanap.podchat.mainmodel;
 
 
 import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.Nullable;
 
-import com.fanap.podchat.model.ForwardInfo;
-import com.fanap.podchat.model.ReplyInfoVO;
-
-@Entity(foreignKeys = {@ForeignKey(entity = Participant.class, parentColumns = "id", childColumns = "participantId"),
-        @ForeignKey(entity = ReplyInfoVO.class, parentColumns = "replyInfoVO_Id", childColumns = "replyInfoVOId"),
-        @ForeignKey(entity = ForwardInfo.class, parentColumns = "forwardInfo_Id", childColumns = "forwardInfoId")})
+@Entity
 public class LastMessageVO {
     @PrimaryKey
     private long id;
@@ -25,20 +19,17 @@ public class LastMessageVO {
     @Ignore
     private Participant participant;
 
-    @ForeignKey(entity = Participant.class, parentColumns = "id", childColumns = "participantId")
     private Long participantId;
 
     @Ignore
     @Nullable
     private ReplyInfoVO replyInfoVO;
 
-    @ForeignKey(entity = ReplyInfoVO.class, parentColumns = "ReplyInfoVO_Id", childColumns = "replyInfoVOId")
     private Long replyInfoVOId;
 
     @Ignore
     private ForwardInfo forwardInfo;
 
-    @ForeignKey(entity = ForwardInfo.class, parentColumns = "forwardInfo_Id", childColumns = "forwardInfoId")
     @Nullable
     private Long forwardInfoId;
 

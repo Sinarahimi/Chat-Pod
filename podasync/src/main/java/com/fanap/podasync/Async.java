@@ -570,6 +570,8 @@ public class Async extends WebSocketAdapter {
                 String jsonPeerInfoWrapper = getMessageWrapper(moshi, peerMessageJson, AsyncMessageType.MessageType.DEVICE_REGISTER);
                 sendData(websocket, jsonPeerInfoWrapper);
                 if (log) Logger.i(TAG + "SEND_SERVER_REGISTER");
+                if (log) Logger.json(jsonPeerInfoWrapper);
+
             } else {
                 if (log) Logger.e("WebSocket Is Null ");
             }
@@ -649,10 +651,6 @@ public class Async extends WebSocketAdapter {
         pingHandler = new Handler(Looper.getMainLooper());
     }
 
-    static {
-        socketCloseHandler = new Handler(Looper.getMainLooper());
-    }
-
     protected static void runOnUIThread(Runnable runnable, long delayedTime) {
         if (pingHandler != null) {
             pingHandler.postDelayed(runnable, delayedTime);
@@ -662,6 +660,9 @@ public class Async extends WebSocketAdapter {
 
     }
 
+    static {
+        socketCloseHandler = new Handler(Looper.getMainLooper());
+    }
     protected static void runOnUIThreadCloseSocket(Runnable runnable, long delayedTime) {
         if (socketCloseHandler != null) {
             socketCloseHandler.postDelayed(runnable, delayedTime);

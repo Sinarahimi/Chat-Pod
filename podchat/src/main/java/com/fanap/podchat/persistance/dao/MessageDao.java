@@ -11,9 +11,9 @@ import com.fanap.podchat.mainmodel.Participant;
 import com.fanap.podchat.mainmodel.ThreadVo;
 import com.fanap.podchat.model.FileImageMetaData;
 import com.fanap.podchat.model.FileMetaDataContent;
-import com.fanap.podchat.model.ForwardInfo;
+import com.fanap.podchat.mainmodel.ForwardInfo;
 import com.fanap.podchat.model.MessageVO;
-import com.fanap.podchat.model.ReplyInfoVO;
+import com.fanap.podchat.mainmodel.ReplyInfoVO;
 
 import java.util.List;
 
@@ -55,6 +55,8 @@ public interface MessageDao {
 
     //Cache thread
 
+    @Query("select COUNT(id) FROM THREADVO")
+    int getThreadCount();
 
     @Query("select * from ThreadVo")
     List<ThreadVo> getThreads();

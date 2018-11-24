@@ -1,4 +1,4 @@
-package com.fanap.podchat.model;
+package com.fanap.podchat.mainmodel;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Embedded;
@@ -10,7 +10,7 @@ import android.support.annotation.Nullable;
 
 import com.fanap.podchat.mainmodel.Participant;
 
-@Entity(foreignKeys = {@ForeignKey(entity = Participant.class, parentColumns = "id", childColumns = "participantId")})
+@Entity
 public class ReplyInfoVO {
 
     //This field is just for using cache
@@ -22,7 +22,6 @@ public class ReplyInfoVO {
     @Nullable
     private Participant participant;
 
-    @ForeignKey(entity = Participant.class, parentColumns = "id", childColumns = "participantId")
     private Long participantId;
 
     private long repliedToMessageId;

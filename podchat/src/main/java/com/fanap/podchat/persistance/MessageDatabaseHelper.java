@@ -82,7 +82,9 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
         messageDao.insertContact(contacts);
     }
 
-    public List<ThreadVo> getThreads() {
+    public List<ThreadVo> getThreads()
+
+    {
         List<ThreadVo> threadVos = messageDao.getThreads();
         for (ThreadVo threadVo : threadVos) {
             if (threadVo.getInviterId() != null) {
@@ -151,6 +153,7 @@ public class MessageDatabaseHelper extends BaseDatabaseHelper {
     public Contact getContactById(long id){
         return messageDao.getContactById(id);
     }
+
     public List<Contact> getContactsByFirst(String firstName){
         return messageDao.getContactsByFirst(firstName);
     }
