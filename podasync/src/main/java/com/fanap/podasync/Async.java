@@ -7,7 +7,6 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.fanap.podasync.model.AsyncConstant;
@@ -26,16 +25,11 @@ import com.neovisionaries.ws.client.WebSocketExtension;
 import com.neovisionaries.ws.client.WebSocketFactory;
 import com.neovisionaries.ws.client.WebSocketFrame;
 import com.neovisionaries.ws.client.WebSocketState;
-import com.orhanobut.logger.AndroidLogAdapter;
 import com.orhanobut.logger.Logger;
 import com.squareup.moshi.JsonAdapter;
 import com.squareup.moshi.Moshi;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.Socket;
-import java.net.UnknownHostException;
-import java.security.spec.ECField;
 import java.util.Date;
 import java.util.List;
 
@@ -72,6 +66,7 @@ public class Async extends WebSocketAdapter {
     private MutableLiveData<String> messageLiveData = new MutableLiveData<>();
     private String serverAddress;
     private static final Handler pingHandler;
+    private static final Handler reconnectHandler;
     private static final Handler socketCloseHandler;
     private String token;
     private String serverName;
@@ -169,16 +164,22 @@ public class Async extends WebSocketAdapter {
         setState(newState.toString());
         if (log) Logger.d("State" + " Is Now " + newState.toString());
         switch (newState) {
+            case OPEN:
+                reconnectHandler.removeCallbacksAndMessages(null);
+                retryStep = 1;
+                break;
             case CLOSED:
                 stopSocket();
                 if (reconnectOnClose) {
-                    LooperThread looperThread = new LooperThread();
-                    looperThread.run();
+                    retryReconnect();
                 } else {
                     if (log) Logger.e("Socket Closed!");
                 }
                 break;
-            case OPEN:
+            case CONNECTING:
+
+                break;
+            case CLOSING:
 
                 break;
         }
@@ -223,14 +224,14 @@ public class Async extends WebSocketAdapter {
         super.onDisconnected(websocket, serverCloseFrame, clientCloseFrame, closedByServer);
         if (log) Log.e("Disconnected", serverCloseFrame.getCloseReason());
         asyncListenerManager.callOnDisconnected(serverCloseFrame.getCloseReason());
-        stopSocket();
-//        reConnect();
-        if (reconnectOnClose) {
-            LooperThread looperThread = new LooperThread();
-            looperThread.run();
-        } else {
-            if (log) Logger.e("Socket Closed!");
-        }
+//        stopSocket();
+////        reConnect();
+//        if (reconnectOnClose) {
+//            LooperThread looperThread = new LooperThread();
+//            looperThread.run();
+//        } else {
+//            if (log) Logger.e("Socket Closed!");
+//        }
     }
 
     @Override
@@ -238,13 +239,23 @@ public class Async extends WebSocketAdapter {
         super.onCloseFrame(websocket, frame);
         if (log) Log.i(TAG, "onCloseFrame");
         if (log) Log.i(TAG, frame.getCloseReason());
-        stopSocket();
-        if (reconnectOnClose) {
-            LooperThread looperThread = new LooperThread();
-            looperThread.run();
-        } else {
-            if (log) Logger.e("Socket Closed!");
-        }
+
+    }
+
+    public void retryReconnect() {
+        runOnUiThreadRecconect(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    reConnect();
+                } catch (WebSocketException e) {
+                    asyncListenerManager.callOnError(e.getMessage());
+                }
+                if (log)
+                    Logger.e("Async: reConnect in " + " retryStep " + retryStep + " s ");
+            }
+        }, retryStep * 1000);
+        if (retryStep < 60) retryStep *= 2;
     }
 
     class LooperThread extends Thread {
@@ -648,6 +659,19 @@ public class Async extends WebSocketAdapter {
     }
 
     static {
+        reconnectHandler = new Handler(Looper.getMainLooper());
+    }
+
+    protected static void runOnUiThreadRecconect(Runnable runnable, long delayedTime) {
+        if (reconnectHandler != null) {
+            reconnectHandler.postDelayed(runnable, delayedTime);
+        } else {
+            runnable.run();
+        }
+    }
+
+
+    static {
         pingHandler = new Handler(Looper.getMainLooper());
     }
 
@@ -663,6 +687,7 @@ public class Async extends WebSocketAdapter {
     static {
         socketCloseHandler = new Handler(Looper.getMainLooper());
     }
+
     protected static void runOnUIThreadCloseSocket(Runnable runnable, long delayedTime) {
         if (socketCloseHandler != null) {
             socketCloseHandler.postDelayed(runnable, delayedTime);
@@ -714,6 +739,7 @@ public class Async extends WebSocketAdapter {
                 webSocket.disconnect();
                 webSocket = null;
                 pingHandler.removeCallbacksAndMessages(null);
+                retryStep = 1;
                 if (log) Logger.i("Socket Stopped");
             }
         } catch (Exception e) {

@@ -286,121 +286,126 @@ public class Chat extends AsyncAdapter {
     @Override
     public void onReceivedMessage(String textMessage) throws IOException {
         super.onReceivedMessage(textMessage);
-        int messageType = 0;
-        JsonAdapter<ChatMessage> jsonAdapter = moshi.adapter(ChatMessage.class);
-        ChatMessage chatMessage = jsonAdapter.fromJson(textMessage);
+        try {
+            int messageType = 0;
+            JsonAdapter<ChatMessage> jsonAdapter = moshi.adapter(ChatMessage.class);
+            ChatMessage chatMessage = jsonAdapter.fromJson(textMessage);
 
-        String messageUniqueId = chatMessage.getUniqueId();
-        long threadId = chatMessage.getSubjectId();
-        Callback callback = messageCallbacks.get(messageUniqueId);
+            String messageUniqueId = chatMessage.getUniqueId();
+            long threadId = chatMessage.getSubjectId();
+            Callback callback = messageCallbacks.get(messageUniqueId);
 
-        if (chatMessage != null) {
-            messageType = chatMessage.getType();
+            if (chatMessage != null) {
+                messageType = chatMessage.getType();
+            }
+            @ChatMessageType.Constants int currentMessageType = messageType;
+            switch (currentMessageType) {
+                case Constants.ADD_PARTICIPANT:
+                    handleResponseMessage(callback, chatMessage, messageUniqueId);
+                    break;
+                case Constants.UNBLOCK:
+                    handleResponseMessage(callback, chatMessage, messageUniqueId);
+                    break;
+                case Constants.BLOCK:
+                    handleResponseMessage(callback, chatMessage, messageUniqueId);
+                    break;
+                case Constants.CHANGE_TYPE:
+                    break;
+                case Constants.SENT:
+                    handleSent(chatMessage, messageUniqueId, threadId);
+                    break;
+                case Constants.DELIVERY:
+                    handleDelivery(chatMessage, messageUniqueId, threadId);
+                    break;
+                case Constants.SEEN:
+                    handleSeen(chatMessage, messageUniqueId, threadId);
+                    break;
+                case Constants.ERROR:
+                    handleError(chatMessage);
+                    break;
+                case Constants.FORWARD_MESSAGE:
+                    handleForwardMessage(chatMessage);
+                    break;
+                case Constants.GET_CONTACTS:
+                    handleResponseMessage(callback, chatMessage, messageUniqueId);
+                    break;
+                case Constants.GET_HISTORY:
+                    handleResponseMessage(callback, chatMessage, messageUniqueId);
+                    break;
+                case Constants.GET_STATUS:
+                    break;
+                case Constants.GET_THREADS:
+                    handleResponseMessage(callback, chatMessage, messageUniqueId);
+                    break;
+                case Constants.INVITATION:
+                    handleResponseMessage(callback, chatMessage, messageUniqueId);
+                    break;
+                case Constants.REMOVED_FROM_THREAD:
+                    //TODO removed threadVo
+                    break;
+                case Constants.LEAVE_THREAD:
+                    handleResponseMessage(callback, chatMessage, messageUniqueId);
+                    break;
+                case Constants.MESSAGE:
+                    handleNewMessage(chatMessage);
+                    break;
+                case Constants.MUTE_THREAD:
+                    handleResponseMessage(callback, chatMessage, messageUniqueId);
+                    break;
+                case Constants.PING:
+                    if (BuildConfig.DEBUG) Logger.i("RECEIVED_CHAT_PING", chatMessage);
+                    break;
+                case Constants.RELATION_INFO:
+                    break;
+                case Constants.REMOVE_PARTICIPANT:
+                    handleResponseMessage(callback, chatMessage, messageUniqueId);
+                    break;
+                case Constants.RENAME:
+                    handleResponseMessage(callback, chatMessage, messageUniqueId);
+                    break;
+                case Constants.THREAD_PARTICIPANTS:
+                    handleResponseMessage(callback, chatMessage, messageUniqueId);
+                    break;
+                case Constants.UN_MUTE_THREAD:
+                    handleResponseMessage(callback, chatMessage, messageUniqueId);
+                    break;
+                case Constants.USER_INFO:
+                    handleResponseMessage(callback, chatMessage, messageUniqueId);
+                    break;
+                case Constants.USER_STATUS:
+                    break;
+                case Constants.GET_BLOCKED:
+                    handleResponseMessage(callback, chatMessage, messageUniqueId);
+                    break;
+                case Constants.DELETE_MESSAGE:
+                    handleResponseMessage(callback, chatMessage, messageUniqueId);
+                    break;
+                case Constants.EDIT_MESSAGE:
+                    handleResponseMessage(callback, chatMessage, messageUniqueId);
+                    break;
+                case Constants.THREAD_INFO_UPDATED:
+                    OutPutInfoThread outPutInfoThread = new OutPutInfoThread();
+                    ResultThread resultThread = new ResultThread();
+                    ThreadVo threadVo = JsonUtil.fromJSON(chatMessage.getContent(), ThreadVo.class);
+                    resultThread.setThreadVo(threadVo);
+                    outPutInfoThread.setResult(resultThread);
+                    listenerManager.callOnThreadInfoUpdated(chatMessage.getContent());
+                    if (BuildConfig.DEBUG) Logger.i("THREAD_INFO_UPDATED");
+                    if (BuildConfig.DEBUG) Logger.json(chatMessage.getContent());
+                    break;
+                case Constants.LAST_SEEN_UPDATED:
+                    if (BuildConfig.DEBUG) Logger.i("LAST_SEEN_UPDATED");
+                    if (BuildConfig.DEBUG) Logger.i(chatMessage.getContent());
+                    listenerManager.callOnLastSeenUpdated(chatMessage.getContent());
+                    break;
+                case Constants.UPDATE_THREAD_INFO:
+                    handleResponseMessage(callback, chatMessage, messageUniqueId);
+                    break;
+            }
+        } catch (Exception e) {
+            if (log) Logger.e(e.getCause().getMessage());
         }
-        @ChatMessageType.Constants int currentMessageType = messageType;
-        switch (currentMessageType) {
-            case Constants.ADD_PARTICIPANT:
-                handleResponseMessage(callback, chatMessage, messageUniqueId);
-                break;
-            case Constants.UNBLOCK:
-                handleResponseMessage(callback, chatMessage, messageUniqueId);
-                break;
-            case Constants.BLOCK:
-                handleResponseMessage(callback, chatMessage, messageUniqueId);
-                break;
-            case Constants.CHANGE_TYPE:
-                break;
-            case Constants.SENT:
-                handleSent(chatMessage, messageUniqueId, threadId);
-                break;
-            case Constants.DELIVERY:
-                handleDelivery(chatMessage, messageUniqueId, threadId);
-                break;
-            case Constants.SEEN:
-                handleSeen(chatMessage, messageUniqueId, threadId);
-                break;
-            case Constants.ERROR:
-                handleError(chatMessage);
-                break;
-            case Constants.FORWARD_MESSAGE:
-                handleForwardMessage(chatMessage);
-                break;
-            case Constants.GET_CONTACTS:
-                handleResponseMessage(callback, chatMessage, messageUniqueId);
-                break;
-            case Constants.GET_HISTORY:
-                handleResponseMessage(callback, chatMessage, messageUniqueId);
-                break;
-            case Constants.GET_STATUS:
-                break;
-            case Constants.GET_THREADS:
-                handleResponseMessage(callback, chatMessage, messageUniqueId);
-                break;
-            case Constants.INVITATION:
-                handleResponseMessage(callback, chatMessage, messageUniqueId);
-                break;
-            case Constants.REMOVED_FROM_THREAD:
-                //TODO removed threadVo
-                break;
-            case Constants.LEAVE_THREAD:
-                handleResponseMessage(callback, chatMessage, messageUniqueId);
-                break;
-            case Constants.MESSAGE:
-                handleNewMessage(chatMessage);
-                break;
-            case Constants.MUTE_THREAD:
-                handleResponseMessage(callback, chatMessage, messageUniqueId);
-                break;
-            case Constants.PING:
-                if (BuildConfig.DEBUG) Logger.i("RECEIVED_CHAT_PING", chatMessage);
-                break;
-            case Constants.RELATION_INFO:
-                break;
-            case Constants.REMOVE_PARTICIPANT:
-                handleResponseMessage(callback, chatMessage, messageUniqueId);
-                break;
-            case Constants.RENAME:
-                handleResponseMessage(callback, chatMessage, messageUniqueId);
-                break;
-            case Constants.THREAD_PARTICIPANTS:
-                handleResponseMessage(callback, chatMessage, messageUniqueId);
-                break;
-            case Constants.UN_MUTE_THREAD:
-                handleResponseMessage(callback, chatMessage, messageUniqueId);
-                break;
-            case Constants.USER_INFO:
-                handleResponseMessage(callback, chatMessage, messageUniqueId);
-                break;
-            case Constants.USER_STATUS:
-                break;
-            case Constants.GET_BLOCKED:
-                handleResponseMessage(callback, chatMessage, messageUniqueId);
-                break;
-            case Constants.DELETE_MESSAGE:
-                handleResponseMessage(callback, chatMessage, messageUniqueId);
-                break;
-            case Constants.EDIT_MESSAGE:
-                handleResponseMessage(callback, chatMessage, messageUniqueId);
-                break;
-            case Constants.THREAD_INFO_UPDATED:
-                OutPutInfoThread outPutInfoThread = new OutPutInfoThread();
-                ResultThread resultThread = new ResultThread();
-                ThreadVo threadVo = JsonUtil.fromJSON(chatMessage.getContent(), ThreadVo.class);
-                resultThread.setThreadVo(threadVo);
-                outPutInfoThread.setResult(resultThread);
-                listenerManager.callOnThreadInfoUpdated(chatMessage.getContent());
-                if (BuildConfig.DEBUG) Logger.i("THREAD_INFO_UPDATED");
-                if (BuildConfig.DEBUG) Logger.json(chatMessage.getContent());
-                break;
-            case Constants.LAST_SEEN_UPDATED:
-                if (BuildConfig.DEBUG) Logger.i("LAST_SEEN_UPDATED");
-                if (BuildConfig.DEBUG) Logger.i(chatMessage.getContent());
-                listenerManager.callOnLastSeenUpdated(chatMessage.getContent());
-                break;
-            case Constants.UPDATE_THREAD_INFO:
-                handleResponseMessage(callback, chatMessage, messageUniqueId);
-                break;
-        }
+
     }
 
     /**
