@@ -258,32 +258,6 @@ public class Async extends WebSocketAdapter {
         if (retryStep < 60) retryStep *= 2;
     }
 
-    class LooperThread extends Thread {
-        Handler handler;
-
-        @Override
-        public void run() {
-            super.run();
-            Looper.prepare();
-            handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        reConnect();
-                        if (log)
-                            Logger.e("Async: reConnect in " + " retryStep " + retryStep + " s ");
-                    } catch (WebSocketException e) {
-                        asyncListenerManager.callOnError(e.getMessage());
-
-                    }
-                }
-            }, retryStep * 1000);
-            if (retryStep < 60) retryStep *= 2;
-            Looper.loop();
-        }
-    }
-
     public void isLoggable(boolean log) {
         this.log = log;
         LogHelper.init(log);
@@ -739,7 +713,6 @@ public class Async extends WebSocketAdapter {
                 webSocket.disconnect();
                 webSocket = null;
                 pingHandler.removeCallbacksAndMessages(null);
-                retryStep = 1;
                 if (log) Logger.i("Socket Stopped");
             }
         } catch (Exception e) {

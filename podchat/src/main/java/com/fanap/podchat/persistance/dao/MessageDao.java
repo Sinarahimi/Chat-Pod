@@ -23,7 +23,7 @@ import static android.arch.persistence.room.OnConflictStrategy.REPLACE;
 public interface MessageDao {
 
     @Insert(onConflict = REPLACE)
-    void insertHistory(MessageVO messageVO);
+    void insertMessage(MessageVO messageVO);
 
     @Insert(onConflict = REPLACE)
     void insertHistories(List<MessageVO> messageVOS);

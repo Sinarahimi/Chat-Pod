@@ -36,8 +36,13 @@ public class AsyncActivity extends AppCompatActivity implements SocketContract.v
     EditText editTextReceiverId;
     //    private String name = "jiji";
 //    private static String TOKEN = "fbd4ecedb898426394646e65c6b1d5d1";
-    private String name = "zizi";
-    private static String TOKEN = "7cba09ff83554fc98726430c30afcfc6";
+
+    //Fifi
+    private String name = "Fifi";
+    private static String TOKEN = "5fb88da4c6914d07a501a76d68a62363";
+
+//    private String name = "zizi";
+//    private static String TOKEN = "7cba09ff83554fc98726430c30afcfc6";
     //Token Alexi
 //    private static String TOKEN = "bebc31c4ead6458c90b607496dae25c6";
 //    private static String name = "Alexi";
