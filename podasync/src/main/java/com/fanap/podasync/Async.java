@@ -224,14 +224,6 @@ public class Async extends WebSocketAdapter {
         super.onDisconnected(websocket, serverCloseFrame, clientCloseFrame, closedByServer);
         if (log) Log.e("Disconnected", serverCloseFrame.getCloseReason());
         asyncListenerManager.callOnDisconnected(serverCloseFrame.getCloseReason());
-//        stopSocket();
-////        reConnect();
-//        if (reconnectOnClose) {
-//            LooperThread looperThread = new LooperThread();
-//            looperThread.run();
-//        } else {
-//            if (log) Logger.e("Socket Closed!");
-//        }
     }
 
     @Override
@@ -269,7 +261,6 @@ public class Async extends WebSocketAdapter {
         try {
             WebSocketFactory webSocketFactory = new WebSocketFactory();
             SSLSocketFactory.getDefault();
-//        saveDeviceId(deviceID);
             setAppId(appId);
             setServerAddress(socketServerAddress);
             setToken(token);
@@ -281,6 +272,11 @@ public class Async extends WebSocketAdapter {
             webSocket.setMaxPayloadSize(100);
             webSocket.addExtension(WebSocketExtension.PERMESSAGE_DEFLATE);
             webSocket.connectAsynchronously();
+
+            if (deviceID != null && !deviceID.isEmpty()) {
+//                saveDeviceId(deviceID);
+                setDeviceID(deviceID);
+            }
 
         } catch (IOException e) {
             if (log) Logger.e("Async: connect", e.getMessage());
@@ -397,6 +393,15 @@ public class Async extends WebSocketAdapter {
         return this;
     }
 
+    public List<AsyncListener> getSynchronizedListeners() {
+        return asyncListenerManager.getSynchronizedListeners();
+    }
+
+    public Async clearListeners(){
+        asyncListenerManager.clearListeners();
+        return this;
+    }
+
     /**
      * Connect webSocket to the Async
      *
@@ -493,7 +498,10 @@ public class Async extends WebSocketAdapter {
     private void handleOnPing(WebSocket webSocket, ClientMessage clientMessage) {
         try {
             if (clientMessage.getContent() != null) {
-                saveDeviceId(clientMessage.getContent());
+                if (getDeviceId() == null || getDeviceId().isEmpty()) {
+//                    saveDeviceId(clientMessage.getContent());
+                    setDeviceID(clientMessage.getContent());
+                }
                 deviceRegister(webSocket);
             } else {
                 if (log) Logger.i("ASYNC_PING_RECEIVED");
@@ -586,16 +594,6 @@ public class Async extends WebSocketAdapter {
      * get the new PeerId
      */
     private void reConnect() throws WebSocketException {
-//        try {
-//            WebSocketFactory webSocketFactory = new WebSocketFactory();
-//            webSocketFactory.setVerifyHostname(false);
-//            webSocketReconnect = webSocketFactory
-//                    .createSocket(getServerAddress())
-//                    .addListener(this);
-//            webSocketReconnect.connect();
-//        } catch (IOException e) {
-//            if (log) Logger.e("Async: reConnect", e.getMessage());
-//        }
         connect(getServerAddress(), getAppId(), getServerName(), getToken(), getSsoHost(), null);
     }
 
@@ -756,7 +754,8 @@ public class Async extends WebSocketAdapter {
     }
 
     private String getDeviceId() {
-        return sharedPrefs.getString(AsyncConstant.Constants.DEVICE_ID, null);
+//        return sharedPrefs.getString(AsyncConstant.Constants.DEVICE_ID, null);
+        return deviceID;
     }
 
     public void setDeviceID(String deviceID) {

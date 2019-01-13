@@ -88,7 +88,7 @@ class AsyncListenerManager {
         }
     }
 
-    private List<AsyncListener> getSynchronizedListeners() {
+    public List<AsyncListener> getSynchronizedListeners() {
         synchronized (mListeners) {
             if (!mSyncNeeded) {
                 return mCopiedListeners;

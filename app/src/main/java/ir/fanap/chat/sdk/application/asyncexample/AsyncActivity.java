@@ -96,7 +96,7 @@ public class AsyncActivity extends AppCompatActivity implements SocketContract.v
             @Override
             public void onClick(View v) {
                 socketPresenter.connect("ws://172.16.106.26:8003/ws", "POD-Chat", "chat-server",
-                        "afa51d8291dc4072a0831d3a18cb5030", "http://172.16.110.76", "ksf98jhsdf5784");
+                        "afa51d8291dc4072a0831d3a18cb5030", "http://172.16.110.76", "879765786gnkjSina");
             }
         });
 
