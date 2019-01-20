@@ -26,13 +26,14 @@ allprojects {
     }
 }
 
-subprojects{
-    tasks.withType(Javadoc).all {enabled = false}
+subprojects {
+    tasks.withType(Javadoc).all { enabled = false }
 }
 
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
 
 ext {
     // Sdk and tools
