@@ -5,15 +5,34 @@
 # Changelog
 All notable changes to this project will be documented here.
 
-## Future Version [*] -2018-00-00
--   [Add] Support SSL for Pre Android 4.4 for socket and Request(All api)
--   [Add] Implement Cache for Message
--   [Add] Spam
--   [Add] Add Progress to FileUpload
--   [Add] Add Progress to ImageUpload
--   [BugFix] Sync Contact
+##  Version [0.1.3.2] 14-11-2018
+-   [Changed] response model of `leaveThread`.
+-   [Changed]  model of `ReplyInfo` :
 
-## Future Version [0.1.2.5] -2018-10-08
+```java
+{
+ReplyInfoVO {
+    private Participant participant;
+    private long repliedToMessageId;
+    private String repliedToMessage;
+    private long messageType;
+    private boolean deleted;
+    private String systemMetadata;
+    private String metadata;
+    private String message;
+}
+
+```
+-   [Changed] response model of `RemoveParticipant`
+-   [Added] rerty for geting user info when the response is getting late
+-   [Added] listener in `uploadImageFileMessage` when exception happens
+
+##  Version [0.1.3.1] 14-11-2018
+-   [Changed]  response model of the `uploadImage`
+-   [Changed] response model of the `uploadFile`
+-   [Add] `UploadImage` and `UploadFile` return `uniqueId`now.
+
+##  Version [0.1.2.5] -2018-10-08
 -   [Add] The project has been added to Maven
 -   [Add] Unique id was added to Most of the functions as return. 
 -   [Add] Unique id was added to Most responses.
