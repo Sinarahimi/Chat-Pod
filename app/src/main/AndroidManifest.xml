@@ -26,15 +26,6 @@
 
 
         </activity>
-
-        <activity android:name=".application.chatexample.ChatActivity">
-
-
-        </activity>
-        <activity android:name=".application.chatexample.ChatSandBoxActivity">
-
-
-        </activity>
     </application>
 
 </manifest>

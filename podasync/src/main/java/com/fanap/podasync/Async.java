@@ -16,8 +16,9 @@ import com.fanap.podasync.model.Message;
 import com.fanap.podasync.model.MessageWrapperVo;
 import com.fanap.podasync.model.PeerInfo;
 import com.fanap.podasync.model.RegistrationRequest;
-import com.fanap.podasync.util.JsonUtil;
 import com.fanap.podasync.util.LogHelper;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketAdapter;
 import com.neovisionaries.ws.client.WebSocketException;
@@ -26,10 +27,9 @@ import com.neovisionaries.ws.client.WebSocketFactory;
 import com.neovisionaries.ws.client.WebSocketFrame;
 import com.neovisionaries.ws.client.WebSocketState;
 import com.orhanobut.logger.Logger;
-import com.squareup.moshi.JsonAdapter;
-import com.squareup.moshi.Moshi;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -53,7 +53,7 @@ public class Async extends WebSocketAdapter {
     private static SharedPreferences sharedPrefs;
     private MessageWrapperVo messageWrapperVo;
     private static AsyncListenerManager asyncListenerManager;
-    private static Moshi moshi;
+    private static Gson gson;
     private String errorMessage;
     private long lastSentMessageTime;
     private long lastReceiveMessageTime;
@@ -64,6 +64,7 @@ public class Async extends WebSocketAdapter {
     private String deviceID;
     private MutableLiveData<String> stateLiveData = new MutableLiveData<>();
     private MutableLiveData<String> messageLiveData = new MutableLiveData<>();
+    private ArrayList<String> asyncQueue = new ArrayList<>();
     private String serverAddress;
     private static final Handler pingHandler;
     private static final Handler reconnectHandler;
@@ -85,7 +86,7 @@ public class Async extends WebSocketAdapter {
     public static Async getInstance(Context context) {
         if (instance == null) {
             sharedPrefs = context.getSharedPreferences(AsyncConstant.Constants.PREFERENCE, Context.MODE_PRIVATE);
-            moshi = new Moshi.Builder().build();
+            gson = new GsonBuilder().create();
             instance = new Async();
             asyncListenerManager = new AsyncListenerManager();
         }
@@ -102,8 +103,7 @@ public class Async extends WebSocketAdapter {
         int type = 0;
         lastReceiveMessageTime = new Date().getTime();
 
-        JsonAdapter<ClientMessage> jsonAdapter = moshi.adapter(ClientMessage.class);
-        ClientMessage clientMessage = jsonAdapter.fromJson(textMessage);
+        ClientMessage clientMessage = gson.fromJson(textMessage, ClientMessage.class);
         if (clientMessage != null) {
             type = clientMessage.getType();
         }
@@ -293,15 +293,13 @@ public class Async extends WebSocketAdapter {
      */
     public void sendMessage(String textContent, int messageType, long[] receiversId) {
         try {
-            if (getState().equals("OPEN")) {
-                Message message = new Message();
-                message.setContent(textContent);
-                message.setReceivers(receiversId);
-                JsonAdapter<Message> jsonAdapter = moshi.adapter(Message.class);
-                String jsonMessage = jsonAdapter.toJson(message);
-                String wrapperJsonString = getMessageWrapper(moshi, jsonMessage, messageType);
-                sendData(webSocket, wrapperJsonString);
-            }
+            Message message = new Message();
+            message.setContent(textContent);
+            message.setReceivers(receiversId);
+
+            String jsonMessage = gson.toJson(message);
+            String wrapperJsonString = getMessageWrapper(jsonMessage, messageType);
+            sendData(webSocket, wrapperJsonString);
         } catch (Exception e) {
             asyncListenerManager.callOnError(e.getCause().getMessage());
             if (log) Logger.e("Async: connect", e.getCause().getMessage());
@@ -314,30 +312,23 @@ public class Async extends WebSocketAdapter {
      */
     public void sendMessage(String textContent, int messageType) {
         try {
-            if (getState() != null) {
-                if (getState().equals("OPEN")) {
-                    long ttl = new Date().getTime();
-                    Message message = new Message();
-                    message.setContent(textContent);
-                    message.setPriority(1);
-                    message.setPeerName(getServerName());
-                    message.setTtl(ttl);
+            long ttl = new Date().getTime();
+            Message message = new Message();
+            message.setContent(textContent);
+            message.setPriority(1);
+            message.setPeerName(getServerName());
+            message.setTtl(ttl);
 
-                    String json = JsonUtil.getJson(message);
+            String json = gson.toJson(message);
 
-                    messageWrapperVo = new MessageWrapperVo();
-                    messageWrapperVo.setContent(json);
-                    messageWrapperVo.setType(messageType);
+            messageWrapperVo = new MessageWrapperVo();
+            messageWrapperVo.setContent(json);
+            messageWrapperVo.setType(messageType);
 
-                    String json1 = JsonUtil.getJson(messageWrapperVo);
-                    sendData(webSocket, json1);
-                    if (log) Logger.i(TAG + "Send message");
-                } else {
-                    asyncListenerManager.callOnError("Socket is close");
-                }
-            } else {
-                if (log) Logger.e(TAG + "Socket Is Not Connected");
-            }
+            String json1 = gson.toJson(messageWrapperVo);
+            sendData(webSocket, json1);
+            if (log) Logger.i(TAG + "Send message");
+
         } catch (Exception e) {
             asyncListenerManager.callOnError(e.getCause().getMessage());
             if (log) Logger.e("Async: connect", e.getCause().getMessage());
@@ -397,7 +388,7 @@ public class Async extends WebSocketAdapter {
         return asyncListenerManager.getSynchronizedListeners();
     }
 
-    public Async clearListeners(){
+    public Async clearListeners() {
         asyncListenerManager.clearListeners();
         return this;
     }
@@ -447,9 +438,9 @@ public class Async extends WebSocketAdapter {
             try {
                 RegistrationRequest registrationRequest = new RegistrationRequest();
                 registrationRequest.setName(getServerName());
-                JsonAdapter<RegistrationRequest> jsonRegistrationRequestVoAdapter = moshi.adapter(RegistrationRequest.class);
-                String jsonRegistrationRequestVo = jsonRegistrationRequestVoAdapter.toJson(registrationRequest);
-                String jsonMessageWrapperVo = getMessageWrapper(moshi, jsonRegistrationRequestVo, AsyncMessageType.MessageType.SERVER_REGISTER);
+
+                String jsonRegistrationRequestVo = gson.toJson(registrationRequest);
+                String jsonMessageWrapperVo = getMessageWrapper(jsonRegistrationRequestVo, AsyncMessageType.MessageType.SERVER_REGISTER);
                 sendData(websocket, jsonMessageWrapperVo);
             } catch (Exception e) {
                 if (log) Logger.e(TAG + e.getCause().getMessage());
@@ -460,20 +451,29 @@ public class Async extends WebSocketAdapter {
     }
 
     private void sendData(WebSocket websocket, String jsonMessageWrapperVo) {
-        if (websocket != null) {
-            try {
-                lastSentMessageTime = new Date().getTime();
-                if (jsonMessageWrapperVo != null) {
-                    websocket.sendText(jsonMessageWrapperVo);
 
+        try {
+            lastSentMessageTime = new Date().getTime();
+            if (jsonMessageWrapperVo != null) {
+                if (getState().equals("OPEN")) {
+                    if (websocket != null) {
+                        websocket.sendText(jsonMessageWrapperVo);
+                    } else {
+                        if (log) Logger.e(TAG + "webSocket instance is Null");
+                    }
                 } else {
-                    if (log) Logger.e(TAG + "message is Null");
+                    asyncListenerManager.callOnError("Socket is close");
+                    asyncQueue.add(jsonMessageWrapperVo);
                 }
-                ping();
-            } catch (Exception e) {
-                if (log) Logger.e("Async: connect", e.getCause().getMessage());
+
+            } else {
+                if (log) Logger.e(TAG + "message is Null");
             }
+            ping();
+        } catch (Exception e) {
+            if (log) Logger.e("Async: connect", e.getCause().getMessage());
         }
+
     }
 
     private void handleOnErrorMessage(ClientMessage clientMessage) {
@@ -511,6 +511,9 @@ public class Async extends WebSocketAdapter {
         }
     }
 
+    /*
+     * After registered on the server its sent messages from queue
+     * */
     private void handleOnServerRegister(String textMessage) {
         try {
             if (log) Logger.i("SERVER_REGISTERED");
@@ -518,7 +521,9 @@ public class Async extends WebSocketAdapter {
 
             asyncListenerManager.callOnStateChanged("ASYNC_READY");
             stateLiveData.postValue("ASYNC_READY");
-
+            for (String message : asyncQueue) {
+                sendData(webSocket, message);
+            }
             isServerRegister = true;
         } catch (Exception e) {
             if (log) Logger.e(e.getCause().getMessage());
@@ -534,9 +539,8 @@ public class Async extends WebSocketAdapter {
                 Message messageSenderAckNeeded = new Message();
                 messageSenderAckNeeded.setMessageId(clientMessage.getSenderMessageId());
 
-                JsonAdapter<Message> jsonSenderAckNeededAdapter = moshi.adapter(Message.class);
-                String jsonSenderAckNeeded = jsonSenderAckNeededAdapter.toJson(messageSenderAckNeeded);
-                String jsonSenderAckNeededWrapper = getMessageWrapper(moshi, jsonSenderAckNeeded, AsyncMessageType.MessageType.ACK);
+                String jsonSenderAckNeeded = gson.toJson(messageSenderAckNeeded);
+                String jsonSenderAckNeededWrapper = getMessageWrapper(jsonSenderAckNeeded, AsyncMessageType.MessageType.ACK);
                 sendData(websocket, jsonSenderAckNeededWrapper);
             } else {
                 if (log) Logger.e("WebSocket Is Null ");
@@ -558,9 +562,9 @@ public class Async extends WebSocketAdapter {
                 peerInfo.setAppId(getAppId());
                 peerInfo.setDeviceId(getDeviceId());
 
-                JsonAdapter<PeerInfo> jsonPeerMessageAdapter = moshi.adapter(PeerInfo.class);
-                String peerMessageJson = jsonPeerMessageAdapter.toJson(peerInfo);
-                String jsonPeerInfoWrapper = getMessageWrapper(moshi, peerMessageJson, AsyncMessageType.MessageType.DEVICE_REGISTER);
+//                JsonAdapter<PeerInfo> jsonPeerMessageAdapter = moshi.adapter(PeerInfo.class);
+                String peerMessageJson = gson.toJson(peerInfo);
+                String jsonPeerInfoWrapper = getMessageWrapper(peerMessageJson, AsyncMessageType.MessageType.DEVICE_REGISTER);
                 sendData(websocket, jsonPeerInfoWrapper);
                 if (log) Logger.i(TAG + "SEND_SERVER_REGISTER");
                 if (log) Logger.json(jsonPeerInfoWrapper);
@@ -575,17 +579,12 @@ public class Async extends WebSocketAdapter {
     }
 
     @NonNull
-    private String getMessageWrapper(Moshi moshi, String json, int messageType) {
-        try {
-            messageWrapperVo = new MessageWrapperVo();
-            messageWrapperVo.setContent(json);
-            messageWrapperVo.setType(messageType);
-            JsonAdapter<MessageWrapperVo> jsonMessageWrapperVoAdapter = moshi.adapter(MessageWrapperVo.class);
-            return jsonMessageWrapperVoAdapter.toJson(messageWrapperVo);
-        } catch (Exception e) {
-            if (log) Logger.e(e.getCause().getMessage());
-        }
-        return null;
+    private String getMessageWrapper(String json, int messageType) {
+        messageWrapperVo = new MessageWrapperVo();
+        messageWrapperVo.setContent(json);
+        messageWrapperVo.setType(messageType);
+
+        return gson.toJson(messageWrapperVo);
     }
 
     /**
@@ -615,7 +614,7 @@ public class Async extends WebSocketAdapter {
                 long currentTime = new Date().getTime();
                 if (currentTime - lastSentMessageTime >= connectionCheckTimeout - JSTimeLatency) {
                     if (!getState().equals("CLOSING") || !getState().equals("CLOSED")) {
-                        message = getMessageWrapper(moshi, "", AsyncMessageType.MessageType.PING);
+                        message = getMessageWrapper("", AsyncMessageType.MessageType.PING);
                         try {
                             sendData(webSocket, message);
                         } catch (Exception e) {
@@ -666,7 +665,6 @@ public class Async extends WebSocketAdapter {
         } else {
             runnable.run();
         }
-
     }
 
     private void ScheduleCloseSocket() {

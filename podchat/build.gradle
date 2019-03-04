@@ -25,29 +25,6 @@ android {
     buildToolsVersion '28.0.3'
 }
 
-ext {
-    bintrayRepo = "podchat"
-    bintrayName = "com.fanap.podchat"
-
-    libraryName = 'podchat'
-
-    publishedGroupId = 'com.fanap.podchat'
-    artifact = 'podchat'
-    libraryVersion = '0.1.2.6'
-
-    libraryDescription = 'Fanaps POD Async service (DIRANA)'
-    gitUrl = 'https://github.com/Sinarahimi/Chat-Pod.git'
-    siteUrl = 'https://github.com/Sinarahimi/Chat-Pod'
-    developerId = 'sinara'
-    developerName = 'Sina Rahimi'
-    developerEmail = 'develop.rahimi95@gmail.com'
-
-    licenseName = 'The Apache Software License, Version 2.0'
-    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-    allLicenses = ["Apache-2.0"]
-}
-
-
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     testImplementation 'junit:junit:4.12'
@@ -69,9 +46,4 @@ dependencies {
     //logger
     api 'com.orhanobut:logger:2.2.0'
     implementation project(':podasync')
-}
-
-if (project.rootProject.file('local.properties').exists()) {
-    apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/bintrayv1.gradle'
-    apply from: 'https://raw.githubusercontent.com/nuuneoi/JCenter/master/installv1.gradle'
 }

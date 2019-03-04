@@ -7,8 +7,8 @@ android {
     defaultConfig {
         minSdkVersion 17
         targetSdkVersion 28
-        versionCode 7
-        versionName '0.2.5.0'
+        versionCode 8
+        versionName '0.2.6.1'
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -33,7 +33,7 @@ ext {
 
     publishedGroupId = 'com.fanap.podasync'
     artifact = 'podasync'
-    libraryVersion = '0.2.5.0'
+    libraryVersion = '0.2.6.1'
 
     libraryDescription = 'Fanaps POD Async service (DIRANA)'
     gitUrl = 'https://github.com/Sinarahimi/Chat-Pod.git'
@@ -50,20 +50,17 @@ ext {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'com.android.support:support-annotations:28.0.0'
-    implementation 'com.squareup.retrofit2:retrofit:2.4.0'
-    implementation 'com.squareup.retrofit2:converter-gson:2.3.0'
-    implementation 'com.squareup.retrofit2:adapter-rxjava:2.1.0'
-    implementation 'com.squareup.okhttp3:logging-interceptor:3.9.1'
-    implementation 'io.reactivex:rxjava:1.1.6'
-    implementation 'io.reactivex:rxandroid:1.2.1'
-    api 'com.squareup.moshi:moshi:1.5.0'
+    //Web Socket
     api 'com.neovisionaries:nv-websocket-client:2.3'
+
     api 'android.arch.lifecycle:extensions:1.1.1'
     annotationProcessor 'android.arch.lifecycle:compiler:1.1.1'
-    api 'com.fasterxml.jackson.core:jackson-databind:2.8.5'
-    api 'com.fasterxml.jackson.core:jackson-core:2.8.5'
-    api 'com.fasterxml.jackson.core:jackson-annotations:2.8.5'
+
+    //Log
     implementation 'com.orhanobut:logger:2.2.0'
+
+    //Gson
+    implementation 'com.google.code.gson:gson:2.8.2'
 }
 
 if (project.rootProject.file('local.properties').exists()) {
