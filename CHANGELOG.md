@@ -4,8 +4,32 @@
 
 # Changelog
 All notable changes to this project will be documented here.
+##  Version [0.3.1.2] 28-11-2018
+- In the `getHistory` function  lastMessageId and firstMessageIs is going to deprecate 
+- [BugFixed]  Listener of `LeaveThread`
+- [BugFixed]  NullpointerException on `ForwardMessage`
+- [BugFixed]  Exception on `DeleteMessage`
+- [BugFixed]  Update contact 
+- [BugFixed]  Remove contact 
+- The default of the `typeCode` has been set to "default".
 
-##  Version [0.1.3.2] 14-11-2018
+##  Version [0.1.3.3] 28-11-2018
+minor `BugFixed`
+**improvement**  Connection state
+-   [Changed] response model of the `onCreateThread`
+-   [Changed] response model of the `OnAddContact`
+-   [Added] Message Type to `Send text message`
+-   [Added] Message Type to `Send file message`
+-   [Added] `Type Code` in `connect`  and in the future release you will be able to set this atribute separately in all the methods too. 
+
+-   [Added] `SeenMessageList`
+-   [Added] `DeliveredMessageList`
+-   [Added] `getThreadsWithCoreUserId`
+-   [Added] `CreateThreadWithMessage` 
+
+
+
+##  Version [0.1.3.2] 20-11-2018
 -   [Changed] response model of `leaveThread`.
 -   [Changed]  model of `ReplyInfo` :
 
