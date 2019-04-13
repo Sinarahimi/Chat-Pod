@@ -16,7 +16,6 @@ import com.fanap.podasync.model.Message;
 import com.fanap.podasync.model.MessageWrapperVo;
 import com.fanap.podasync.model.PeerInfo;
 import com.fanap.podasync.model.RegistrationRequest;
-import com.fanap.podasync.util.LogHelper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.neovisionaries.ws.client.WebSocket;
@@ -26,7 +25,6 @@ import com.neovisionaries.ws.client.WebSocketExtension;
 import com.neovisionaries.ws.client.WebSocketFactory;
 import com.neovisionaries.ws.client.WebSocketFrame;
 import com.neovisionaries.ws.client.WebSocketState;
-import com.orhanobut.logger.Logger;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -49,6 +47,7 @@ public class Async extends WebSocketAdapter {
     private static final String TAG = "Async" + " ";
     private static Async instance;
     private boolean isServerRegister;
+    private boolean rawLog;
     private boolean isDeviceRegister;
     private static SharedPreferences sharedPrefs;
     private MessageWrapperVo messageWrapperVo;
@@ -100,6 +99,7 @@ public class Async extends WebSocketAdapter {
     @Override
     public void onTextMessage(WebSocket websocket, String textMessage) throws Exception {
         super.onTextMessage(websocket, textMessage);
+        if(rawLog)Log.d(TAG,textMessage);
         int type = 0;
         lastReceiveMessageTime = new Date().getTime();
 
@@ -162,7 +162,7 @@ public class Async extends WebSocketAdapter {
         asyncListenerManager.callOnStateChanged(newState.toString());
         stateLiveData.postValue(newState.toString());
         setState(newState.toString());
-        if (log) Logger.d("State" + " Is Now " + newState.toString());
+        if (log) Log.d(TAG, "State" + " Is Now " + newState.toString());
         switch (newState) {
             case OPEN:
                 reconnectHandler.removeCallbacksAndMessages(null);
@@ -173,7 +173,7 @@ public class Async extends WebSocketAdapter {
                 if (reconnectOnClose) {
                     retryReconnect();
                 } else {
-                    if (log) Logger.e("Socket Closed!");
+                    if (log) Log.e(TAG, "Socket Closed!");
                 }
                 break;
             case CONNECTING:
@@ -188,15 +188,15 @@ public class Async extends WebSocketAdapter {
     @Override
     public void onError(WebSocket websocket, WebSocketException cause) throws Exception {
         super.onError(websocket, cause);
-        if (log) Logger.e("onError");
-        if (log) Logger.e(cause.getCause().getMessage());
+        if (log) Log.e(TAG, "onError");
+        if (log) Log.e(TAG, cause.getCause().getMessage());
         asyncListenerManager.callOnError(cause.toString());
     }
 
     @Override
     public void onConnectError(WebSocket websocket, WebSocketException exception) throws Exception {
         super.onConnectError(websocket, exception);
-        if (log) Logger.e("onConnected", exception.toString());
+        if (log) Log.e("onConnected", exception.toString());
     }
 
     /**
@@ -231,10 +231,16 @@ public class Async extends WebSocketAdapter {
         super.onCloseFrame(websocket, frame);
         if (log) Log.i(TAG, "onCloseFrame");
         if (log) Log.i(TAG, frame.getCloseReason());
-
     }
 
-    public void retryReconnect() {
+    /*
+    * Its showed
+    * */
+    public void rawLog(boolean rawLog) {
+        this.rawLog = rawLog;
+    }
+
+    private void retryReconnect() {
         runOnUiThreadRecconect(new Runnable() {
             @Override
             public void run() {
@@ -244,7 +250,7 @@ public class Async extends WebSocketAdapter {
                     asyncListenerManager.callOnError(e.getMessage());
                 }
                 if (log)
-                    Logger.e("Async: reConnect in " + " retryStep " + retryStep + " s ");
+                    Log.e(TAG, "Async: reConnect in " + " retryStep " + retryStep + " s ");
             }
         }, retryStep * 1000);
         if (retryStep < 60) retryStep *= 2;
@@ -252,7 +258,6 @@ public class Async extends WebSocketAdapter {
 
     public void isLoggable(boolean log) {
         this.log = log;
-        LogHelper.init(log);
     }
 
     public void connect(String socketServerAddress, final String appId, String serverName,
@@ -279,9 +284,9 @@ public class Async extends WebSocketAdapter {
             }
 
         } catch (IOException e) {
-            if (log) Logger.e("Async: connect", e.getMessage());
+            if (log) Log.e("Async: connect", e.getMessage());
         } catch (Exception e) {
-            if (log) Logger.e(e.getCause().getMessage());
+            if (log) Log.e(TAG, e.getCause().getMessage());
 
         }
     }
@@ -302,7 +307,7 @@ public class Async extends WebSocketAdapter {
             sendData(webSocket, wrapperJsonString);
         } catch (Exception e) {
             asyncListenerManager.callOnError(e.getCause().getMessage());
-            if (log) Logger.e("Async: connect", e.getCause().getMessage());
+            if (log) Log.e("Async: connect", e.getCause().getMessage());
         }
     }
 
@@ -327,11 +332,11 @@ public class Async extends WebSocketAdapter {
 
             String json1 = gson.toJson(messageWrapperVo);
             sendData(webSocket, json1);
-            if (log) Logger.i(TAG + "Send message");
+            if (log) Log.i(TAG, "Send message");
 
         } catch (Exception e) {
             asyncListenerManager.callOnError(e.getCause().getMessage());
-            if (log) Logger.e("Async: connect", e.getCause().getMessage());
+            if (log) Log.e("Async: connect", e.getCause().getMessage());
         }
 
     }
@@ -428,7 +433,7 @@ public class Async extends WebSocketAdapter {
                 serverRegister(websocket);
             }
         } catch (Exception e) {
-            if (log) Logger.e(e.getCause().getMessage());
+            if (log) Log.e(TAG, e.getCause().getMessage());
         }
 
     }
@@ -443,10 +448,10 @@ public class Async extends WebSocketAdapter {
                 String jsonMessageWrapperVo = getMessageWrapper(jsonRegistrationRequestVo, AsyncMessageType.MessageType.SERVER_REGISTER);
                 sendData(websocket, jsonMessageWrapperVo);
             } catch (Exception e) {
-                if (log) Logger.e(TAG + e.getCause().getMessage());
+                if (log) Log.e(TAG, e.getCause().getMessage());
             }
         } else {
-            if (log) Logger.e("WebSocket Is Null");
+            if (log) Log.e(TAG, "WebSocket Is Null");
         }
     }
 
@@ -459,7 +464,7 @@ public class Async extends WebSocketAdapter {
                     if (websocket != null) {
                         websocket.sendText(jsonMessageWrapperVo);
                     } else {
-                        if (log) Logger.e(TAG + "webSocket instance is Null");
+                        if (log) Log.e(TAG, "webSocket instance is Null");
                     }
                 } else {
                     asyncListenerManager.callOnError("Socket is close");
@@ -467,17 +472,17 @@ public class Async extends WebSocketAdapter {
                 }
 
             } else {
-                if (log) Logger.e(TAG + "message is Null");
+                if (log) Log.e(TAG, "message is Null");
             }
             ping();
         } catch (Exception e) {
-            if (log) Logger.e("Async: connect", e.getCause().getMessage());
+            if (log) Log.e("Async: connect", e.getCause().getMessage());
         }
 
     }
 
     private void handleOnErrorMessage(ClientMessage clientMessage) {
-        if (log) Logger.e(TAG + "OnErrorMessage", clientMessage.getContent());
+        if (log) Log.e(TAG + "OnErrorMessage", clientMessage.getContent());
         setErrorMessage(clientMessage.getContent());
     }
 
@@ -488,10 +493,10 @@ public class Async extends WebSocketAdapter {
                 messageLiveData.postValue(clientMessage.getContent());
                 asyncListenerManager.callOnTextMessage(clientMessage.getContent());
             } catch (Exception e) {
-                if (log) Logger.e(e.getCause().getMessage());
+                if (log) Log.e(TAG, e.getCause().getMessage());
             }
         } else {
-            if (log) Logger.e("Async: clientMessage Is Null");
+            if (log) Log.e(TAG, " clientMessage Is Null");
         }
     }
 
@@ -504,10 +509,10 @@ public class Async extends WebSocketAdapter {
                 }
                 deviceRegister(webSocket);
             } else {
-                if (log) Logger.i("ASYNC_PING_RECEIVED");
+                if (log) Log.i(TAG, "ASYNC_PING_RECEIVED");
             }
         } catch (Exception e) {
-            if (log) Logger.e(e.getCause().getMessage());
+            if (log) Log.e(TAG, e.getCause().getMessage());
         }
     }
 
@@ -516,8 +521,8 @@ public class Async extends WebSocketAdapter {
      * */
     private void handleOnServerRegister(String textMessage) {
         try {
-            if (log) Logger.i("SERVER_REGISTERED");
-            if (log) Logger.i("ASYNC_IS_READY", textMessage);
+            if (log) Log.i(TAG, "SERVER_REGISTERED");
+            if (log) Log.i("ASYNC_IS_READY", textMessage);
 
             asyncListenerManager.callOnStateChanged("ASYNC_READY");
             stateLiveData.postValue("ASYNC_READY");
@@ -526,7 +531,7 @@ public class Async extends WebSocketAdapter {
             }
             isServerRegister = true;
         } catch (Exception e) {
-            if (log) Logger.e(e.getCause().getMessage());
+            if (log) Log.e(TAG, e.getCause().getMessage());
         }
     }
 
@@ -543,10 +548,10 @@ public class Async extends WebSocketAdapter {
                 String jsonSenderAckNeededWrapper = getMessageWrapper(jsonSenderAckNeeded, AsyncMessageType.MessageType.ACK);
                 sendData(websocket, jsonSenderAckNeededWrapper);
             } else {
-                if (log) Logger.e("WebSocket Is Null ");
+                if (log) Log.e(TAG, "WebSocket Is Null ");
             }
         } catch (Exception e) {
-            if (log) Logger.e(e.getCause().getMessage());
+            if (log) Log.e(TAG, e.getCause().getMessage());
         }
     }
 
@@ -566,15 +571,15 @@ public class Async extends WebSocketAdapter {
                 String peerMessageJson = gson.toJson(peerInfo);
                 String jsonPeerInfoWrapper = getMessageWrapper(peerMessageJson, AsyncMessageType.MessageType.DEVICE_REGISTER);
                 sendData(websocket, jsonPeerInfoWrapper);
-                if (log) Logger.i(TAG + "SEND_SERVER_REGISTER");
-                if (log) Logger.json(jsonPeerInfoWrapper);
+                if (log) Log.i(TAG, "SEND_SERVER_REGISTER");
+                if (log) Log.d(TAG, jsonPeerInfoWrapper);
 
             } else {
-                if (log) Logger.e("WebSocket Is Null ");
+                if (log) Log.e(TAG, "WebSocket Is Null ");
             }
 
         } catch (Exception e) {
-            if (log) Logger.e(e.getCause().getMessage());
+            if (log) Log.e(TAG, e.getCause().getMessage());
         }
     }
 
@@ -618,11 +623,11 @@ public class Async extends WebSocketAdapter {
                         try {
                             sendData(webSocket, message);
                         } catch (Exception e) {
-                            if (log) Logger.e(e.getMessage());
+                            if (log) Log.e(TAG, e.getMessage());
                         }
-                        if (log) Logger.i("SEND_ASYNC_PING");
+                        if (log) Log.i(TAG, "SEND_ASYNC_PING");
                     } else {
-                        if (log) Logger.e(TAG + "Socket Is", "Closed");
+                        if (log) Log.e(TAG + "Socket Is", "Closed");
                     }
                 }
             }
@@ -709,10 +714,10 @@ public class Async extends WebSocketAdapter {
                 webSocket.disconnect();
                 webSocket = null;
                 pingHandler.removeCallbacksAndMessages(null);
-                if (log) Logger.i("Socket Stopped");
+                if (log) Log.i(TAG, "Socket Stopped");
             }
         } catch (Exception e) {
-            if (log) Logger.e(e.getMessage());
+            if (log) Log.e(TAG, e.getMessage());
         }
     }
 

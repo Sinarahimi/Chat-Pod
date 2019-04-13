@@ -1,9 +1,5 @@
 package com.fanap.podasync;
 
-import com.fanap.podasync.util.LogHelper;
-import com.orhanobut.logger.Logger;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +18,6 @@ class AsyncListenerManager {
         }
 
         synchronized (mListeners) {
-            LogHelper.init(log);
             mListeners.add(listener);
             mSyncNeeded = true;
         }
@@ -117,7 +112,7 @@ class AsyncListenerManager {
 
             } catch (Throwable t) {
                 callHandleCallbackError(listener, t);
-                Logger.e(t, t.getMessage());
+//                Logger.e(t, t.getMessage());
             }
         }
     }
@@ -135,7 +130,7 @@ class AsyncListenerManager {
                 listener.onStateChanged(message);
             } catch (Throwable throwable) {
                 callHandleCallbackError(listener, throwable);
-                Logger.e(throwable, throwable.getMessage());
+//                Logger.e(throwable, throwable.getMessage());
             }
         }
     }
@@ -146,7 +141,7 @@ class AsyncListenerManager {
                 listener.onDisconnected(message);
             } catch (Throwable throwable) {
                 callHandleCallbackError(listener, throwable);
-                Logger.e(throwable, throwable.getMessage());
+//                Logger.e(throwable, throwable.getMessage());
             }
         }
     }
@@ -157,7 +152,7 @@ class AsyncListenerManager {
                 listener.onError(message);
             } catch (Throwable throwable) {
                 callHandleCallbackError(listener, throwable);
-                Logger.e(throwable, throwable.getMessage());
+//                Logger.e(throwable, throwable.getMessage());
             }
         }
     }

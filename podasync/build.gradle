@@ -8,7 +8,7 @@ android {
         minSdkVersion 17
         targetSdkVersion 28
         versionCode 8
-        versionName '0.2.6.1'
+        versionName '0.2.7.0'
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
@@ -33,7 +33,7 @@ ext {
 
     publishedGroupId = 'com.fanap.podasync'
     artifact = 'podasync'
-    libraryVersion = '0.2.6.1'
+    libraryVersion = '0.2.7.0'
 
     libraryDescription = 'Fanaps POD Async service (DIRANA)'
     gitUrl = 'https://github.com/Sinarahimi/Chat-Pod.git'
@@ -55,9 +55,6 @@ dependencies {
 
     api 'android.arch.lifecycle:extensions:1.1.1'
     annotationProcessor 'android.arch.lifecycle:compiler:1.1.1'
-
-    //Log
-    implementation 'com.orhanobut:logger:2.2.0'
 
     //Gson
     implementation 'com.google.code.gson:gson:2.8.2'
