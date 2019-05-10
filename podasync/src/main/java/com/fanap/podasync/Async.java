@@ -51,8 +51,10 @@ public class Async {
     private boolean isDeviceRegister;
     private static SharedPreferences sharedPrefs;
     private MessageWrapperVo messageWrapperVo;
-    private static AsyncListenerManager asyncListenerManager;
-    private static Gson gson;
+    private static AsyncListenerManager asyncListenerManager = new AsyncListenerManager();
+
+    private Gson gson = new GsonBuilder().create();
+
     private String errorMessage;
     private long lastSentMessageTime;
     private long lastReceiveMessageTime;
@@ -83,9 +85,7 @@ public class Async {
     public static Async getInstance(Context context) {
         if (instance == null) {
             sharedPrefs = context.getSharedPreferences(AsyncConstant.Constants.PREFERENCE, Context.MODE_PRIVATE);
-            gson = new GsonBuilder().create();
             instance = new Async();
-            asyncListenerManager = new AsyncListenerManager();
         }
         return instance;
     }

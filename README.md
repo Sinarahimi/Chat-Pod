@@ -39,7 +39,6 @@ What things you need to Add this module to your project and after that set the `
 
 * [moshi](https://github.com/square/moshi) - Moshi
 * [websocket-client](https://github.com/TakahikoKawasaki/nv-websocket-client) - Websocket
-* [lifecycle](https://developer.android.com/reference/android/arch/lifecycle/LiveData) - LiveData
 
 ## Contributing
 
