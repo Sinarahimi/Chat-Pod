@@ -25,7 +25,7 @@ What things you need to Add this module to your project and after that set the `
         Async async = Async.getInstance(context);
 ```
 
-#The table below is the list of  methods defined in Async class
+# The table below is the list of  methods defined in Async class
 
 | Method                        | Description                                          |
 |:------------------------------|:-----------------------------------------------------|
