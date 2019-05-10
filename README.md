@@ -30,14 +30,32 @@ What things you need to Add this module to your project and after that set the `
 |:------------------------------|:-----------------------------------------------------|
 | `connect(socketServerAddress, appId, serverName, token)`         | Called when we want to connect to async. |
 | `sendMessage(String textMessage, int messageType)`               | Called when we want to send a message.             |
-| `getLiveState()`             | gets the state of the socket.           |
+| `getLiveState()` (Deprecated)            | gets the state of the socket.           |
 | `getState()`                |  gets the state of the socket.                |
 | `getErrorMessage()`                 | gets the error of the async.        |
 | `getPeerId()`         | gets the peer id       |
 | `getMessage`         | gets message       |
+
+
+## Register Listener
+After creating a Async instance, you should call addListener method to register a AsyncListener that receives Async events
+. AsyncAdapter is an empty implementation of AsyncListener interface.
+
+```
+// Register a listener to receive Async events.
+  async.addListener(new AsyncAdapter(){
+             @Override
+             public void onReceivedMessage(String textMessage) throws IOException {
+                 super.onReceivedMessage(textMessage);
+                         // Received a text message.
+                         ...
+             }
+         });
+ ```
+
+
 ## Built With
 
-* [moshi](https://github.com/square/moshi) - Moshi
 * [websocket-client](https://github.com/TakahikoKawasaki/nv-websocket-client) - Websocket
 
 ## Contributing

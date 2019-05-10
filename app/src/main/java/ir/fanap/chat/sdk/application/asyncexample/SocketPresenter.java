@@ -18,6 +18,13 @@ public class SocketPresenter extends AsyncAdapter implements SocketContract.pres
         async.isLoggable(true);
         async.rawLog(true);
         async.addListener(this);
+//        async.addListener(new AsyncAdapter(){
+//            @Override
+//            public void onReceivedMessage(String textMessage) throws IOException {
+//                super.onReceivedMessage(textMessage);
+//
+//            }
+//        });
     }
 
     @Override
