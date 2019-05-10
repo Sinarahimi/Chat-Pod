@@ -1,10 +1,11 @@
 package ir.fanap.chat.sdk.application.asyncexample;
 
-import android.arch.lifecycle.LiveData;
 import android.content.Context;
 
 import com.fanap.podasync.Async;
 import com.fanap.podasync.AsyncAdapter;
+
+import java.io.IOException;
 
 public class SocketPresenter extends AsyncAdapter implements SocketContract.presenter {
 
@@ -17,6 +18,12 @@ public class SocketPresenter extends AsyncAdapter implements SocketContract.pres
         async.isLoggable(true);
         async.rawLog(true);
         async.addListener(this);
+    }
+
+    @Override
+    public void onStateChanged(String state) throws IOException {
+        super.onStateChanged(state);
+        view.onStateChanged(state);
     }
 
     @Override
@@ -52,16 +59,6 @@ public class SocketPresenter extends AsyncAdapter implements SocketContract.pres
     }
 
     @Override
-    public void getLiveState() {
-        async.getStateLiveData();
-    }
-
-    @Override
-    public String getState() {
-        return async.getState();
-    }
-
-    @Override
     public boolean isSocketOpen() {
         boolean isSocketOpen = false;
         if ((async.getState()) != null) {
@@ -80,11 +77,6 @@ public class SocketPresenter extends AsyncAdapter implements SocketContract.pres
     @Override
     public void socketLogOut() {
         async.logOut();
-    }
-
-    @Override
-    public LiveData<String> getLiveData() {
-        return async.getStateLiveData();
     }
 
     @Override

@@ -1,10 +1,7 @@
 package ir.fanap.chat.sdk.application.asyncexample;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.Observer;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -12,12 +9,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.neovisionaries.ws.client.WebSocket;
-import com.neovisionaries.ws.client.WebSocketException;
-import com.neovisionaries.ws.client.WebSocketFrame;
-
-import java.util.List;
 
 import ir.fanap.chat.sdk.R;
 
@@ -33,6 +24,8 @@ public class AsyncSandBoxActivity extends AppCompatActivity implements SocketCon
     Button buttonSendMessage;
     TextView textViewPeerId;
     EditText editTextReceiverId;
+    TextView textView;
+
     private String TOKEN = "ecfee54231e8467b838858e5ae3a66d6";
 
     @Override
@@ -49,7 +42,7 @@ public class AsyncSandBoxActivity extends AppCompatActivity implements SocketCon
             @Override
             public void onClick(View v) {
                 socketPresenter.connect("ws://chat-sandbox.pod.land/ws", "POD-Chat", "chat-server",
-                        TOKEN,"https://sandbox.pod.land:8043/srv/basic-platform/","ksf98jhsdf5784");
+                        TOKEN, "https://sandbox.pod.land:8043/srv/basic-platform/", "ksf98jhsdf5784");
 
             }
         });
@@ -64,7 +57,7 @@ public class AsyncSandBoxActivity extends AppCompatActivity implements SocketCon
                     long receiverId = Long.valueOf(editTextReceiverId.getText().toString().trim());
                     final long[] receiverIdArray = {receiverId};
                     socketPresenter.sendMessage("hello", 3);
-                }else {
+                } else {
                     Toast.makeText(AsyncSandBoxActivity.this, "Message is Empty", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -83,21 +76,11 @@ public class AsyncSandBoxActivity extends AppCompatActivity implements SocketCon
                 }, 3000);
             }
 
-                    });
+        });
 
         getStateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                socketPresenter.getLiveState();
-            }
-        });
-
-
-        socketPresenter.getLiveData().observe(this, new Observer<String>() {
-            @Override
-            public void onChanged(@Nullable String s) {
-                TextView textView = findViewById(R.id.textViewstate);
-                textView.setText(s);
             }
         });
     }
@@ -109,10 +92,11 @@ public class AsyncSandBoxActivity extends AppCompatActivity implements SocketCon
         buttonSendMessage = findViewById(R.id.buttonSendMessage);
         textViewPeerId = findViewById(R.id.textViewPeerId);
         editTextReceiverId = findViewById(R.id.editTextReceiverId);
+        textView = findViewById(R.id.textViewstate);
     }
 
     private boolean isEmpty(EditText etText) {
-        if (etText.getText().toString().trim().length() > 0){
+        if (etText.getText().toString().trim().length() > 0) {
             return true;
         }
         return false;
@@ -126,33 +110,22 @@ public class AsyncSandBoxActivity extends AppCompatActivity implements SocketCon
     }
 
     @Override
+    public void onStateChanged(String state) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                textView.setText(state);
+            }
+        });
+    }
+
+    @Override
     public void messageCalled() {
 
     }
 
     @Override
     public void showErrorMessage(String error) {
-
-    }
-
-    @Override
-    public void showOnMessageError(WebSocket websocket, WebSocketException cause, List<WebSocketFrame> frames) {
-
-    }
-
-
-    @Override
-    public void showOnConnectError(WebSocket websocket, WebSocketException exception) {
-
-    }
-
-    @Override
-    public void showSocketState(String state) {
-
-    }
-
-    @Override
-    public void showLiveDataState(LiveData state) {
 
     }
 

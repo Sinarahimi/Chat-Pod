@@ -1,12 +1,5 @@
 package ir.fanap.chat.sdk.application.asyncexample;
 
-import android.arch.lifecycle.LiveData;
-
-import com.neovisionaries.ws.client.WebSocket;
-import com.neovisionaries.ws.client.WebSocketException;
-import com.neovisionaries.ws.client.WebSocketFrame;
-
-import java.util.List;
 
 public interface SocketContract {
 
@@ -17,13 +10,8 @@ public interface SocketContract {
 
         void showErrorMessage(String error);
 
-        void showOnMessageError(WebSocket websocket, WebSocketException cause, List<WebSocketFrame> frames);
+        void onStateChanged(String state);
 
-        void showOnConnectError(WebSocket websocket, WebSocketException exception);
-
-        void showSocketState(String state);
-
-        void showLiveDataState(LiveData state);
     }
 
     interface presenter {
@@ -34,12 +22,6 @@ public interface SocketContract {
         void sendMessage(String textMessage, int messageType, long[] receiversId);
 
         void sendMessage(String textMessage, int messageType);
-
-        void getLiveState();
-
-        String getState();
-
-        LiveData<String> getLiveData();
 
         void getErrorMessage();
 

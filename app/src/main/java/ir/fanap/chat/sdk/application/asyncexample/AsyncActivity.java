@@ -1,11 +1,7 @@
 package ir.fanap.chat.sdk.application.asyncexample;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.Observer;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -14,11 +10,6 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.neovisionaries.ws.client.WebSocket;
-import com.neovisionaries.ws.client.WebSocketException;
-import com.neovisionaries.ws.client.WebSocketFrame;
-
-import java.util.List;
 
 import ir.fanap.chat.sdk.R;
 
@@ -28,12 +19,13 @@ public class AsyncActivity extends AppCompatActivity implements SocketContract.v
 //    @Inject
     SocketPresenter socketPresenter;
     private static final String SOCKET_SERVER = "ws://172.16.110.235:8003/ws";
-    Button connectButton;
-    Button getStateButton;
-    Button closeButton;
-    Button buttonSendMessage;
-    TextView textViewPeerId;
-    EditText editTextReceiverId;
+    private Button connectButton;
+    private TextView textViewState;
+    private Button getStateButton;
+    private Button closeButton;
+    private Button buttonSendMessage;
+    private TextView textViewPeerId;
+    private EditText editTextReceiverId;
     //    private String name = "jiji";
 //    private static String TOKEN = "fbd4ecedb898426394646e65c6b1d5d1";
 
@@ -89,7 +81,6 @@ public class AsyncActivity extends AppCompatActivity implements SocketContract.v
         getStateButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                socketPresenter.getLiveState();
             }
         });
         connectButton.setOnClickListener(new View.OnClickListener() {
@@ -100,11 +91,14 @@ public class AsyncActivity extends AppCompatActivity implements SocketContract.v
             }
         });
 
-        socketPresenter.getLiveData().observe(this, new Observer<String>() {
+    }
+
+    @Override
+    public void onStateChanged(String state) {
+        runOnUiThread(new Runnable() {
             @Override
-            public void onChanged(@Nullable String s) {
-                TextView textView = findViewById(R.id.textViewstate);
-                textView.setText(s);
+            public void run() {
+                textViewState.setText(state);
             }
         });
     }
@@ -116,6 +110,8 @@ public class AsyncActivity extends AppCompatActivity implements SocketContract.v
         buttonSendMessage = findViewById(R.id.buttonSendMessage);
         textViewPeerId = findViewById(R.id.textViewPeerId);
         editTextReceiverId = findViewById(R.id.editTextReceiverId);
+        textViewState = findViewById(R.id.textViewstate);
+
     }
 
     private boolean isEmpty(EditText etText) {
@@ -139,27 +135,6 @@ public class AsyncActivity extends AppCompatActivity implements SocketContract.v
 
     @Override
     public void showErrorMessage(String error) {
-
-    }
-
-    @Override
-    public void showOnMessageError(WebSocket websocket, WebSocketException cause, List<WebSocketFrame> frames) {
-
-    }
-
-
-    @Override
-    public void showOnConnectError(WebSocket websocket, WebSocketException exception) {
-
-    }
-
-    @Override
-    public void showSocketState(String state) {
-
-    }
-
-    @Override
-    public void showLiveDataState(LiveData state) {
 
     }
 

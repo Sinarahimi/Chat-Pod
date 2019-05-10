@@ -1,7 +1,5 @@
 package com.fanap.podasync;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Handler;
@@ -18,18 +16,20 @@ import com.fanap.podasync.model.PeerInfo;
 import com.fanap.podasync.model.RegistrationRequest;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.neovisionaries.ws.client.ThreadType;
 import com.neovisionaries.ws.client.WebSocket;
-import com.neovisionaries.ws.client.WebSocketAdapter;
 import com.neovisionaries.ws.client.WebSocketException;
 import com.neovisionaries.ws.client.WebSocketExtension;
 import com.neovisionaries.ws.client.WebSocketFactory;
 import com.neovisionaries.ws.client.WebSocketFrame;
+import com.neovisionaries.ws.client.WebSocketListener;
 import com.neovisionaries.ws.client.WebSocketState;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import javax.net.ssl.SSLSocketFactory;
 
@@ -39,7 +39,7 @@ import static com.neovisionaries.ws.client.WebSocketState.OPEN;
  * By default WebSocketFactory uses for non-secure WebSocket connections (ws:)
  * and for secure WebSocket connections (wss:).
  */
-public class Async extends WebSocketAdapter {
+public class Async {
 
     private WebSocket webSocket;
     private static final int SOCKET_CLOSE_TIMEOUT = 110000;
@@ -61,8 +61,6 @@ public class Async extends WebSocketAdapter {
     private String appId;
     private String peerId;
     private String deviceID;
-    private MutableLiveData<String> stateLiveData = new MutableLiveData<>();
-    private MutableLiveData<String> messageLiveData = new MutableLiveData<>();
     private ArrayList<String> asyncQueue = new ArrayList<>();
     private String serverAddress;
     private static final Handler pingHandler;
@@ -92,150 +90,255 @@ public class Async extends WebSocketAdapter {
         return instance;
     }
 
-    /**
-     * @param textMessage that received when socket send message to Async
-     */
 
-    @Override
-    public void onTextMessage(WebSocket websocket, String textMessage) throws Exception {
-        super.onTextMessage(websocket, textMessage);
-        if(rawLog)Log.d(TAG,textMessage);
-        int type = 0;
-        lastReceiveMessageTime = new Date().getTime();
+    private void onEvent(WebSocket webSocket) {
+        webSocket.addListener(new WebSocketListener() {
+            /**
+             * Get the current state of this WebSocket.
+             * <p>
+             * <p>
+             * The initial state is {@link WebSocketState#CREATED CREATED}.
+             * When {conncet(String, String, String, String, String, String)} is called, the state is changed to
+             * { CONNECTING}, and then to
+             * {OPEN} after a successful opening
+             * handshake. The state is changed to {CLOSING} when a closing handshake
+             * is started, and then to {CLOSED}
+             * when the closing handshake finished.
+             * </p>
+             *
+             * @return The current state.
+             */
+            @Override
+            public void onStateChanged(WebSocket websocket, WebSocketState newState) throws Exception {
+                asyncListenerManager.callOnStateChanged(newState.toString());
+                setState(newState.toString());
+                if (log) Log.d(TAG, "State" + " Is Now " + newState.toString());
+                switch (newState) {
+                    case OPEN:
+                        reconnectHandler.removeCallbacksAndMessages(null);
+                        retryStep = 1;
+                        break;
+                    case CLOSED:
+                        stopSocket();
+                        if (reconnectOnClose) {
+                            retryReconnect();
+                        } else {
+                            if (log) Log.e(TAG, "Socket Closed!");
+                        }
+                        break;
+                    case CONNECTING:
 
-        ClientMessage clientMessage = gson.fromJson(textMessage, ClientMessage.class);
-        if (clientMessage != null) {
-            type = clientMessage.getType();
-        }
-        scheduleCloseSocket();
+                        break;
+                    case CLOSING:
 
-        @AsyncMessageType.MessageType int currentMessageType = type;
-        switch (currentMessageType) {
-            case AsyncMessageType.MessageType.ACK:
-                handleOnAck(clientMessage);
-                break;
-            case AsyncMessageType.MessageType.DEVICE_REGISTER:
-                handleOnDeviceRegister(websocket, clientMessage);
-                break;
-            case AsyncMessageType.MessageType.ERROR_MESSAGE:
-                handleOnErrorMessage(clientMessage);
-                break;
-            case AsyncMessageType.MessageType.MESSAGE_ACK_NEEDED:
-
-                handleOnMessageAckNeeded(websocket, clientMessage);
-                break;
-            case AsyncMessageType.MessageType.MESSAGE_SENDER_ACK_NEEDED:
-                handleOnMessageAckNeeded(websocket, clientMessage);
-                break;
-            case AsyncMessageType.MessageType.MESSAGE:
-                handleOnMessage(clientMessage);
-                break;
-            case AsyncMessageType.MessageType.PEER_REMOVED:
-                break;
-            case AsyncMessageType.MessageType.PING:
-                handleOnPing(websocket, clientMessage);
-                break;
-            case AsyncMessageType.MessageType.SERVER_REGISTER:
-                handleOnServerRegister(textMessage);
-                break;
-        }
-    }
-
-    /**
-     * Get the current state of this WebSocket.
-     * <p>
-     * <p>
-     * The initial state is {@link WebSocketState#CREATED CREATED}.
-     * When {@link #connect(String, String, String, String, String, String)} is called, the state is changed to
-     * { CONNECTING}, and then to
-     * {OPEN} after a successful opening
-     * handshake. The state is changed to {CLOSING} when a closing handshake
-     * is started, and then to {CLOSED}
-     * when the closing handshake finished.
-     * </p>
-     *
-     * @return The current state.
-     */
-    @Override
-    public void onStateChanged(WebSocket websocket, WebSocketState newState) throws Exception {
-        super.onStateChanged(websocket, newState);
-        asyncListenerManager.callOnStateChanged(newState.toString());
-        stateLiveData.postValue(newState.toString());
-        setState(newState.toString());
-        if (log) Log.d(TAG, "State" + " Is Now " + newState.toString());
-        switch (newState) {
-            case OPEN:
-                reconnectHandler.removeCallbacksAndMessages(null);
-                retryStep = 1;
-                break;
-            case CLOSED:
-                stopSocket();
-                if (reconnectOnClose) {
-                    retryReconnect();
-                } else {
-                    if (log) Log.e(TAG, "Socket Closed!");
+                        break;
                 }
-                break;
-            case CONNECTING:
+            }
 
-                break;
-            case CLOSING:
+            @Override
+            public void onConnected(WebSocket websocket, Map<String, List<String>> headers) throws Exception {
 
-                break;
-        }
-    }
+            }
 
-    @Override
-    public void onError(WebSocket websocket, WebSocketException cause) throws Exception {
-        super.onError(websocket, cause);
-        if (log) Log.e(TAG, "onError");
-        if (log) Log.e(TAG, cause.getCause().getMessage());
-        asyncListenerManager.callOnError(cause.toString());
-    }
+            @Override
+            public void onConnectError(WebSocket websocket, WebSocketException cause) throws Exception {
+                if (log) Log.e("onConnected", cause.toString());
 
-    @Override
-    public void onConnectError(WebSocket websocket, WebSocketException exception) throws Exception {
-        super.onConnectError(websocket, exception);
-        if (log) Log.e("onConnected", exception.toString());
-    }
+            }
 
-    /**
-     * After error event its start reconnecting again.
-     * Note that you should not trigger reconnection in onError() method because onError()
-     * may be called multiple times due to one error.
-     * Instead, onDisconnected() is the right place to trigger reconnection.
-     */
-    @Override
-    public void onMessageError(WebSocket websocket, WebSocketException cause, List<WebSocketFrame> frames) throws Exception {
-        super.onMessageError(websocket, cause, frames);
-        if (log) Log.e("onMessageError", cause.toString());
-    }
 
-    /**
-     * <p>
-     * Before a WebSocket is closed, a closing handshake is performed. A closing handshake
-     * is started (1) when the server sends a close frame to the client or (2) when the
-     * client sends a close frame to the server. You can start a closing handshake by calling
-     * {disconnect} method (or by sending a close frame manually).
-     * </p>
-     */
-    @Override
-    public void onDisconnected(WebSocket websocket, WebSocketFrame serverCloseFrame, WebSocketFrame clientCloseFrame, boolean closedByServer) throws Exception {
-        super.onDisconnected(websocket, serverCloseFrame, clientCloseFrame, closedByServer);
-        if (log) Log.e("Disconnected", serverCloseFrame.getCloseReason());
-        asyncListenerManager.callOnDisconnected(serverCloseFrame.getCloseReason());
-    }
+            /**
+             * <p>
+             * Before a WebSocket is closed, a closing handshake is performed. A closing handshake
+             * is started (1) when the server sends a close frame to the client or (2) when the
+             * client sends a close frame to the server. You can start a closing handshake by calling
+             * {disconnect} method (or by sending a close frame manually).
+             * </p>
+             */
+            @Override
+            public void onDisconnected(WebSocket websocket, WebSocketFrame serverCloseFrame, WebSocketFrame clientCloseFrame, boolean closedByServer) throws Exception {
+                if (log) Log.e("Disconnected", serverCloseFrame.getCloseReason());
+                asyncListenerManager.callOnDisconnected(serverCloseFrame.getCloseReason());
+            }
 
-    @Override
-    public void onCloseFrame(WebSocket websocket, WebSocketFrame frame) throws Exception {
-        super.onCloseFrame(websocket, frame);
-        if (log) Log.i(TAG, "onCloseFrame");
-        if (log) Log.i(TAG, frame.getCloseReason());
+            @Override
+            public void onFrame(WebSocket websocket, WebSocketFrame frame) throws Exception {
+
+            }
+
+            @Override
+            public void onContinuationFrame(WebSocket websocket, WebSocketFrame frame) throws Exception {
+
+            }
+
+            @Override
+            public void onTextFrame(WebSocket websocket, WebSocketFrame frame) throws Exception {
+
+            }
+
+            @Override
+            public void onBinaryFrame(WebSocket websocket, WebSocketFrame frame) throws Exception {
+
+            }
+
+            @Override
+            public void onCloseFrame(WebSocket websocket, WebSocketFrame frame) throws Exception {
+                if (log) Log.i(TAG, "onCloseFrame");
+                if (log) Log.i(TAG, frame.getCloseReason());
+            }
+
+            @Override
+            public void onPingFrame(WebSocket websocket, WebSocketFrame frame) throws Exception {
+
+            }
+
+            @Override
+            public void onPongFrame(WebSocket websocket, WebSocketFrame frame) throws Exception {
+
+            }
+
+
+            /**
+             * @param textMessage that received when socket send message to Async
+             */
+            @Override
+            public void onTextMessage(WebSocket websocket, String textMessage) throws Exception {
+                if (rawLog) Log.d(TAG, textMessage);
+                int type = 0;
+                lastReceiveMessageTime = new Date().getTime();
+
+                ClientMessage clientMessage = gson.fromJson(textMessage, ClientMessage.class);
+                if (clientMessage != null) {
+                    type = clientMessage.getType();
+                }
+                scheduleCloseSocket();
+
+                @AsyncMessageType.MessageType int currentMessageType = type;
+                switch (currentMessageType) {
+                    case AsyncMessageType.MessageType.ACK:
+                        handleOnAck(clientMessage);
+                        break;
+                    case AsyncMessageType.MessageType.DEVICE_REGISTER:
+                        handleOnDeviceRegister(websocket, clientMessage);
+                        break;
+                    case AsyncMessageType.MessageType.ERROR_MESSAGE:
+                        handleOnErrorMessage(clientMessage);
+                        break;
+                    case AsyncMessageType.MessageType.MESSAGE_ACK_NEEDED:
+
+                        handleOnMessageAckNeeded(websocket, clientMessage);
+                        break;
+                    case AsyncMessageType.MessageType.MESSAGE_SENDER_ACK_NEEDED:
+                        handleOnMessageAckNeeded(websocket, clientMessage);
+                        break;
+                    case AsyncMessageType.MessageType.MESSAGE:
+                        handleOnMessage(clientMessage);
+                        break;
+                    case AsyncMessageType.MessageType.PEER_REMOVED:
+                        break;
+                    case AsyncMessageType.MessageType.PING:
+                        handleOnPing(websocket, clientMessage);
+                        break;
+                    case AsyncMessageType.MessageType.SERVER_REGISTER:
+                        handleOnServerRegister(textMessage);
+                        break;
+                }
+            }
+
+            @Override
+            public void onBinaryMessage(WebSocket websocket, byte[] binary) throws Exception {
+
+            }
+
+            @Override
+            public void onSendingFrame(WebSocket websocket, WebSocketFrame frame) throws Exception {
+
+            }
+
+            @Override
+            public void onFrameSent(WebSocket websocket, WebSocketFrame frame) throws Exception {
+
+            }
+
+            @Override
+            public void onFrameUnsent(WebSocket websocket, WebSocketFrame frame) throws Exception {
+
+            }
+
+            @Override
+            public void onThreadCreated(WebSocket websocket, ThreadType threadType, Thread thread) throws Exception {
+
+            }
+
+            @Override
+            public void onThreadStarted(WebSocket websocket, ThreadType threadType, Thread thread) throws Exception {
+
+            }
+
+            @Override
+            public void onThreadStopping(WebSocket websocket, ThreadType threadType, Thread thread) throws Exception {
+
+            }
+
+            @Override
+            public void onError(WebSocket websocket, WebSocketException cause) throws Exception {
+                if (log) Log.e(TAG, "onError");
+                if (log) Log.e(TAG, cause.getCause().getMessage());
+                asyncListenerManager.callOnError(cause.toString());
+            }
+
+            @Override
+            public void onFrameError(WebSocket websocket, WebSocketException cause, WebSocketFrame frame) throws Exception {
+
+            }
+
+            /**
+             * After error event its start reconnecting again.
+             * Note that you should not trigger reconnection in onError() method because onError()
+             * may be called multiple times due to one error.
+             * Instead, onDisconnected() is the right place to trigger reconnection.
+             */
+
+            @Override
+            public void onMessageError(WebSocket websocket, WebSocketException cause, List<WebSocketFrame> frames) throws Exception {
+                if (log) Log.e("onMessageError", cause.toString());
+            }
+
+            @Override
+            public void onMessageDecompressionError(WebSocket websocket, WebSocketException cause, byte[] compressed) throws Exception {
+
+            }
+
+            @Override
+            public void onTextMessageError(WebSocket websocket, WebSocketException cause, byte[] data) throws Exception {
+
+            }
+
+            @Override
+            public void onSendError(WebSocket websocket, WebSocketException cause, WebSocketFrame frame) throws Exception {
+
+            }
+
+            @Override
+            public void onUnexpectedError(WebSocket websocket, WebSocketException cause) throws Exception {
+
+            }
+
+            @Override
+            public void handleCallbackError(WebSocket websocket, Throwable cause) throws Exception {
+
+            }
+
+            @Override
+            public void onSendingHandshake(WebSocket websocket, String requestLine, List<String[]> headers) throws Exception {
+
+            }
+        });
     }
 
     /*
-    * Its showed
-    * */
+     * Its showed
+     * */
     public void rawLog(boolean rawLog) {
         this.rawLog = rawLog;
     }
@@ -272,8 +375,9 @@ public class Async extends WebSocketAdapter {
             setServerName(serverName);
             setSsoHost(ssoHost);
             webSocket = webSocketFactory
-                    .createSocket(socketServerAddress)
-                    .addListener(this);
+                    .createSocket(socketServerAddress);
+            onEvent(webSocket);
+
             webSocket.setMaxPayloadSize(100);
             webSocket.addExtension(WebSocketExtension.PERMESSAGE_DEFLATE);
             webSocket.connectAsynchronously();
@@ -311,7 +415,6 @@ public class Async extends WebSocketAdapter {
         }
     }
 
-
     /**
      * First we checking the state of the socket then we send the message
      */
@@ -343,18 +446,6 @@ public class Async extends WebSocketAdapter {
 
     public void closeSocket() {
         webSocket.sendClose();
-    }
-
-    public LiveData<String> getStateLiveData() {
-        return stateLiveData;
-    }
-
-    public void setStateLiveData(String state) {
-        stateLiveData.postValue(state);
-    }
-
-    public LiveData<String> getMessageLiveData() {
-        return messageLiveData;
     }
 
     public void logOut() {
@@ -490,7 +581,6 @@ public class Async extends WebSocketAdapter {
         if (clientMessage != null) {
             try {
                 setMessage(clientMessage.getContent());
-                messageLiveData.postValue(clientMessage.getContent());
                 asyncListenerManager.callOnTextMessage(clientMessage.getContent());
             } catch (Exception e) {
                 if (log) Log.e(TAG, e.getCause().getMessage());
@@ -525,7 +615,6 @@ public class Async extends WebSocketAdapter {
             if (log) Log.i("ASYNC_IS_READY", textMessage);
 
             asyncListenerManager.callOnStateChanged("ASYNC_READY");
-            stateLiveData.postValue("ASYNC_READY");
             for (String message : asyncQueue) {
                 sendData(webSocket, message);
             }
@@ -657,7 +746,6 @@ public class Async extends WebSocketAdapter {
         } else {
             runnable.run();
         }
-
     }
 
     static {
