@@ -10,7 +10,8 @@ This library allows you to connect to **Pod-Async** and use their services.
 
 What things you need to Add this module to your project and after that set the `internet` permision in the manifest.
 
-```<uses-permission android:name="android.permission.INTERNET" />
+```
+<uses-permission android:name="android.permission.INTERNET" />
 ```
 
  The first step is to create Async instance.
